@@ -1,17 +1,178 @@
+CREATE DATABASE matrizHorarios;
+USE matrizHorarios;
+
 CREATE TABLE matrizgeneral (
     id_registro_matriz SERIAL PRIMARY KEY,
-    periodo VARCHAR(10),
-    dia VARCHAR(15),
-    hora VARCHAR(20),
-    asignatura VARCHAR(100),
-    grupo VARCHAR(20),
-    proyecto VARCHAR(150),
-    salon VARCHAR(100),
-    area FLOAT,
-    edificio VARCHAR(100),
-    sede VARCHAR(50),
-    inscritos INTEGER,
+    periodo VARCHAR(10) NOT NULL,
+    dia VARCHAR(15) NOT NULL,
+    hora VARCHAR(20) NOT NULL,
+    asignatura VARCHAR(100) NOT NULL,
+    grupo VARCHAR(20) NOT NULL,
+    proyecto VARCHAR(150) NOT NULL,
+    salon VARCHAR(100) NOT NULL,
+    area FLOAT NOT NULL,
+    edificio VARCHAR(100) NOT NULL,
+    sede VARCHAR(50) NOT NULL,
+    inscritos INTEGER NOT NULL,
     docente VARCHAR(100)
 );
 
-\COPY matrizgeneral(periodo, dia, hora, asignatura, grupo, proyecto, salon, area, edificio, sede, inscritos, docente) FROM 'C:\Users\Karencita\Desktop\HORLAB\src\doc\horarios.csv' WITH (FORMAT csv, HEADER true, DELIMITER ';', ENCODING 'UTF8');
+--\COPY matrizgeneral(periodo, dia, hora, asignatura, grupo, proyecto, salon, area, edificio, sede, inscritos, docente) FROM 'C:\Users\Karencita\Desktop\HORLAB\src\doc\horarios.csv' WITH (FORMAT csv, HEADER true, DELIMITER ';', ENCODING 'UTF8');
+\COPY matrizgeneral(periodo, dia, hora, asignatura, grupo, proyecto, salon, area, edificio, sede, inscritos, docente) FROM 'C:\Users\USUARIO\Downloads\HORLAB\src\doc\horarios.csv' WITH (FORMAT csv, HEADER true, DELIMITER ';', ENCODING 'UTF8');
+
+CREATE TABLE Periodo (
+    id_periodo SERIAL,
+    periodo VARCHAR(10) UNIQUE NOT NULL,
+    PRIMARY KEY (id_periodo)
+);
+
+INSERT INTO Periodo(periodo)
+SELECT DISTINCT periodo FROM matrizgeneral WHERE periodo IS NOT NULL;
+
+CREATE TABLE Facultad (
+    id_facultad SERIAL,
+    facultad VARCHAR(100) UNIQUE NOT NULL,
+    PRIMARY KEY (id_facultad)
+);
+
+INSERT INTO Facultad(facultad)
+SELECT DISTINCT sede FROM matrizgeneral WHERE sede IS NOT NULL;
+
+CREATE TABLE Edificio (
+    id_edificio SERIAL,
+    edificio VARCHAR(100) NOT NULL,
+    PRIMARY KEY (id_edificio)
+);
+
+INSERT INTO Edificio(edificio)
+SELECT DISTINCT edificio FROM matrizgeneral WHERE edificio IS NOT NULL;
+
+CREATE TABLE Proyecto (
+    id_proyecto SERIAL,
+    proyecto VARCHAR(150) UNIQUE NOT NULL,
+    id_facultad INTEGER,
+    PRIMARY KEY (id_proyecto),
+    FOREIGN KEY (id_facultad) REFERENCES Facultad(id_facultad) ON UPDATE CASCADE ON DELETE SET NULL
+);
+
+INSERT INTO Proyecto(proyecto, id_facultad)
+SELECT DISTINCT m.proyecto, f.id_facultad
+FROM matrizgeneral m
+JOIN Facultad f ON m.sede = f.facultad
+WHERE m.proyecto IS NOT NULL;
+
+CREATE TABLE Docentes (
+    id_docente SERIAL,
+    nombre VARCHAR(100) UNIQUE NOT NULL,
+    PRIMARY KEY (id_docente)
+);
+
+INSERT INTO Docentes(nombre)
+SELECT DISTINCT
+    REPLACE(
+        REPLACE(
+            REPLACE(
+                REPLACE(
+                    REPLACE(
+                        REPLACE(
+                            REPLACE(UPPER(TRIM(docente)), 'GONZÃLEZ', 'GONZALEZ'),
+                        'HERNÃNDEZ', 'HERNANDEZ'),
+                    'Ã“', 'O'),
+                '¿¿', 'O'),
+            'Ã‘', 'Ñ'),
+        'Ã', 'I'),
+    'Ã‰', 'E') AS nombre
+FROM matrizgeneral
+WHERE docente IS NOT NULL AND TRIM(docente) <> '';
+
+CREATE TABLE Asignaturas (
+    id_asignatura SERIAL,
+    nombre VARCHAR(100) UNIQUE NOT NULL
+    PRIMARY KEY (id_asignatura)
+);
+
+INSERT INTO Asignaturas(nombre)
+SELECT DISTINCT asignatura FROM matrizgeneral WHERE asignatura IS NOT NULL;
+
+CREATE TABLE Dia (
+    id_dia SERIAL,
+    dia VARCHAR(10) NOT NULL,
+    PRIMARY KEY (id_dia)
+);
+
+INSERT INTO Dia(dia)
+SELECT DISTINCT dia FROM matrizgeneral WHERE dia IS NOT NULL;
+
+CREATE TABLE Hora (
+    id_hora SERIAL,
+    hora VARCHAR(50) NOT NULL,
+    PRIMARY KEY (id_hora)
+);
+
+INSERT INTO Hora(hora)
+SELECT DISTINCT hora FROM matrizgeneral WHERE hora IS NOT NULL;
+
+CREATE TABLE Grupos (
+    id_grupo SERIAL,
+    id_dia INTEGER,
+    id_hora INTEGER,
+    grupo VARCHAR(10) NOT NULL,
+    id_asignatura INTEGER,
+    id_proyecto INTEGER,
+    inscritos INTEGER,
+    PRIMARY KEY (id_grupo),
+    FOREIGN KEY (id_dia) REFERENCES Dia(id_dia) ON UPDATE CASCADE ON DELETE SET NULL,
+    FOREIGN KEY (id_hora) REFERENCES Hora(id_hora) ON UPDATE CASCADE ON DELETE SET NULL,
+    FOREIGN KEY (id_asignatura) REFERENCES Asignaturas(id_asignatura) ON UPDATE CASCADE ON DELETE SET NULL,
+    FOREIGN KEY (id_proyecto) REFERENCES Proyecto(id_proyecto) ON UPDATE CASCADE ON DELETE SET NULL
+);
+
+INSERT INTO Grupos(id_dia, id_hora, grupo, id_asignatura, id_proyecto, inscritos)
+SELECT 
+    d.id_dia, h.id_hora, m.grupo, a.id_asignatura, p.id_proyecto, m.inscritos
+FROM matrizgeneral m
+JOIN Dia d ON m.dia = d.dia
+JOIN Hora h ON m.hora = h.hora
+JOIN Asignaturas a ON m.asignatura = a.nombre
+JOIN Proyecto p ON m.proyecto = p.proyecto
+WHERE m.grupo IS NOT NULL;
+
+CREATE TABLE Salones (
+    id_salon SERIAL,
+    nombre VARCHAR(50) UNIQUE NOT NULL,
+    id_edificio INTEGER,
+    capacidad INTEGER NOT NULL,
+    area FLOAT NOT NULL,
+    PRIMARY KEY (id_salon)
+);
+
+INSERT INTO Salones(nombre, id_edificio, capacidad, area)
+SELECT DISTINCT
+    -- El nombre del salón sin la parte CAP(...)
+    TRIM(SPLIT_PART(m.salon, 'CAP', 1)) AS nombre,
+    e.id_edificio,
+    CAST(
+        SUBSTRING(m.salon FROM 'CAP\\((\\d+)\\)') AS INTEGER
+    ) AS capacidad,
+    m.area
+FROM matrizgeneral m
+JOIN Edificio e ON m.edificio = e.edificio
+WHERE m.salon IS NOT NULL;
+
+CREATE TABLE Rol (
+    id_rol SERIAL,
+    rol varchar(100) NOT NULL,
+    PRIMARY KEY (id_rol)
+);
+
+INSERT INTO Rol VALUES ('Administrador');
+INSERT INTO Rol VALUES ('Docente');
+
+CREATE TABLE Usuarios (
+    id_usuario SERIAL,
+    usuario VARCHAR(100) NOT NULL,
+    pass VARCHAR(100) NOT NULL,
+    id_rol INTEGER,
+    PRIMARY KEY (id_usuario),
+    FOREIGN KEY (id_rol) REFERENCES Rol(id_rol) ON UPDATE CASCADE ON DELETE SET NULL
+);
