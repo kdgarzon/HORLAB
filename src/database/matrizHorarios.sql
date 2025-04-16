@@ -1,5 +1,5 @@
-CREATE DATABASE matrizHorarios;
-USE matrizHorarios;
+--CREATE DATABASE matrizHorarios;
+--USE matrizHorarios;
 
 CREATE TABLE matrizgeneral (
     id_registro_matriz SERIAL PRIMARY KEY,
@@ -68,26 +68,11 @@ CREATE TABLE Docentes (
 );
 
 INSERT INTO Docentes(nombre)
-SELECT DISTINCT
-    REPLACE(
-        REPLACE(
-            REPLACE(
-                REPLACE(
-                    REPLACE(
-                        REPLACE(
-                            REPLACE(UPPER(TRIM(docente)), 'GONZÃLEZ', 'GONZALEZ'),
-                        'HERNÃNDEZ', 'HERNANDEZ'),
-                    'Ã“', 'O'),
-                '¿¿', 'O'),
-            'Ã‘', 'Ñ'),
-        'Ã', 'I'),
-    'Ã‰', 'E') AS nombre
-FROM matrizgeneral
-WHERE docente IS NOT NULL AND TRIM(docente) <> '';
+SELECT DISTINCT docente FROM matrizgeneral WHERE docente IS NOT NULL;
 
 CREATE TABLE Asignaturas (
     id_asignatura SERIAL,
-    nombre VARCHAR(100) UNIQUE NOT NULL
+    nombre VARCHAR(100) UNIQUE NOT NULL,
     PRIMARY KEY (id_asignatura)
 );
 
@@ -139,25 +124,27 @@ WHERE m.grupo IS NOT NULL;
 
 CREATE TABLE Salones (
     id_salon SERIAL,
-    nombre VARCHAR(50) UNIQUE NOT NULL,
+    nombre VARCHAR(100) NOT NULL,
     id_edificio INTEGER,
     capacidad INTEGER NOT NULL,
     area FLOAT NOT NULL,
-    PRIMARY KEY (id_salon)
+    PRIMARY KEY (id_salon),
+    CONSTRAINT salon_unico UNIQUE (nombre, id_edificio)
 );
 
 INSERT INTO Salones(nombre, id_edificio, capacidad, area)
 SELECT DISTINCT
-    -- El nombre del salón sin la parte CAP(...)
-    TRIM(SPLIT_PART(m.salon, 'CAP', 1)) AS nombre,
+    -- Quitar todo lo que sea ' CAP(n)', incluyendo espacios antes
+    TRIM(REGEXP_REPLACE(m.salon, '\s*CAP\(\d+\)', '', 'g')) AS nombre,
+
+    -- Obtener el número dentro de CAP(...)
     e.id_edificio,
-    CAST(
-        SUBSTRING(m.salon FROM 'CAP\\((\\d+)\\)') AS INTEGER
-    ) AS capacidad,
+    CAST(SUBSTRING(m.salon FROM 'CAP\((\d+)\)') AS INTEGER) AS capacidad,
+    
     m.area
 FROM matrizgeneral m
 JOIN Edificio e ON m.edificio = e.edificio
-WHERE m.salon IS NOT NULL;
+WHERE m.salon IS NOT NULL AND m.salon ~ 'CAP\(\d+\)';
 
 CREATE TABLE Rol (
     id_rol SERIAL,
@@ -165,12 +152,12 @@ CREATE TABLE Rol (
     PRIMARY KEY (id_rol)
 );
 
-INSERT INTO Rol VALUES ('Administrador');
-INSERT INTO Rol VALUES ('Docente');
+INSERT INTO Rol (rol) VALUES ('Administrador');
+INSERT INTO Rol (rol) VALUES ('Docente');
 
 CREATE TABLE Usuarios (
     id_usuario SERIAL,
-    usuario VARCHAR(100) NOT NULL,
+    usuario VARCHAR(100) UNIQUE NOT NULL,
     pass VARCHAR(100) NOT NULL,
     id_rol INTEGER,
     PRIMARY KEY (id_usuario),

@@ -5,7 +5,10 @@ const horLabRoutes = require('./routes/horlab.routes'); //Se importa una funció
 
 const app = express();
 app.use(morgan('dev'));
+app.use(express.json());
+
+
 app.use(horLabRoutes);
 
-app.listen(4000)
-console.log('Server on port 4000');
+app.listen(5000)
+console.log('Server on port 5000');

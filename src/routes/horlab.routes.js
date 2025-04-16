@@ -1,26 +1,24 @@
 const { Router} = require('express');
+//const pool = require('../dbconexion');
+const {
+    getAllUsers, 
+    getUser, 
+    createUser, 
+    deleteUser, 
+    updateUser} = require('../controllers/horlab.controller')
+
 
 const router = Router(); //Nos permite crear nuevas URL
 
-router.get('/schedule', (req, res) => {
-    res.send('Retornando los datos disponibles de horarios');
-})
+router.get('/schedule', getAllUsers)
 
-/*router.get('/schedule/10', (req, res) => {
-    res.send('Retornando el dato solicitado');
-})*/
+router.get('/schedule/10', getUser)
 
-router.post('/schedule', (req, res) => {
-    res.send('Insertando datos');
-})
+router.post('/schedule', createUser)
 
-router.delete('/schedule', (req, res) => {
-    res.send('Eliminando datos');
-})
+router.delete('/schedule', deleteUser)
 
-router.put('/schedule', (req, res) => {
-    res.send('Actualizando datos');
-})
+router.put('/schedule', updateUser)
 
 module.exports = router; //Se exporta una función
 
