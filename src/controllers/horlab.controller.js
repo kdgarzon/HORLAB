@@ -1,7 +1,12 @@
 const pool = require('../dbconexion')
 
 const getAllUsers = async (req, res) => {
-    res.send('Retrieven a list of users')
+    try {
+        const allUsers = await pool.query("SELECT * FROM Usuarios")
+        res.json(allUsers.rows)
+    } catch (error) {
+        res.json({error: error.menssage});
+    }
 }
 
 const getUser = async (req, res) => {
