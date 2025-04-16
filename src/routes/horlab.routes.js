@@ -16,9 +16,9 @@ router.get('/schedule/:id', getUser)
 
 router.post('/schedule', createUser)
 
-router.delete('/schedule', deleteUser)
+router.delete('/schedule/:idusuarioEliminar', deleteUser)
 
-router.put('/schedule', updateUser)
+router.put('/schedule/:idusuarioActualizar', updateUser)
 
 module.exports = router; //Se exporta una función
 
