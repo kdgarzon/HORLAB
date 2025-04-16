@@ -12,7 +12,7 @@ const router = Router(); //Nos permite crear nuevas URL
 
 router.get('/schedule', getAllUsers)
 
-router.get('/schedule/10', getUser)
+router.get('/schedule/:id', getUser)
 
 router.post('/schedule', createUser)
 

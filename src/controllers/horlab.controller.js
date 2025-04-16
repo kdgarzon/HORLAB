@@ -10,7 +10,17 @@ const getAllUsers = async (req, res) => {
 }
 
 const getUser = async (req, res) => {
-    res.send('Retornando el dato solicitado de usuario');
+    try {
+        const {id} = req.params
+        const result = await pool.query("SELECT * FROM usuarios WHERE id_usuario = $1", [id])
+    
+        if(result.rows.length === 0) return res.status(404).json({
+            message: "Usuario no encontrado en la base de datos"
+        });
+        res.json(result.rows[0]);
+    } catch (error) {
+        res.json({error: error.menssage});
+    }
 }
 
 const createUser = async (req, res) => {
