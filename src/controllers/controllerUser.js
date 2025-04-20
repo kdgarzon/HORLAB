@@ -9,6 +9,15 @@ const getAllUsers = async (req, res, next) => {
     }
 }
 
+const getAllRoles = async (req, res, next) => {
+    try {
+        const allRoles = await pool.query("SELECT * FROM rol")
+        res.json(allRoles.rows)
+    } catch (error) {
+        next(error)
+    }
+}
+
 const getUser = async (req, res, next) => {
     try {
         const {id} = req.params
@@ -73,6 +82,7 @@ const updateUser = async (req, res, next) => {
 
 module.exports = {
     getAllUsers,
+    getAllRoles,
     getUser,
     createUser,
     deleteUser,

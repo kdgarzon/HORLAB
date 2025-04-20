@@ -2,6 +2,7 @@ const { Router} = require('express');
 
 const {
     getAllUsers, 
+    getAllRoles,
     getUser, 
     createUser, 
     deleteUser, 
@@ -37,6 +38,7 @@ const router = Router(); //Nos permite crear nuevas URL
 
 //RUTAS PARA EL CONTROLADOR DE USUARIO
 router.get('/users', getAllUsers)
+router.get('/roles', getAllRoles)
 router.get('/users/:id', getUser)
 router.post('/users', createUser)
 router.delete('/users/:idusuarioEliminar', deleteUser)
