@@ -2,7 +2,9 @@ const pool = require('../dbconexion')
 
 const getAllUsers = async (req, res, next) => {
     try {
-        const allUsers = await pool.query("SELECT * FROM Usuarios")
+        const allUsers = await pool.query(
+            "SELECT u.id_usuario, u.usuario, u.pass, r.rol AS nombre_rol FROM usuarios u LEFT JOIN rol r ON u.id_rol = r.id_rol ORDER BY id_usuario ASC"
+        )
         res.json(allUsers.rows)
     } catch (error) {
         next(error)
