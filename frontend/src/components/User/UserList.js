@@ -6,18 +6,8 @@ import EditSquareIcon from '@mui/icons-material/EditSquare';
 const columns = [
   { id: 'id_usuario', label: 'ID Usuario', minWidth: 170 },
   { id: 'usuario', label: 'Usuario', minWidth: 100 },
-  {
-    id: 'pass',
-    label: 'Contraseña',
-    minWidth: 170,
-    align: 'right'
-  },
-  {
-    id: 'nombre_rol',
-    label: 'Rol de usuario',
-    minWidth: 170,
-    align: 'right'
-  }
+  {id: 'pass', label: 'Contraseña', minWidth: 170, align: 'right'},
+  {id: 'nombre_rol', label: 'Rol de usuario', minWidth: 170, align: 'right'}
 ];
 
 export default function UserList() {
@@ -38,6 +28,17 @@ export default function UserList() {
     const response = await fetch('http://localhost:5000/users')
     const data = await response.json()
     setUsers(data)
+  }
+
+  const handleDelete = async (id) => {
+    try {
+      await fetch(`http://localhost:5000/users/${id}`, {
+        method: "DELETE",
+      })
+      setUsers(users.filter(user => user.id_usuario !== id));
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   useEffect(() => {
@@ -94,7 +95,7 @@ export default function UserList() {
                         <Button 
                           variant='contained' 
                           color='warning' 
-                          onClick={() => console.log('Eliminar')}
+                          onClick={() => handleDelete(user.id_usuario)}
                           style={{marginLeft: ".5rem"}}
                         >
                           <DeleteRoundedIcon />
