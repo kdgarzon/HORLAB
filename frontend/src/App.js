@@ -18,6 +18,7 @@ export default function App() {
           <Route path='/Docente' element={<InicioDoc />} />
           <Route path='/Usuarios' element={<User />} />
           <Route path='/ListarUsuarios' element={<UserList />} />
+          <Route path='/Usuarios/:id' element={<User />} />
         </Routes>
       </Container>
     </BrowserRouter>

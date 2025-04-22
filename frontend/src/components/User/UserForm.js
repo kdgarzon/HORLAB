@@ -3,14 +3,16 @@ import { useState, useEffect } from "react";
 import * as React from 'react';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
-import {useNavigate} from 'react-router-dom'
+import {useNavigate, useParams} from 'react-router-dom'
 
 export default function UserForm() {
 
   const [open, setOpen] = React.useState(false); //Que la lista de roles aparezca desplegada
   const [roles, setRoles] = useState([]); // Array para almacenar los roles { id_rol, rol }
   const navigate = useNavigate();
+  const params = useParams();
   const [loadingCrear, setLoadingCrear] = useState(false);
+  const [editing, setEditing] = useState(false)
   
   const [user, setUser] = useState({
     usuario: '',
@@ -57,38 +59,64 @@ export default function UserForm() {
     e.preventDefault(); //Cancela el refresh del boton del formulario
     setLoadingCrear(true);
 
-    if (!user.id_rol) {
-      alert("Por favor, selecciona un rol."); 
-      return;
-    }
-
-    try {
-      const res = await fetch('http://localhost:5000/users', {
-        method: 'POST',
+    if (editing) {
+      const res = await fetch(`http://localhost:5000/users/${params.id}`, {
+        method: 'PUT',
         body: JSON.stringify(user),
         headers: {"Content-Type": "application/json"}
       });
-
-      if(!res.ok){
-        // Si la respuesta no es OK, intenta leer el cuerpo como texto para ver el error del backend
-        const errorData = await res.text();
-        throw new Error(`Error del servidor: ${res.status} - ${errorData}`);
-      }
-  
+      
       const data = await res.json()
       console.log("Respuesta del servidor: ", data);
-      setLoadingCrear(false);
-      navigate('/ListarUsuarios')
-    } catch (error) {
-      console.error("Error al crear usuario:", error);
-      // Muestra un mensaje de error al usuario
-      alert(`Error al crear usuario: ${error.message}`);
+
+    } else {
+      if (!user.id_rol) {
+        alert("Por favor, selecciona un rol."); 
+        return;
+      }
+  
+      try {
+        const res = await fetch('http://localhost:5000/users', {
+          method: 'POST',
+          body: JSON.stringify(user),
+          headers: {"Content-Type": "application/json"}
+        });
+  
+        if(!res.ok){
+          // Si la respuesta no es OK, intenta leer el cuerpo como texto para ver el error del backend
+          const errorData = await res.text();
+          throw new Error(`Error del servidor: ${res.status} - ${errorData}`);
+        }
+    
+        const data = await res.json()
+        console.log("Respuesta del servidor: ", data);
+        
+      } catch (error) {
+        console.error("Error al crear usuario:", error);
+        // Muestra un mensaje de error al usuario
+        alert(`Error al crear usuario: ${error.message}`);
+      }
     }
+    setLoadingCrear(false);
+    navigate('/ListarUsuarios')
   }
 
-  const handleChange = e => {
+  const handleChange = (e) => 
     setUser({...user, [e.target.name]: e.target.value}); //Actualiza el valor que vamos a enviar del TextField
+  
+  const loadOneUser = async (id) => {
+    const res = await fetch(`http://localhost:5000/users/${id}`)
+    const data = await res.json()
+    setUser({usuario: data.usuario, pass: data.pass, id_rol: data.id_rol});
+    setEditing(true);
   }
+
+  useEffect(() => {
+    if (params.id) {
+      loadOneUser(params.id)
+    }
+  }, [params.id]);
+  
 
   const handleClick = () => {
     setOpen(!open);
@@ -101,8 +129,8 @@ export default function UserForm() {
     <Grid container direction={"column"} alignItems={"center"} justifyContent={"center"}>
       <Grid item xs={3}>
         <Card sx={{mt: 5}} style={{backgroundColor: '#BFECF5', padding: '1rem'}}>
-          <Typography variant="5" textAlign={"center"} color="primary">
-            Create User
+          <Typography variant="h5" textAlign={"center"} color="primary">
+            {params.id ? "Editar Usuario" : "Crear Usuario"}
           </Typography>
           <CardContent>
             <form onSubmit={handleSubmit}>
@@ -163,7 +191,7 @@ export default function UserForm() {
                 {loadingCrear ? <CircularProgress 
                   color="inherit"
                   size={24}
-                /> : 'CREAR USUARIO'}
+                /> : params.id ? 'EDITAR USUARIO' : 'CREAR USUARIO'}
               </Button>
             </form>
           </CardContent>

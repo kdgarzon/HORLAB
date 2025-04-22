@@ -11,7 +11,7 @@ export default function NavBar() {
           <Container>
             <Toolbar>
               <Typography variant="h4" sx={{flexGrow: 1}}>
-                <Link to={"/"} style={{textDecoration: 'none', color: 'green'}}>HORLAB</Link>
+                <Link to={"/ListarUsuarios"} style={{textDecoration: 'none', color: 'green'}}>HORLAB</Link>
               </Typography>
               <Button variant="contained" color="info" onClick={() => navigate("/Usuarios")}>
                 Usuarios

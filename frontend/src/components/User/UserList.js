@@ -2,6 +2,7 @@ import {useEffect, useState} from 'react'
 import { Paper, Table, TableBody, TablePagination, TableCell, TableContainer, TableHead, TableRow, Button } from "@mui/material";
 import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
 import EditSquareIcon from '@mui/icons-material/EditSquare';
+import {useNavigate} from 'react-router-dom'
 
 const columns = [
   { id: 'id_usuario', label: 'ID Usuario', minWidth: 170 },
@@ -13,7 +14,8 @@ const columns = [
 export default function UserList() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [users, setUsers] = useState([])
+  const [users, setUsers] = useState([]);
+  const navigate = useNavigate();
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -87,7 +89,7 @@ export default function UserList() {
                       <TableCell align="center">
                         <Button 
                           variant='contained' 
-                          onClick={() => console.log('Modificar')}
+                          onClick={() => navigate(`/Usuarios/${user.id_usuario}`)}
                           sx={{ backgroundColor: '#fbc02d', color: 'white', '&:hover': { backgroundColor: '#fdd835' } }}
                         >
                           <EditSquareIcon />
