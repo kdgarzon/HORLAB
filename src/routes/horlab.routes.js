@@ -4,6 +4,7 @@ const {
     getAllUsers, 
     getAllRoles,
     getUser, 
+    getUserLogin,
     createUser, 
     deleteUser, 
     updateUser
@@ -35,6 +36,8 @@ const {
 
 
 const router = Router(); //Nos permite crear nuevas URL
+
+router.post('/Login', getUserLogin)
 
 //RUTAS PARA EL CONTROLADOR DE USUARIO
 router.get('/users', getAllUsers)

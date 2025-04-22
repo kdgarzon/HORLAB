@@ -13,9 +13,9 @@ export default function App() {
     <NavBar />
       <Container>
         <Routes>
-          <Route path='/' element={<Login />} />
-          <Route path='/Administrador' element={<InicioAdm />} />
-          <Route path='/Docente' element={<InicioDoc />} />
+          <Route path='/Login' element={<Login />} />
+          <Route path='/Login/admin' element={<InicioAdm />} />
+          <Route path='/Login/docente' element={<InicioDoc />} />
           <Route path='/Usuarios' element={<User />} />
           <Route path='/ListarUsuarios' element={<UserList />} />
           <Route path='/Usuarios/:id' element={<User />} />
