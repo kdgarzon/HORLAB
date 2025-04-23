@@ -28,13 +28,17 @@ const signIn = async (provider, formData) => {
         }
     
         const data = await res.json();
+
+        // Guardar el id_rol y el usuario en localStorage
+        localStorage.setItem('id_rol', data.id_rol);
+        localStorage.setItem('usuario', data.usuario);
     
         //Se redirecciona segun el rol del usuario
     
         if (data.id_rol === 1) {
-          window.location.href = 'http://localhost:5000/admin';
+          window.location.href = '/Login/admin';
         } else if (data.id_rol === 2) {
-          window.location.href = 'http://localhost:5000/docente';
+          window.location.href = '/Login/docente';
         } else {
           alert('Rol desconocido');
         }
@@ -67,3 +71,28 @@ export default function Login() {
     </AppProvider>
   );
 }
+
+
+//PARA LEER EL ID_ROL DESDE CUALQUIER PARTE DEL FRONTEND
+
+/*const idRol = localStorage.getItem('id_rol');
+console.log('Rol actual:', idRol);
+
+Por ejemplo, si quieres validar que solo un administrador acceda a una página:
+
+React.useEffect(() => {
+  const rol = localStorage.getItem('id_rol');
+  if (rol !== '1') {
+    alert('Acceso denegado. Solo administradores.');
+    window.location.href = '/Login';
+  }
+}, []);
+
+3. Borrar los datos de sesión (logout)
+Cuando el usuario cierre sesión, puedes limpiar los datos así:
+
+localStorage.removeItem('id_rol');
+localStorage.removeItem('usuario');
+// O si quieres borrar todo:
+localStorage.clear();
+window.location.href = '/Login';*/
