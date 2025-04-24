@@ -157,9 +157,14 @@ INSERT INTO Rol (rol) VALUES ('Docente');
 
 CREATE TABLE Usuarios (
     id_usuario SERIAL,
+    nombreUser VARCHAR(100) NOT NULL,
+    apellidoUser VARCHAR(100) NOT NULL,
+    correo VARCHAR(100) NOT NULL,
     usuario VARCHAR(100) UNIQUE NOT NULL,
     pass VARCHAR(100) NOT NULL,
     id_rol INTEGER,
     PRIMARY KEY (id_usuario),
     FOREIGN KEY (id_rol) REFERENCES Rol(id_rol) ON UPDATE CASCADE ON DELETE SET NULL
 );
+
+INSERT INTO Usuarios (nombreUser, apellidoUser, correo, usuario, pass, id_rol) VALUES ('Karen', 'Garzon', 'kdgarzong@udistrital.edu.co', 'kdgarzong', 'kd1234', 1);

@@ -5,10 +5,13 @@ import EditSquareIcon from '@mui/icons-material/EditSquare';
 import {useNavigate} from 'react-router-dom'
 
 const columns = [
-  { id: 'id_usuario', label: 'ID Usuario', minWidth: 170 },
-  { id: 'usuario', label: 'Usuario', minWidth: 100 },
-  {id: 'pass', label: 'Contraseña', minWidth: 170, align: 'right'},
-  {id: 'nombre_rol', label: 'Rol de usuario', minWidth: 170, align: 'right'}
+  { id: 'id_usuario', label: 'ID Usuario', /*minWidth: 70*/ },
+  { id: 'nombre', label: 'Nombre del usuario', minWidth: 100 },
+  { id: 'apellido', label: 'Apellido del usuario', minWidth: 100 },
+  { id: 'correo', label: 'Correo institucional', /*minWidth: 170*/ },
+  { id: 'usuario', label: 'Usuario', /*minWidth: 50*/ },
+  {id: 'pass', label: 'Contraseña', /*minWidth: 100,*/ align: 'right'},
+  {id: 'nombre_rol', label: 'Rol de usuario', /*minWidth: 100,*/ align: 'right'}
 ];
 
 export default function UserList() {

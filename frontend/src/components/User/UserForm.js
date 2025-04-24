@@ -15,6 +15,9 @@ export default function UserForm() {
   const [editing, setEditing] = useState(false)
   
   const [user, setUser] = useState({
+    nombreUser: '',
+    apellidoUser: '',
+    correo: '',
     usuario: '',
     pass: '',
     id_rol: null
@@ -107,7 +110,16 @@ export default function UserForm() {
   const loadOneUser = async (id) => {
     const res = await fetch(`http://localhost:5000/users/${id}`)
     const data = await res.json()
-    setUser({usuario: data.usuario, pass: data.pass, id_rol: data.id_rol});
+    
+    setUser({
+      nombreUser: data.nombreuser ?? '',
+      apellidoUser: data.apellidouser ?? '',
+      correo: data.correo ?? '', 
+      usuario: data.usuario ?? '', 
+      pass: data.pass ?? '', 
+      id_rol: data.id_rol ?? null
+    });
+
     setEditing(true);
   }
 
@@ -134,6 +146,40 @@ export default function UserForm() {
           </Typography>
           <CardContent>
             <form onSubmit={handleSubmit}>
+            <TextField
+                variant="filled"
+                label="Nombre del usuario"
+                sx={{
+                  display: 'block',
+                  margin: '.5rem 0'
+                }}
+                name = "nombreUser"
+                value={user.nombreUser}
+                onChange={handleChange}
+              />
+              <TextField
+                variant="filled"
+                label="Apellido del usuario"
+                sx={{
+                  display: 'block',
+                  margin: '.5rem 0'
+                }}
+                name = "apellidoUser"
+                value={user.apellidoUser}
+                onChange={handleChange}
+              />
+              <TextField
+                variant="filled"
+                label="Correo institucional"
+                type="email"
+                sx={{
+                  display: 'block',
+                  margin: '.5rem 0'
+                }}
+                name = "correo"
+                value={user.correo}
+                onChange={handleChange}
+              />
               <TextField
                 variant="filled"
                 label="Username"
@@ -187,7 +233,7 @@ export default function UserForm() {
                 </Collapse>
                 
               </List>
-              <Button variant="contained" color="info" type="submit" disabled={!user.usuario || !user.pass || !user.id_rol}>
+              <Button variant="contained" color="info" type="submit" disabled={!user.nombreUser || !user.apellidoUser || !user.correo || !user.usuario || !user.pass || !user.id_rol}>
                 {loadingCrear ? <CircularProgress 
                   color="inherit"
                   size={24}

@@ -1,9 +1,9 @@
 const pool = require('../dbconexion')
 
 const getAllUsers = async (req, res, next) => {
-    try {
+    try {      
         const allUsers = await pool.query(
-            "SELECT u.id_usuario, u.usuario, u.pass, r.rol AS nombre_rol FROM usuarios u LEFT JOIN rol r ON u.id_rol = r.id_rol ORDER BY id_usuario ASC"
+            "SELECT u.id_usuario, u.nombreUser AS nombre, u.apellidoUser AS apellido, u.correo, u.usuario, u.pass, r.rol AS nombre_rol FROM usuarios u LEFT JOIN rol r ON u.id_rol = r.id_rol ORDER BY id_usuario ASC"
         )
         res.json(allUsers.rows)
     } catch (error) {
@@ -56,10 +56,13 @@ const getUserLogin = async (req, res, next) => {
 }
 
 const createUser = async (req, res, next) => {
-    const {usuario, pass, id_rol} = req.body
+    const {nombreUser, apellidoUser, correo, usuario, pass, id_rol} = req.body
     try {
-        const result = await pool.query("INSERT INTO usuarios (usuario, pass, id_rol) VALUES ($1, $2, $3) RETURNING *", 
+        const result = await pool.query("INSERT INTO usuarios (nombreUser, apellidoUser, correo, usuario, pass, id_rol) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *", 
         [
+            nombreUser,
+            apellidoUser,
+            correo,
             usuario, 
             pass,
             id_rol
@@ -89,10 +92,10 @@ const deleteUser = async (req, res, next) => {
 const updateUser = async (req, res, next) => {
     const {idusuarioActualizar} = req.params;
     try {
-        const {usuario, pass, id_rol} = req.body;
+        const {nombreUser, apellidoUser, correo, usuario, pass, id_rol} = req.body;
     
-        const result = await pool.query("UPDATE usuarios SET usuario = $1, pass = $2, id_rol = $3 WHERE id_usuario = $4 RETURNING *", 
-            [usuario, pass, id_rol, idusuarioActualizar]);
+        const result = await pool.query("UPDATE usuarios SET nombreuser = $1, apellidouser = $2, correo = $3, usuario = $4, pass = $5, id_rol = $6 WHERE id_usuario = $7 RETURNING *", 
+            [nombreUser, apellidoUser, correo, usuario, pass, id_rol, idusuarioActualizar]);
 
         if(result.rows.length === 0) return res.status(404).json({
             message: "No es posible modificar el usuario seleccionado"
