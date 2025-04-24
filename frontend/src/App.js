@@ -4,28 +4,30 @@ import InicioAdm from './components/Inicio/InicioAdm'
 import InicioDoc from './components/Inicio/InicioDoc'
 import User from './components/User/UserForm'
 import UserList from './components/User/UserList'
-import NavBar from './components/NavBar'
-import {Container} from "@mui/material"
 import PrivateRoute from './components/Inicio/PrivateRoute'
+import DashboardLayoutBranding from './components/NavBar'
 
 function AppContent() {
   const location = useLocation();
   
   return (
-    <>
-    {location.pathname !== '/Login' && <NavBar />}
-      <Container>
+
         <Routes>
-          <Route path='/' element={<Navigate to={"/Login"} />} />
+
           <Route path='/Login' element={<Login />} />
-          <Route path='/Login/admin' element={<PrivateRoute allowedRoles={[1]}><InicioAdm /></PrivateRoute>} />
+          <Route path='/' element={<Navigate to='/Login' />} />
+
+          <Route element={<PrivateRoute allowedRoles={[1]}><DashboardLayoutBranding /></PrivateRoute>}>
+            <Route path='/Login/admin' element={<InicioAdm />} />
+            <Route path='/Usuarios' element={<User />} />
+            <Route path='/Usuarios/:id' element={<User />} />
+            <Route path='/ListarUsuarios' element={<UserList />} />
+          </Route>
+
           <Route path='/Login/docente' element={<PrivateRoute allowedRoles={[2]}><InicioDoc /></PrivateRoute>} />
-          <Route path='/Usuarios' element={<PrivateRoute allowedRoles={[1]}><User /></PrivateRoute>} />
-          <Route path='/ListarUsuarios' element={<PrivateRoute allowedRoles={[1]}><UserList /></PrivateRoute>} />
-          <Route path='/Usuarios/:id' element={<PrivateRoute allowedRoles={[1]}><User /></PrivateRoute>} />
+
         </Routes>
-      </Container>
-    </>
+
   );
 }
 
@@ -36,3 +38,5 @@ export default function App() {
     </BrowserRouter>
   );
 }
+
+/*<Route path='/ListarUsuarios' element={<PrivateRoute allowedRoles={[1]}><UserList /></PrivateRoute>} />*/

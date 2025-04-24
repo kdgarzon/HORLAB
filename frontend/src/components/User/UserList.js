@@ -4,6 +4,12 @@ import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
 import EditSquareIcon from '@mui/icons-material/EditSquare';
 import {useNavigate} from 'react-router-dom'
 
+import React from 'react';
+
+/*<Button variant="contained" color="info" onClick={() => navigate("/Usuarios")}>
+                Usuarios
+              </Button>*///
+
 const columns = [
   { id: 'id_usuario', label: 'ID Usuario', /*minWidth: 70*/ },
   { id: 'nombre', label: 'Nombre del usuario', minWidth: 100 },
