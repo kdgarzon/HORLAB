@@ -2,10 +2,9 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import {Box, Typography, createTheme} from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { AppProvider } from '@toolpad/core/AppProvider';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useNavigate, useLocation} from 'react-router-dom';
 import { Outlet } from 'react-router-dom';
 
 const NAVIGATION = [

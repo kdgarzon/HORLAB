@@ -1,8 +1,9 @@
 import {useEffect, useState} from 'react'
-import { Paper, Table, TableBody, TablePagination, TableCell, TableContainer, TableHead, TableRow, Button } from "@mui/material";
+import { Paper, Table, TableBody, TablePagination, TableCell, TableContainer, TableHead, TableRow, Button, Box, TextField } from "@mui/material";
 import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
 import EditSquareIcon from '@mui/icons-material/EditSquare';
 import {useNavigate} from 'react-router-dom'
+import AddReactionIcon from '@mui/icons-material/AddReaction';
 
 import React from 'react';
 
@@ -24,6 +25,7 @@ export default function UserList() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [users, setUsers] = useState([]);
+  const [search, setSearch] = useState("");
   const navigate = useNavigate();
 
   const handleChangePage = (event, newPage) => {
@@ -38,6 +40,7 @@ export default function UserList() {
   const loadUsers = async () => {
     const response = await fetch('http://localhost:5000/users')
     const data = await response.json()
+    //console.log("Respuesta del backend:", data);
     setUsers(data)
   }
 
@@ -56,9 +59,34 @@ export default function UserList() {
     loadUsers()
   }, [])
 
+  const filteredUsers = users.filter((user) =>
+    Object.values(user).some(
+      (val) => typeof val === "string" && val.toLowerCase().includes(search.toLowerCase())
+    )
+  );
+
   return (
     <>
-      <h1>USER LIST</h1>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <h1>USER LIST</h1>
+        <Button 
+          variant="contained" 
+          color="primary" 
+          onClick={() => navigate('/Usuarios')}
+        >
+          <AddReactionIcon />
+        </Button>
+      </Box>
+
+      <Box sx={{ mb: 5 }}>
+        <TextField 
+          fullWidth 
+          label="Filtrar usuarios..." 
+          variant="outlined" 
+          value={search} 
+          onChange={(e) => setSearch(e.target.value)} 
+        />
+      </Box>
 
       <Paper sx={{ width: '100%', overflow: 'hidden' }}>
         <TableContainer sx={{ maxHeight: 600 }}>
@@ -80,7 +108,7 @@ export default function UserList() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {users
+              {/*users*/filteredUsers
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((user) => {
                   return (

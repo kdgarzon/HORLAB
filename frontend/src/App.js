@@ -1,4 +1,4 @@
-import {BrowserRouter, Routes, Route, Navigate, useLocation} from 'react-router-dom'
+import {BrowserRouter, Routes, Route, Navigate} from 'react-router-dom'
 import Login from './components/Login'
 import InicioAdm from './components/Inicio/InicioAdm'
 import InicioDoc from './components/Inicio/InicioDoc'
@@ -8,7 +8,6 @@ import PrivateRoute from './components/Inicio/PrivateRoute'
 import DashboardLayoutBranding from './components/NavBar'
 
 function AppContent() {
-  const location = useLocation();
   
   return (
 
