@@ -42,6 +42,7 @@ export default function UserList() {
   
   const navigate = useNavigate();
   const location = useLocation();
+  const userId = location.pathname.match(/^\/ListarUsuarios\/Usuarios\/(\d+)$/)?.[1] || null;
   const modalOpen = location.pathname === '/ListarUsuarios/Usuarios' || location.pathname.match(/^\/ListarUsuarios\/Usuarios\/\d+$/);
 
   const handleCloseModal = () => {
@@ -185,6 +186,8 @@ export default function UserList() {
         <Box sx={style}>
           <h2 id="modal-title"> {location.pathname.includes('/Usuarios/') ? 'EDITAR USUARIO' : 'CREAR USUARIO'}</h2>
           <UserForm
+            key={userId || 'new'}
+            userId={userId}
             hideInternalSubmitButton
             onExternalSubmit={() => {
               loadUsers();

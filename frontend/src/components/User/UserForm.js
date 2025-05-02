@@ -15,7 +15,7 @@ const initialUserState = {
   id_rol: null
 };
 
-export default function UserForm({ hideInternalSubmitButton = false, onExternalSubmit }) {
+export default function UserForm({ userId, hideInternalSubmitButton = false, onExternalSubmit }) {
 
   const [open, setOpen] = React.useState(false); //Que la lista de roles aparezca desplegada
   const [roles, setRoles] = useState([]); // Array para almacenar los roles { id_rol, rol }
@@ -145,13 +145,15 @@ export default function UserForm({ hideInternalSubmitButton = false, onExternalS
   }
 
   useEffect(() => {
-    if (params.id) {
-      loadOneUser(params.id)
+    if (userId) {
+      loadOneUser(userId); // ya debes tener esta función
+      setEditing(true);
     } else {
-      setUser(initialUserState);
+      setUser(initialUserState); // <-- limpia los campos
       setEditing(false);
     }
-  }, [params.id]);
+  }, [userId]);
+  
   
 
   const handleClick = () => {
@@ -167,6 +169,7 @@ export default function UserForm({ hideInternalSubmitButton = false, onExternalS
       component="form"
       onSubmit={handleSubmit}
       noValidate
+      autoComplete="off"
       sx={{
         maxWidth: 500,
         margin: "auto",
@@ -206,6 +209,7 @@ export default function UserForm({ hideInternalSubmitButton = false, onExternalS
         variant="outlined"
         label="Username"
         name="usuario"
+        autoComplete="new-username"
         value={user.usuario}
         onChange={handleChange}
       />
@@ -214,6 +218,7 @@ export default function UserForm({ hideInternalSubmitButton = false, onExternalS
         variant="outlined"
         label="Password"
         type="password"
+        autoComplete="new-password"
         name="pass"
         value={user.pass}
         onChange={handleChange}
