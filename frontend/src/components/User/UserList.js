@@ -88,7 +88,7 @@ export default function UserList() {
 
   return (
     <>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, ml: 5, mr: 5 }}>
         <h1>USER LIST</h1>
         <Button 
           variant="contained" 
@@ -99,7 +99,7 @@ export default function UserList() {
         </Button>
       </Box>
 
-      <Box sx={{ mb: 5 }}>
+      <Box sx={{ mb: 5, ml: 5, mr: 5 }}>
         <TextField 
           fullWidth 
           label="Filtrar usuarios..." 
@@ -109,7 +109,7 @@ export default function UserList() {
         />
       </Box>
 
-      <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+      <Paper sx={{ width: '95.2%', overflow: 'hidden', ml: 5 }}>
         <TableContainer sx={{ maxHeight: 600 }}>
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
