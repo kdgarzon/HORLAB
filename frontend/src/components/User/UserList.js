@@ -1,24 +1,37 @@
 import {useEffect, useState} from 'react'
-import { Paper, Table, TableBody, TablePagination, TableCell, TableContainer, TableHead, TableRow, Button, Box, TextField } from "@mui/material";
+import { Paper, Table, TableBody, TablePagination, TableCell, TableContainer, TableHead, 
+  TableRow, Button, Box, TextField, Modal} from "@mui/material";
 import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
 import EditSquareIcon from '@mui/icons-material/EditSquare';
-import {useNavigate} from 'react-router-dom'
+import {useNavigate, useLocation} from 'react-router-dom'
 import AddReactionIcon from '@mui/icons-material/AddReaction';
+import UserForm from './UserForm';
 
 import React from 'react';
 
-/*<Button variant="contained" color="info" onClick={() => navigate("/Usuarios")}>
-                Usuarios
-              </Button>*///
+//Estilo del modal que vamos a generar
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 500,
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  pt: 2,
+  px: 4,
+  pb: 4,
+};
 
 const columns = [
-  { id: 'id_usuario', label: 'ID Usuario', /*minWidth: 70*/ },
+  { id: 'id_usuario', label: 'ID Usuario'},
   { id: 'nombre', label: 'Nombre del usuario', minWidth: 100 },
   { id: 'apellido', label: 'Apellido del usuario', minWidth: 100 },
-  { id: 'correo', label: 'Correo institucional', /*minWidth: 170*/ },
-  { id: 'usuario', label: 'Usuario', /*minWidth: 50*/ },
-  {id: 'pass', label: 'Contraseña', /*minWidth: 100,*/ align: 'right'},
-  {id: 'nombre_rol', label: 'Rol de usuario', /*minWidth: 100,*/ align: 'right'}
+  { id: 'correo', label: 'Correo institucional' },
+  { id: 'usuario', label: 'Usuario'},
+  {id: 'pass', label: 'Contraseña', align: 'right'},
+  {id: 'nombre_rol', label: 'Rol de usuario', align: 'right'}
 ];
 
 export default function UserList() {
@@ -26,7 +39,14 @@ export default function UserList() {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState("");
+  
   const navigate = useNavigate();
+  const location = useLocation();
+  const modalOpen = location.pathname === '/ListarUsuarios/Usuarios' || location.pathname.match(/^\/ListarUsuarios\/Usuarios\/\d+$/);
+
+  const handleCloseModal = () => {
+    navigate('/ListarUsuarios');
+  };
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -72,7 +92,7 @@ export default function UserList() {
         <Button 
           variant="contained" 
           color="primary" 
-          onClick={() => navigate('/Usuarios')}
+          onClick={() => navigate('/ListarUsuarios/Usuarios')}
         >
           <AddReactionIcon />
         </Button>
@@ -108,7 +128,7 @@ export default function UserList() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {/*users*/filteredUsers
+              {filteredUsers
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((user) => {
                   return (
@@ -125,8 +145,8 @@ export default function UserList() {
                       })}
                       <TableCell align="center">
                         <Button 
-                          variant='contained' 
-                          onClick={() => navigate(`/Usuarios/${user.id_usuario}`)}
+                          variant='contained'
+                          onClick={() => navigate(`/ListarUsuarios/Usuarios/${user.id_usuario}`)}
                           sx={{ backgroundColor: '#fbc02d', color: 'white', '&:hover': { backgroundColor: '#fdd835' } }}
                         >
                           <EditSquareIcon />
@@ -156,7 +176,40 @@ export default function UserList() {
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Paper>
+      {/* MODAL PADRE */}
+      <Modal
+        open={modalOpen}
+        onClose={handleCloseModal}
+        aria-labelledby="modal-title"
+      >
+        <Box sx={style}>
+          <h2 id="modal-title"> {location.pathname.includes('/Usuarios/') ? 'EDITAR USUARIO' : 'CREAR USUARIO'}</h2>
+          <UserForm
+            hideInternalSubmitButton
+            onExternalSubmit={() => {
+              loadUsers();
+              handleCloseModal();
+            }}
+          />
 
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+            <Button variant="outlined" onClick={handleCloseModal} sx={{ mr: 1 }}>Cerrar</Button>
+            <Button
+              type="submit"
+              form="user-form"
+              onClick={() => {
+                // Triggerea el submit manualmente si lo necesitas
+                const form = document.querySelector('form');
+                if (form) form.requestSubmit();
+              }}
+              variant="contained"
+              color="info"
+            >
+              {location.pathname.includes('/Usuarios/') ? 'EDITAR USUARIO' : 'CREAR USUARIO'}
+            </Button>
+          </Box>
+        </Box>
+      </Modal>
     </>
   )
 }

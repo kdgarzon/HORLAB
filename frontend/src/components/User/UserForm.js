@@ -1,11 +1,21 @@
-import { Button, Card, CardContent, CircularProgress, Collapse, Grid, List, ListItemButton, ListItemText, TextField, Typography } from "@mui/material"
+import { Box, Button, CircularProgress, Collapse, List, 
+  ListItemButton, ListItemText, TextField } from "@mui/material"
 import { useState, useEffect } from "react";
 import * as React from 'react';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import {useNavigate, useParams} from 'react-router-dom'
 
-export default function UserForm() {
+const initialUserState = {
+  nombreUser: '',
+  apellidoUser: '',
+  correo: '',
+  usuario: '',
+  pass: '',
+  id_rol: null
+};
+
+export default function UserForm({ hideInternalSubmitButton = false, onExternalSubmit }) {
 
   const [open, setOpen] = React.useState(false); //Que la lista de roles aparezca desplegada
   const [roles, setRoles] = useState([]); // Array para almacenar los roles { id_rol, rol }
@@ -14,14 +24,7 @@ export default function UserForm() {
   const [loadingCrear, setLoadingCrear] = useState(false);
   const [editing, setEditing] = useState(false)
   
-  const [user, setUser] = useState({
-    nombreUser: '',
-    apellidoUser: '',
-    correo: '',
-    usuario: '',
-    pass: '',
-    id_rol: null
-  })
+  const [user, setUser] = useState(initialUserState);
 
   // Estado para indicar si se están cargando los roles
   const [loadingRoles, setLoadingRoles] = useState(false);
@@ -40,7 +43,6 @@ export default function UserForm() {
         setRoles(data);
       } catch (error) {
         console.error("Error al obtener roles:", error);
-        // Aquí podrías mostrar un mensaje de error al usuario
       } finally {
         setLoadingRoles(false); // Termina la carga
       }
@@ -61,6 +63,20 @@ export default function UserForm() {
   const handleSubmit = async e => {
     e.preventDefault(); //Cancela el refresh del boton del formulario
     setLoadingCrear(true);
+
+    if (
+      !user.nombreUser ||
+      !user.apellidoUser ||
+      !user.correo ||
+      !user.usuario ||
+      !user.pass ||
+      !user.id_rol
+    ) {
+      alert("Por favor, completa todos los campos antes de continuar.");
+      setLoadingCrear(false);
+      return;
+    }
+    
 
     if (editing) {
       const res = await fetch(`http://localhost:5000/users/${params.id}`, {
@@ -101,8 +117,13 @@ export default function UserForm() {
       }
     }
     setLoadingCrear(false);
-    navigate('/ListarUsuarios')
+    if (onExternalSubmit) {
+      onExternalSubmit();
+    } else {
+      navigate('/ListarUsuarios');
+    }
   }
+  
 
   const handleChange = (e) => 
     setUser({...user, [e.target.name]: e.target.value}); //Actualiza el valor que vamos a enviar del TextField
@@ -126,6 +147,9 @@ export default function UserForm() {
   useEffect(() => {
     if (params.id) {
       loadOneUser(params.id)
+    } else {
+      setUser(initialUserState);
+      setEditing(false);
     }
   }, [params.id]);
   
@@ -138,111 +162,110 @@ export default function UserForm() {
   const displayRoleName = selectedRole ? selectedRole.rol : "Seleccionar Rol";
 
   return (
-    <Grid container direction={"column"} alignItems={"center"} justifyContent={"center"}>
-      <Grid item xs={3}>
-        <Card sx={{mt: 5}} style={{backgroundColor: '#BFECF5', padding: '1rem'}}>
-          <Typography variant="h5" textAlign={"center"} color="primary">
-            {params.id ? "Editar Usuario" : "Crear Usuario"}
-          </Typography>
-          <CardContent>
-            <form onSubmit={handleSubmit}>
-            <TextField
-                variant="filled"
-                label="Nombre del usuario"
-                sx={{
-                  display: 'block',
-                  margin: '.5rem 0'
-                }}
-                name = "nombreUser"
-                value={user.nombreUser}
-                onChange={handleChange}
-              />
-              <TextField
-                variant="filled"
-                label="Apellido del usuario"
-                sx={{
-                  display: 'block',
-                  margin: '.5rem 0'
-                }}
-                name = "apellidoUser"
-                value={user.apellidoUser}
-                onChange={handleChange}
-              />
-              <TextField
-                variant="filled"
-                label="Correo institucional"
-                type="email"
-                sx={{
-                  display: 'block',
-                  margin: '.5rem 0'
-                }}
-                name = "correo"
-                value={user.correo}
-                onChange={handleChange}
-              />
-              <TextField
-                variant="filled"
-                label="Username"
-                sx={{
-                  display: 'block',
-                  margin: '.5rem 0'
-                }}
-                name = "usuario"
-                value={user.usuario}
-                onChange={handleChange}
-              />
-              <TextField
-                variant="filled"
-                label="Password"
-                type="password"
-                sx={{
-                  display: 'block',
-                  margin: '.5rem 0'
-                }}
-                name = "pass"
-                value={user.pass}
-                onChange={handleChange}
-              />
-              <List sx={{ bgcolor: 'background.paper', borderRadius: 1, margin: '.5rem 0' }}>
-                <ListItemButton onClick={handleClick}>
-                  <ListItemText primary={displayRoleName} />
-                  {open ? <ExpandLess /> : <ExpandMore />}
+    <Box
+      id="user-form"
+      component="form"
+      onSubmit={handleSubmit}
+      noValidate
+      sx={{
+        maxWidth: 500,
+        margin: "auto",
+        padding: 2,
+        display: "flex",
+        flexDirection: "column",
+        gap: 2,
+      }}
+    >
+      <TextField
+        fullWidth
+        variant="outlined"
+        label="Nombre del usuario"
+        name="nombreUser"
+        value={user.nombreUser}
+        onChange={handleChange}
+      />
+      <TextField
+        fullWidth
+        variant="outlined"
+        label="Apellido del usuario"
+        name="apellidoUser"
+        value={user.apellidoUser}
+        onChange={handleChange}
+      />
+      <TextField
+        fullWidth
+        variant="outlined"
+        label="Correo institucional"
+        type="email"
+        name="correo"
+        value={user.correo}
+        onChange={handleChange}
+      />
+      <TextField
+        fullWidth
+        variant="outlined"
+        label="Username"
+        name="usuario"
+        value={user.usuario}
+        onChange={handleChange}
+      />
+      <TextField
+        fullWidth
+        variant="outlined"
+        label="Password"
+        type="password"
+        name="pass"
+        value={user.pass}
+        onChange={handleChange}
+      />
+  
+      <List sx={{ bgcolor: 'background.paper', borderRadius: 1 }}>
+        <ListItemButton onClick={handleClick}>
+          <ListItemText primary={displayRoleName} />
+          {open ? <ExpandLess /> : <ExpandMore />}
+        </ListItemButton>
+        <Collapse in={open} timeout="auto" unmountOnExit>
+          <List component="div" disablePadding>
+            {loadingRoles ? (
+              <ListItemText sx={{ pl: 4 }} primary={<CircularProgress size={20} />} />
+            ) : roles.length === 0 ? (
+              <ListItemText sx={{ pl: 4, fontStyle: 'italic' }} primary="No hay roles disponibles" />
+            ) : (
+              roles.map((rol) => (
+                <ListItemButton
+                  key={rol.id_rol}
+                  sx={{ pl: 4 }}
+                  onClick={() => handleRoleSelect(rol.id_rol)}
+                  selected={user.id_rol === rol.id_rol}
+                >
+                  <ListItemText primary={rol.rol} />
                 </ListItemButton>
-                <Collapse in={open} timeout="auto" unmountOnExit>
-                  <List component="div" disablePadding>
-                    {loadingRoles ? (
-                      // Muestra indicador de carga mientras se obtienen los roles
-                      <ListItemText sx={{ pl: 4, fontStyle: 'italic' }} primary={<CircularProgress size={20} />} />
-                    ) : roles.length === 0 ? (
-                      // Mensaje si no se cargaron roles
-                      <ListItemText sx={{ pl: 4, fontStyle: 'italic' }} primary="No hay roles disponibles" />
-                    ) : (
-                      // Mapea los roles obtenidos de la BD
-                      roles.map((rol) => (
-                        <ListItemButton
-                          key={rol.id_rol} // Usa el ID como key
-                          sx={{ pl: 4 }}
-                          onClick={() => handleRoleSelect(rol.id_rol)} // Llama al handler con el ID
-                          selected={user.id_rol === rol.id_rol} // Resalta el seleccionado
-                        >
-                          <ListItemText primary={rol.rol} /> {/* Muestra el nombre del rol */}
-                        </ListItemButton>
-                      ))
-                    )}
-                  </List>
-                </Collapse>
-                
-              </List>
-              <Button variant="contained" color="info" type="submit" disabled={!user.nombreUser || !user.apellidoUser || !user.correo || !user.usuario || !user.pass || !user.id_rol}>
-                {loadingCrear ? <CircularProgress 
-                  color="inherit"
-                  size={24}
-                /> : params.id ? 'EDITAR USUARIO' : 'CREAR USUARIO'}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-      </Grid>
-    </Grid>
-  )
+              ))
+            )}
+          </List>
+        </Collapse>
+      </List>
+  
+      {!hideInternalSubmitButton && (
+        <Button
+          variant="contained"
+          color="info"
+          type="submit"
+          disabled={
+            !user.nombreUser ||
+            !user.apellidoUser ||
+            !user.correo ||
+            !user.usuario ||
+            !user.pass ||
+            !user.id_rol
+          }
+        >
+          {loadingCrear ? (
+            <CircularProgress color="inherit" size={24} />
+          ) : params.id ? 'EDITAR USUARIO' : 'CREAR USUARIO'}
+        </Button>
+      )}
+    </Box>
+  );
+  
 }
