@@ -168,3 +168,39 @@ CREATE TABLE Usuarios (
 );
 
 INSERT INTO Usuarios (nombreUser, apellidoUser, correo, usuario, pass, id_rol) VALUES ('Karen', 'Garzon', 'kdgarzong@udistrital.edu.co', 'kdgarzong', 'kd1234', 1);
+
+CREATE TABLE DocenteGrupo (
+    id_docente_grupo SERIAL PRIMARY KEY,
+    id_docente INTEGER NOT NULL,
+    id_grupo INTEGER NOT NULL,
+    FOREIGN KEY (id_docente) REFERENCES Docentes(id_docente) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (id_grupo) REFERENCES Grupos(id_grupo) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT docente_grupo_unico UNIQUE (id_docente, id_grupo)
+);
+
+INSERT INTO DocenteGrupo (id_docente, id_grupo)
+SELECT DISTINCT 
+    d.id_docente,
+    g.id_grupo
+FROM matrizgeneral m
+JOIN Docentes d ON m.docente = d.nombre
+JOIN Dia di ON m.dia = di.dia
+JOIN Hora h ON m.hora = h.hora
+JOIN Asignaturas a ON m.asignatura = a.nombre
+JOIN Proyecto p ON m.proyecto = p.proyecto
+JOIN Grupos g ON 
+    g.grupo = m.grupo AND
+    g.id_dia = di.id_dia AND
+    g.id_hora = h.id_hora AND
+    g.id_asignatura = a.id_asignatura AND
+    g.id_proyecto = p.id_proyecto;
+
+ALTER TABLE dia ADD COLUMN orden INTEGER;
+
+-- Luego actualizas los valores:
+UPDATE dia SET orden = 1 WHERE dia = 'LUNES';
+UPDATE dia SET orden = 2 WHERE dia = 'MARTES';
+UPDATE dia SET orden = 3 WHERE dia = 'MIERCOLES';
+UPDATE dia SET orden = 4 WHERE dia = 'JUEVES';
+UPDATE dia SET orden = 5 WHERE dia = 'VIERNES';
+UPDATE dia SET orden = 6 WHERE dia = 'SABADO';

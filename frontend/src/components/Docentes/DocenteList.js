@@ -5,6 +5,7 @@ import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
 import EditSquareIcon from '@mui/icons-material/EditSquare';
 import {useNavigate, useLocation} from 'react-router-dom'
 import AddReactionIcon from '@mui/icons-material/AddReaction';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import DocenteForm from './DocenteForm';
 
 import React from 'react';
@@ -29,11 +30,102 @@ const columns = [
   { id: 'nombre', label: 'Nombre del docente'}
 ];
 
+function agruparDisponibilidadPorDia(disponibilidad) {
+  const agrupado = {};
+
+  disponibilidad.forEach(item => {
+    const key = `${item.dia}|${item.salon}|${item.edificio}|${item.nombre_asignatura}`;
+    if (!agrupado[key]) {
+      agrupado[key] = [];
+    }
+    agrupado[key].push(item);
+  });
+
+  return agrupado;
+}
+
+function fusionarFranjasConsecutivas(agrupado) {
+  const resultadoFusionado = [];
+
+  Object.entries(agrupado).forEach(([key, items]) => {
+    // Ordenar por hora
+    const ordenado = items.sort((a, b) => convertirA24Horas(a.hora) - convertirA24Horas(b.hora));
+    let actual = {
+      ...ordenado[0], 
+      hora_inicio: ordenado[0].hora,
+      hora_fin: sumarUnaHora(ordenado[0].hora)
+    };
+
+    for (let i = 1; i < ordenado.length; i++) {
+      const siguiente = ordenado[i];
+      const horaFinActual = convertirA24Horas(actual.hora_fin);
+      const horaInicioSiguiente = convertirA24Horas(siguiente.hora);
+
+      if (horaInicioSiguiente === horaFinActual) {
+        // Expandir franja
+        actual.hora_fin = sumarUnaHora(siguiente.hora);
+      } else {
+        resultadoFusionado.push({...actual});
+        actual = {
+          ...siguiente, 
+          hora_inicio: siguiente.hora,
+          hora_fin: sumarUnaHora(siguiente.hora)
+        };
+      }
+    }
+    resultadoFusionado.push({...actual});
+  });
+  console.log("Fusionado:", resultadoFusionado);
+
+  return resultadoFusionado;
+}
+
+function convertirA24Horas(horaStr) {
+  if (!horaStr) return null;
+
+  // Elimina espacios y símbolos extra (como en "12PM - 1PM")
+  const limpio = horaStr.trim().split(/[^A-Za-z0-9]/)[0]; // solo toma la primera hora
+
+  const match = limpio.match(/^(\d{1,2})(AM|PM)$/i);
+  if (!match) return null;
+
+  let [, hora, periodo ] = match;
+  hora = parseInt(hora, 10);
+
+  if (periodo.toUpperCase() === 'PM' && hora !== 12) {
+    hora += 12;
+  } else if (periodo.toUpperCase() === 'AM' && hora === 12) {
+    hora = 0;
+  }
+
+  return hora; // En formato 24h
+}
+
+function convertirAAMPM(hora24) {
+  const ampm = hora24 >= 12 ? 'PM' : 'AM';
+  const hora12 = hora24 % 12 === 0 ? 12 : hora24 % 12;
+  return `${hora12}${ampm}`;
+}
+
+function sumarUnaHora(horaStr) {
+  const hora24 = convertirA24Horas(horaStr);
+  if (hora24 === null || isNaN(hora24)) return ''; // evita errores
+  const siguiente = (hora24 + 1) % 24;
+  return convertirAAMPM(siguiente);
+}
+
+function formatearRango(horaInicioStr) {
+  const siguiente = sumarUnaHora(horaInicioStr);
+  return `${horaInicioStr} - ${siguiente}`;
+}
+
 export default function DocenteList() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [docentes, setDocentes] = useState([]);
   const [search, setSearch] = useState("");
+  const [disponibilidad, setDisponibilidad] = useState([]);
+  const [disponibilidadModalOpen, setDisponibilidadModalOpen] = useState(false);
   
   const navigate = useNavigate();
   const location = useLocation();
@@ -66,6 +158,22 @@ export default function DocenteList() {
         method: "DELETE",
       })
       setDocentes(docentes.filter(docente => docente.id_docente !== id));
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const handleDisponibilidad = async (id) => {
+    try {
+      const res = await fetch(`http://localhost:5000/teachers/${id}/disponibilidad`, {
+        method: "GET",
+      })
+      const data = await res.json();
+      // Aplicar lógica de fusión
+      const agrupado = agruparDisponibilidadPorDia(data);
+      const fusionado = fusionarFranjasConsecutivas(agrupado);
+      setDisponibilidad(fusionado);
+      setDisponibilidadModalOpen(true);
     } catch (error) {
       console.log(error)
     }
@@ -155,6 +263,14 @@ export default function DocenteList() {
                         >
                           <DeleteRoundedIcon />
                         </Button>
+                        <Button 
+                          variant='contained' 
+                          color='success' 
+                          onClick={() => handleDisponibilidad(docente.id_docente)}
+                          style={{marginLeft: ".5rem"}}
+                        >
+                          <CalendarMonthIcon />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   );
@@ -207,6 +323,50 @@ export default function DocenteList() {
           </Box>
         </Box>
       </Modal>
+
+      {/* MODAL PARA DISPONIBILIDAD DE DOCENTES */}
+
+      <Modal
+        open={disponibilidadModalOpen}
+        onClose={() => setDisponibilidadModalOpen(false)}
+        aria-labelledby="disponibilidad-modal-title"
+      >
+        <Box sx={{ ...style, width: 900 }}>
+          <h2 id="disponibilidad-modal-title">Disponibilidad del docente</h2>
+          {disponibilidad.length > 0 ? (
+            <Box sx={{ maxHeight: '50vh', overflowY: 'auto', mt: 2 }}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Día</TableCell>
+                    <TableCell>Hora</TableCell>
+                    <TableCell>Salón</TableCell>
+                    <TableCell>Edificio</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {disponibilidad.map((item, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{item.dia}</TableCell>
+                      <TableCell>{formatearRango(item.hora)}</TableCell>
+                      <TableCell>{item.salon}</TableCell>
+                      <TableCell>{item.edificio}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Box>
+          ) : (
+            <p>No hay disponibilidad asignada.</p>
+          )}
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+            <Button variant="outlined" onClick={() => setDisponibilidadModalOpen(false)}>
+              Cerrar
+            </Button>
+          </Box>
+        </Box>
+      </Modal>
+
     </>
   )
 }

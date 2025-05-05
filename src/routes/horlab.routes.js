@@ -21,6 +21,7 @@ const {
 const {
     getAllTeachers,
     getTeacher,
+    getTeacherSchedule,
     createTeacher,
     deleteTeacher,
     updateTeacher
@@ -57,6 +58,7 @@ router.put('/subjects/:idsubjectActualizar', updateSubject)
 //RUTAS PARA EL CONTROLADOR DE DOCENTE
 router.get('/teachers', getAllTeachers)
 router.get('/teachers/:id', getTeacher)
+router.get('/teachers/:id/disponibilidad', getTeacherSchedule); // Obtener disponibilidad horaria de un docente
 router.post('/teachers', createTeacher)
 router.delete('/teachers/:iddocenteEliminar', deleteTeacher)
 router.put('/teachers/:iddocenteActualizar', updateTeacher)
