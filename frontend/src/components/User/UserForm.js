@@ -146,10 +146,10 @@ export default function UserForm({ userId, hideInternalSubmitButton = false, onE
 
   useEffect(() => {
     if (userId) {
-      loadOneUser(userId); // ya debes tener esta función
+      loadOneUser(userId);
       setEditing(true);
     } else {
-      setUser(initialUserState); // <-- limpia los campos
+      setUser(initialUserState);
       setEditing(false);
     }
   }, [userId]);

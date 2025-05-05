@@ -6,46 +6,52 @@ import { AppProvider } from '@toolpad/core/AppProvider';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import { useNavigate, useLocation} from 'react-router-dom';
 import { Outlet } from 'react-router-dom';
+import PersonIcon from '@mui/icons-material/Person';
+import SchoolIcon from '@mui/icons-material/School';
+import DescriptionIcon from '@mui/icons-material/Description';
+import SubjectIcon from '@mui/icons-material/Subject';
+import DomainIcon from '@mui/icons-material/Domain';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 
 const NAVIGATION = [
-  /*{
-    segment: 'orders',
+  {
+    segment: 'Login/admin',
     title: 'Página Principal',
-    icon: <ShoppingCartIcon />,
-  },*/
+    icon: <DashboardIcon />,
+  },
   {
     kind: 'divider',
   },
   {
     segment: 'ListarUsuarios',
     title: 'Usuarios',
-    icon: <DashboardIcon />,
-  },/*
+    icon: <PersonIcon />,
+  },
   {
-    segment: 'orders',
+    segment: 'ListarDocentes',
     title: 'Docentes',
-    icon: <ShoppingCartIcon />,
+    icon: <SchoolIcon />,
   },
   {
-    segment: 'orders',
+    segment: 'ListarAsignaturas',
     title: 'Asignaturas',
-    icon: <ShoppingCartIcon />,
+    icon: <SubjectIcon />,
   },
   {
-    segment: 'orders',
+    segment: 'ListarSalas',
     title: 'Salas',
-    icon: <ShoppingCartIcon />,
+    icon: <DomainIcon />,
   },
   {
-    segment: 'orders',
-    title: 'Salas',
-    icon: <ShoppingCartIcon />,
+    segment: 'ListarHorarios',
+    title: 'Horarios',
+    icon: <CalendarMonthIcon />,
   },
   {
-    segment: 'orders',
-    title: 'Salas',
-    icon: <ShoppingCartIcon />,
-  },*/
+    segment: 'ListarReportes',
+    title: 'Reportes',
+    icon: <DescriptionIcon />,
+  },
 ];
 
 const demoTheme = createTheme({

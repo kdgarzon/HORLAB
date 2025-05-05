@@ -3,6 +3,7 @@ import Login from './components/Login'
 import InicioAdm from './components/Inicio/InicioAdm'
 import InicioDoc from './components/Inicio/InicioDoc'
 import UserList from './components/User/UserList'
+import DocenteList from './components/Docentes/DocenteList'
 import PrivateRoute from './components/Inicio/PrivateRoute'
 import DashboardLayoutBranding from './components/NavBar'
 
@@ -17,11 +18,15 @@ function AppContent() {
           <Route element={<PrivateRoute allowedRoles={[1]}><DashboardLayoutBranding /></PrivateRoute>}>
             <Route path='/Login/admin' element={<InicioAdm />} />
             
-
             <Route path='/ListarUsuarios' element={<UserList />}>
               <Route path='/ListarUsuarios/Usuarios' element={null} />
               <Route path='/ListarUsuarios/Usuarios/:id' element={null} />
             </Route>
+            <Route path='/ListarDocentes' element={<DocenteList />}>
+              <Route path='/ListarDocentes/Docentes' element={null} />
+              <Route path='/ListarDocentes/Docentes/:id' element={null} />
+            </Route>
+
           </Route>
 
           <Route path='/Login/docente' element={<PrivateRoute allowedRoles={[2]}><InicioDoc /></PrivateRoute>} />
