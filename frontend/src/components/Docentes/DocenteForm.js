@@ -69,7 +69,7 @@ export default function DocenteForm({ docenteId, hideInternalSubmitButton = fals
   
 
   const handleChange = (e) => 
-    setDocente({...docente, [e.target.name]: e.target.value}); //Actualiza el valor que vamos a enviar del TextField
+    setDocente({...docente, [e.target.name]: e.target.value.toUpperCase()}); //Actualiza el valor que vamos a enviar del TextField
   
   const loadOneDocente = async (id) => {
     const res = await fetch(`http://localhost:5000/teachers/${id}`)
@@ -90,10 +90,6 @@ export default function DocenteForm({ docenteId, hideInternalSubmitButton = fals
       setEditing(false);
     }
   }, [docenteId]);
-
-  /*const handleClick = () => {
-    setOpen(!open);
-  };*/
 
   return (
     <Box
@@ -118,6 +114,7 @@ export default function DocenteForm({ docenteId, hideInternalSubmitButton = fals
         name="nombre"
         value={docente.nombre}
         onChange={handleChange}
+        sx={{'& input': {textTransform: 'uppercase'}}}
       />
   
       {!hideInternalSubmitButton && (
