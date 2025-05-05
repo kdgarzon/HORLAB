@@ -33,6 +33,10 @@ const createTeacher = async (req, res, next) => {
     
         res.json(result.rows[0])
     } catch (error) {
+        if (error.code === '23505') {
+            // 23505 = unique_violation en PostgreSQL
+            return res.status(409).json({ error: 'El docente ya existe en la base de datos.' });
+        }
         next(error)
     }
 }

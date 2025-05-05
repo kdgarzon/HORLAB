@@ -1,4 +1,4 @@
-import { Box, Button, CircularProgress, TextField } from "@mui/material"
+import { Alert, AlertTitle, Box, Button, CircularProgress, TextField } from "@mui/material"
 import { useState, useEffect } from "react";
 import * as React from 'react';
 import {useNavigate, useParams} from 'react-router-dom'
@@ -13,6 +13,7 @@ export default function DocenteForm({ docenteId, hideInternalSubmitButton = fals
   const params = useParams();
   const [loadingCrear, setLoadingCrear] = useState(false);
   const [editing, setEditing] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('');
   
   const [docente, setDocente] = useState(initialDocenteState);
 
@@ -46,8 +47,14 @@ export default function DocenteForm({ docenteId, hideInternalSubmitButton = fals
   
         if(!res.ok){
           // Si la respuesta no es OK, intenta leer el cuerpo como texto para ver el error del backend
-          const errorData = await res.text();
-          throw new Error(`Error del servidor: ${res.status} - ${errorData}`);
+
+          const errorData = await res.json();
+          if(res.status === 409){
+            setErrorMessage(errorData.error)
+            return;
+          }else{
+            throw new Error(errorData.error || `Error del servidor: ${res.status}`);
+          }
         }
     
         const data = await res.json()
@@ -107,6 +114,12 @@ export default function DocenteForm({ docenteId, hideInternalSubmitButton = fals
         gap: 2,
       }}
     >
+      {errorMessage && (
+        <Alert severity="error" onClose={() => setErrorMessage('')}>
+          <AlertTitle>Error</AlertTitle>
+          {errorMessage}
+        </Alert>
+      )}
       <TextField
         fullWidth
         variant="outlined"
@@ -115,6 +128,7 @@ export default function DocenteForm({ docenteId, hideInternalSubmitButton = fals
         value={docente.nombre}
         onChange={handleChange}
         sx={{'& input': {textTransform: 'uppercase'}}}
+        helperText="Escribe primero los nombres y luego los apellidos completos."
       />
   
       {!hideInternalSubmitButton && (
