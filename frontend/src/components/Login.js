@@ -1,13 +1,108 @@
 import * as React from 'react';
+import {
+  Button, TextField, InputAdornment, Link, IconButton
+} from '@mui/material';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { AppProvider } from '@toolpad/core/AppProvider';
 import { SignInPage } from '@toolpad/core/SignInPage';
 import { useTheme } from '@mui/material/styles';
 
-const providers = [{ id: 'credentials', name: 'Usuario y contraseña' }];
+const providers = [{ id: 'credentials', name: 'User and Password' }];
+
+function CustomEmailField() {
+  return (
+    <TextField
+      id="input-with-icon-textfield"
+      label="Usuario"
+      name="usuarioLogin"
+      autoFocus="true"
+      autoComplete="username"
+      type="text"
+      size="small"
+      required
+      fullWidth
+      variant="standard"
+    />
+  );
+}
+
+function CustomPasswordField() {
+  const [showPassword, setShowPassword] = React.useState(false);
+
+  const handleClickShowPassword = () => setShowPassword((show) => !show);
+
+  const handleMouseDownPassword = (event) => {
+    event.preventDefault();
+  };
+
+  return (
+    <TextField 
+      name="password"
+      id="input_password"
+      label="Contraseña"
+      type={showPassword ? 'text' : 'password'}
+      size="small"
+      required
+      fullWidth
+      autoComplete="new-password"
+      variant="standard"
+      slotProps={{
+        input: {
+          endAdornment: (
+            <InputAdornment position="end">
+              <IconButton
+                aria-label="toggle password visibility"
+                onClick={handleClickShowPassword}
+                onMouseDown={handleMouseDownPassword}
+                edge="end"
+                size="small"
+              >
+                {showPassword ? (
+                  <VisibilityOff fontSize="inherit" />
+                ) : (
+                  <Visibility fontSize="inherit" />
+                )}
+              </IconButton>
+            </InputAdornment>
+          ),
+        },
+      }}
+    />
+  );
+}
+
+function CustomButton() {
+  return (
+    <Button
+      type="submit"
+      variant="contained"
+      color="info"
+      size="small"
+      disableElevation
+      fullWidth
+      sx={{ my: 2 }}
+    >
+      Iniciar sesión
+    </Button>
+  );
+}
+
+function ForgotPasswordLink() {
+  return (
+    <Link href="/" variant="body2">
+      ¿Olvidaste tu contraseña?
+    </Link>
+  );
+}
+
+function Title() {
+  return <h2 style={{ marginBottom: 8 }}>Iniciar sesión</h2>;
+}
 
 const signIn = async (provider, formData) => {
 
-  const usuario = formData?.get('email');
+  const usuario = formData?.get('usuarioLogin');
   const pass = formData?.get('password');
 
   return new Promise(async (resolve) => {
@@ -55,44 +150,22 @@ const signIn = async (provider, formData) => {
   });
 };
 
-export default function Login() {
+export default function SlotsSignIn() {
   const theme = useTheme();
   return (
-    
     <AppProvider theme={theme}>
       <SignInPage
+        autoComplete= "off"
         signIn={signIn}
-        providers={providers}
-        slotProps={{ 
-          emailField: { label: 'Usuario', autoFocus: true }, 
-          form: { noValidate: true } 
+        slots={{
+          title: Title,
+          emailField: CustomEmailField,
+          passwordField: CustomPasswordField,
+          submitButton: CustomButton,
+          forgotPasswordLink: ForgotPasswordLink,
         }}
+        providers={providers}
       />
     </AppProvider>
   );
 }
-
-
-//PARA LEER EL ID_ROL DESDE CUALQUIER PARTE DEL FRONTEND
-
-/*const idRol = localStorage.getItem('id_rol');
-console.log('Rol actual:', idRol);
-
-Por ejemplo, si quieres validar que solo un administrador acceda a una página:
-
-React.useEffect(() => {
-  const rol = localStorage.getItem('id_rol');
-  if (rol !== '1') {
-    alert('Acceso denegado. Solo administradores.');
-    window.location.href = '/Login';
-  }
-}, []);
-
-3. Borrar los datos de sesión (logout)
-Cuando el usuario cierre sesión, puedes limpiar los datos así:
-
-localStorage.removeItem('id_rol');
-localStorage.removeItem('usuario');
-// O si quieres borrar todo:
-localStorage.clear();
-window.location.href = '/Login';*/
