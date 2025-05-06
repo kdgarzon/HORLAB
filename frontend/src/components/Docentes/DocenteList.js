@@ -1,6 +1,6 @@
 import {useEffect, useState} from 'react'
 import { Paper, Table, TableBody, TablePagination, TableCell, TableContainer, TableHead, 
-  TableRow, Button, Box, TextField, Modal} from "@mui/material";
+  TableRow, Button, Box, TextField, Modal, Alert, AlertTitle} from "@mui/material";
 import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
 import EditSquareIcon from '@mui/icons-material/EditSquare';
 import {useNavigate, useLocation} from 'react-router-dom'
@@ -114,12 +114,6 @@ function sumarUnaHora(horaStr) {
   return convertirAAMPM(siguiente);
 }
 
-/*function formatearRango(horaInicioStr) {
-  if (horaInicioStr.includes('-')) return horaInicioStr; // ya es un rango
-  const siguiente = sumarUnaHora(horaInicioStr);
-  return `${horaInicioStr} - ${siguiente}`;
-}*/
-
 function extraerHoraInicial(horaInicioStr) {
   if (!horaInicioStr) return '';
   const match = horaInicioStr.trim().match(/^(\d{1,2}(AM|PM))/i);
@@ -133,6 +127,7 @@ export default function DocenteList() {
   const [search, setSearch] = useState("");
   const [disponibilidad, setDisponibilidad] = useState([]);
   const [disponibilidadModalOpen, setDisponibilidadModalOpen] = useState(false);
+  const [sinDisponibilidad, setSinDisponibilidad] = useState(false);
   
   const navigate = useNavigate();
   const location = useLocation();
@@ -175,14 +170,32 @@ export default function DocenteList() {
       const res = await fetch(`http://localhost:5000/teachers/${id}/disponibilidad`, {
         method: "GET",
       })
+
+      if (!res.ok) {
+        // Si la respuesta no es 200, abrir modal vacío y terminar
+        setDisponibilidad([]);
+        setDisponibilidadModalOpen(true);
+        return;
+      }
+
       const data = await res.json();
-      // Aplicar lógica de fusión
-      const agrupado = agruparDisponibilidadPorDia(data);
-      const fusionado = fusionarFranjasConsecutivas(agrupado);
-      setDisponibilidad(fusionado);
+
+      if (!Array.isArray(data)) {
+        // Si por alguna razón no es un arreglo, también mostramos vacío
+        setDisponibilidad([]);
+      } else {
+        // Aplicar lógica de fusión solo si hay datos
+        const agrupado = agruparDisponibilidadPorDia(data);
+        const fusionado = fusionarFranjasConsecutivas(agrupado);
+        setDisponibilidad(fusionado);
+        setSinDisponibilidad(fusionado.length === 0); // activa la alerta si no hay datos
+      }
       setDisponibilidadModalOpen(true);
+      
     } catch (error) {
       console.log(error)
+      setDisponibilidad([]); // Mostrar alerta si hubo error de red
+      setDisponibilidadModalOpen(true);
     }
   }
 
@@ -364,7 +377,10 @@ export default function DocenteList() {
               </Table>
             </Box>
           ) : (
-            <p>No hay disponibilidad asignada.</p>
+            <Alert severity="error" sx={{ mt: 2 }}>
+              <AlertTitle>Error</AlertTitle>
+              El docente no tiene carga académica asignada hasta el momento.
+            </Alert>
           )}
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
             <Button variant="outlined" onClick={() => setDisponibilidadModalOpen(false)}>
