@@ -47,7 +47,7 @@ const getTeacherSchedule = async (req, res, next) => {
                     SELECT proyecto FROM Proyecto WHERE id_proyecto = g.id_proyecto
                 )
             WHERE d.id_docente = $1
-            ORDER BY dia.dia, h.hora
+            ORDER BY dia.orden, h.hora
         `, [id]);
         if(result.rows.length === 0) return res.status(404).json({
             message: "Docente no tiene franja horaria asignada"

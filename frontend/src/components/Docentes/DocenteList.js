@@ -114,9 +114,16 @@ function sumarUnaHora(horaStr) {
   return convertirAAMPM(siguiente);
 }
 
-function formatearRango(horaInicioStr) {
+/*function formatearRango(horaInicioStr) {
+  if (horaInicioStr.includes('-')) return horaInicioStr; // ya es un rango
   const siguiente = sumarUnaHora(horaInicioStr);
   return `${horaInicioStr} - ${siguiente}`;
+}*/
+
+function extraerHoraInicial(horaInicioStr) {
+  if (!horaInicioStr) return '';
+  const match = horaInicioStr.trim().match(/^(\d{1,2}(AM|PM))/i);
+  return match ? match[1] : horaInicioStr;
 }
 
 export default function DocenteList() {
@@ -348,7 +355,7 @@ export default function DocenteList() {
                   {disponibilidad.map((item, index) => (
                     <TableRow key={index}>
                       <TableCell>{item.dia}</TableCell>
-                      <TableCell>{formatearRango(item.hora)}</TableCell>
+                      <TableCell>{`${extraerHoraInicial(item.hora_inicio)} - ${item.hora_fin}`}</TableCell>
                       <TableCell>{item.salon}</TableCell>
                       <TableCell>{item.edificio}</TableCell>
                     </TableRow>
