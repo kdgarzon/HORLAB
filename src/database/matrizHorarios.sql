@@ -169,6 +169,16 @@ CREATE TABLE Usuarios (
 
 INSERT INTO Usuarios (nombreUser, apellidoUser, correo, usuario, pass, id_rol) VALUES ('Karen', 'Garzon', 'kdgarzong@udistrital.edu.co', 'kdgarzong', 'kd1234', 1);
 
+CREATE TABLE Recuperar_pass (
+    id SERIAL,
+    id_usuario INTEGER NOT NULL,
+    reset_token VARCHAR(255) NOT NULL,
+    expiration TIMESTAMP NOT NULL,
+    used BOOLEAN DEFAULT FALSE,
+    PRIMARY KEY (id),
+    FOREIGN KEY (id_usuario) REFERENCES Usuarios(id_usuario) ON DELETE CASCADE
+);
+
 CREATE TABLE DocenteGrupo (
     id_docente_grupo SERIAL PRIMARY KEY,
     id_docente INTEGER NOT NULL,

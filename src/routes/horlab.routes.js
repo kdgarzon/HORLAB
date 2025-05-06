@@ -7,7 +7,9 @@ const {
     getUserLogin,
     createUser, 
     deleteUser, 
-    updateUser
+    updateUser,
+    sendResetPasswordEmail,
+    resetPassword
 } = require('../controllers/controllerUser')
 
 const {
@@ -47,6 +49,8 @@ router.get('/users/:id', getUser)
 router.post('/users', createUser)
 router.delete('/users/:idusuarioEliminar', deleteUser)
 router.put('/users/:idusuarioActualizar', updateUser)
+router.post('/forgot-password', sendResetPasswordEmail);
+router.post('/reset-password', resetPassword);
 
 //RUTAS PARA EL CONTROLADOR DE ASIGNATURAS
 router.get('/subjects', getAllSubjects)
