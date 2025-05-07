@@ -6,6 +6,8 @@ import UserList from './components/User/UserList'
 import DocenteList from './components/Docentes/DocenteList'
 import PrivateRoute from './components/Inicio/PrivateRoute'
 import DashboardLayoutBranding from './components/NavBar'
+import ForgotPassword from './components/ForgotPassword';
+import ResetPassword from './components/ResetPassword';
 
 function AppContent() {
   return (
@@ -28,6 +30,10 @@ function AppContent() {
             </Route>
 
           </Route>
+
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
+
 
           <Route path='/Login/docente' element={<PrivateRoute allowedRoles={[2]}><InicioDoc /></PrivateRoute>} />
 

@@ -50,7 +50,7 @@ router.post('/users', createUser)
 router.delete('/users/:idusuarioEliminar', deleteUser)
 router.put('/users/:idusuarioActualizar', updateUser)
 router.post('/forgot-password', sendResetPasswordEmail);
-router.post('/reset-password', resetPassword);
+router.post('/reset-password/:token', resetPassword);
 
 //RUTAS PARA EL CONTROLADOR DE ASIGNATURAS
 router.get('/subjects', getAllSubjects)

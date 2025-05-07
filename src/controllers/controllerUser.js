@@ -1,5 +1,6 @@
 const pool = require('../dbconexion')
 const crypto = require('crypto');
+const nodemailer = require('nodemailer');
 
 const getAllUsers = async (req, res, next) => {
     try {      
@@ -124,9 +125,24 @@ const sendResetPasswordEmail = async (req, res, next) => {
         VALUES ($1, $2, $3)
     `, [id_usuario, token, expiration]);
 
-    const resetLink = `http://localhost:3000/reset-password?token=${token}`;
+    const resetLink = `http://localhost:3000/reset-password/${token}`;
     console.log("Enlace de restablecimiento:", resetLink);
-    // Aquí deberías enviar el correo con `nodemailer`
+    
+    //ENVIAR CORREO CON NODEMAILER
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: 'kdgarzong@gmail.com',
+          pass: 'hpzj zieq bvyd tgwi'
+        }
+    });
+      
+    await transporter.sendMail({
+        from: 'kdgarzong@gmail.com',
+        to: correo,
+        subject: 'Recuperación de contraseña',
+        text: `Haz clic en el siguiente enlace para restablecer tu contraseña: ${resetLink}`
+    });
 
     res.json({ message: "Correo de recuperación enviado" });
   } catch (error) {
@@ -135,7 +151,8 @@ const sendResetPasswordEmail = async (req, res, next) => {
 };
 
 const resetPassword = async (req, res, next) => {
-    const { token, newPassword} = req.body;
+    const {newPassword} = req.body
+    const { token } = req.params;
   
     try {
       const result = await pool.query(
@@ -150,7 +167,7 @@ const resetPassword = async (req, res, next) => {
       const { id_usuario } = result.rows[0];
   
       await pool.query(
-        "UPDATE usuarios SET pass = $1, WHERE id_usuario = $2",
+        "UPDATE usuarios SET pass = $1 WHERE id_usuario = $2",
         [newPassword, id_usuario]
       );
 
