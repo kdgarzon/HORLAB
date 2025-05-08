@@ -13,13 +13,15 @@ function AppContent() {
   return (
 
         <Routes>
-
+          {/* Rutas accesibles para cualquier usuario */}
           <Route path='/Login' element={<Login />} />
           <Route path='/' element={<Navigate to='/Login' />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
 
+          {/* Rutas accesibles para usuario de administrador */}
           <Route element={<PrivateRoute allowedRoles={[1]}><DashboardLayoutBranding /></PrivateRoute>}>
             <Route path='/Login/admin' element={<InicioAdm />} />
-            
             <Route path='/ListarUsuarios' element={<UserList />}>
               <Route path='/ListarUsuarios/Usuarios' element={null} />
               <Route path='/ListarUsuarios/Usuarios/:id' element={null} />
@@ -28,15 +30,12 @@ function AppContent() {
               <Route path='/ListarDocentes/Docentes' element={null} />
               <Route path='/ListarDocentes/Docentes/:id' element={null} />
             </Route>
-
           </Route>
 
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password/:token" element={<ResetPassword />} />
-
-
-          <Route path='/Login/docente' element={<PrivateRoute allowedRoles={[2]}><InicioDoc /></PrivateRoute>} />
-
+          {/* Rutas accesibles para usuario de docente */}
+          <Route element={<PrivateRoute allowedRoles={[2]}><DashboardLayoutBranding /></PrivateRoute>}>
+            <Route path='/Login/docente' element={<InicioDoc />} />            
+          </Route>
         </Routes>
 
   );

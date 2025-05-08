@@ -99,8 +99,6 @@ function DashboardLayoutBranding(props) {
     pathname: location.pathname,
     navigate: (path) => navigate(path),
   };
-
-  // Remove this const when copying and pasting into your project.
   const demoWindow = window !== undefined ? window() : undefined;
 
   return (
@@ -121,7 +119,6 @@ function DashboardLayoutBranding(props) {
         <Outlet />
       </DashboardLayout>
     </AppProvider>
-    // preview-end
   );
 }
 
