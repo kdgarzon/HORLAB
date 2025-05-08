@@ -12,6 +12,7 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import SubjectIcon from '@mui/icons-material/Subject';
 import DomainIcon from '@mui/icons-material/Domain';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 const NAVIGATION_ADMIN = [
   {segment: 'Login/admin', title: 'Página Principal', icon: <DashboardIcon />,},
@@ -22,12 +23,16 @@ const NAVIGATION_ADMIN = [
   {segment: 'ListarSalas', title: 'Salas', icon: <DomainIcon />,},
   {segment: 'ListarHorarios', title: 'Horarios', icon: <CalendarMonthIcon />,},
   {segment: 'ListarReportes', title: 'Reportes', icon: <DescriptionIcon />,},
+  {kind: 'divider',},
+  {title: 'Cerrar Sesión', icon: <LogoutIcon />},
 ];
 
 const NAVIGATION_DOCENTE = [
   {segment: 'Login/docente', title: 'Página Principal', icon: <DashboardIcon />,},
   {kind: 'divider',},
   {segment: 'ListarDocentes', title: 'Docentes', icon: <SchoolIcon />,},
+  {kind: 'divider',},
+  {title: 'Cerrar Sesión', icon: <LogoutIcon />},
 ]
 
 const demoTheme = createTheme({
@@ -68,15 +73,32 @@ DemoPageContent.propTypes = {
 
 function DashboardLayoutBranding(props) {
   const { window } = props;
-
   const navigate = useNavigate();
   const location = useLocation();
   const router = {
     pathname: location.pathname,
     navigate: (path) => navigate(path),
   };
-  const demoWindow = window !== undefined ? window() : undefined;
 
+  React.useEffect(() => {
+    const handleClick = (e) => {
+      const target = e.target.closest('[data-toolpad-navigation-item]');
+      if (!target) return;
+
+      const title = target.textContent?.trim();
+
+      if (title === 'Cerrar Sesión') {
+        e.preventDefault();
+        localStorage.clear();
+        navigate('/Login');
+      }
+    };
+
+    document.addEventListener('click', handleClick);
+    return () => document.removeEventListener('click', handleClick);
+  }, [navigate]);
+  
+  const demoWindow = window !== undefined ? window() : undefined;
   const rol = localStorage.getItem('id_rol');
 
   const filteredNavigation =
@@ -93,7 +115,7 @@ function DashboardLayoutBranding(props) {
     <AppProvider
       navigation={filteredNavigation}
       branding={{
-        logo: <img src="cientifico.png" alt="HORLAB logo" />,
+        logo: <img src="/cientifico.png" alt="HORLAB logo" />,
         title: 'HORLAB',
         homeUrl: homeUrl,
       }}
@@ -102,6 +124,7 @@ function DashboardLayoutBranding(props) {
       window={demoWindow}
     >
       <DashboardLayout>
+
         <Outlet />
       </DashboardLayout>
     </AppProvider>
