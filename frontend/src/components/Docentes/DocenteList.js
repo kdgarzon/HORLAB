@@ -213,15 +213,16 @@ export default function DocenteList() {
     <>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, ml: 5, mr: 5 }}>
         <h1>DOCENTE LIST</h1>
-        <Button 
-          variant="contained" 
-          color="primary" 
-          onClick={() => navigate('/ListarDocentes/Docentes')}
-        >
-          <AddReactionIcon />
-        </Button>
+        {localStorage.getItem('id_rol') === '1' && (
+          <Button 
+            variant="contained" 
+            color="primary" 
+            onClick={() => navigate('/ListarDocentes/Docentes')}
+          >
+            <AddReactionIcon />
+          </Button>
+        )}
       </Box>
-
       <Box sx={{ mb: 5, ml: 5, mr: 5 }}>
         <TextField 
           fullWidth 
@@ -268,21 +269,25 @@ export default function DocenteList() {
                         );
                       })}
                       <TableCell align="center">
-                        <Button 
-                          variant='contained'
-                          onClick={() => navigate(`/ListarDocentes/Docentes/${docente.id_docente}`)}
-                          sx={{ backgroundColor: '#fbc02d', color: 'white', '&:hover': { backgroundColor: '#fdd835' } }}
-                        >
-                          <EditSquareIcon />
-                        </Button>
-                        <Button 
-                          variant='contained' 
-                          color='warning' 
-                          onClick={() => handleDelete(docente.id_docente)}
-                          style={{marginLeft: ".5rem"}}
-                        >
-                          <DeleteRoundedIcon />
-                        </Button>
+                        {localStorage.getItem('id_rol') === '1' && (
+                          <>
+                            <Button 
+                              variant='contained'
+                              onClick={() => navigate(`/ListarDocentes/Docentes/${docente.id_docente}`)}
+                              sx={{ backgroundColor: '#fbc02d', color: 'white', '&:hover': { backgroundColor: '#fdd835' } }}
+                            >
+                              <EditSquareIcon />
+                            </Button>
+                            <Button 
+                              variant='contained' 
+                              color='warning' 
+                              onClick={() => handleDelete(docente.id_docente)}
+                              style={{marginLeft: ".5rem"}}
+                            >
+                              <DeleteRoundedIcon />
+                            </Button>
+                          </>
+                        )}
                         <Button 
                           variant='contained' 
                           color='success' 

@@ -137,6 +137,7 @@ const signIn = async (provider, formData) => {
         }
 
         const data = await res.json();
+        //localStorage.setItem('id_rol', data.id_rol);
         localStorage.setItem('id_rol', data.id_rol);
         localStorage.setItem('usuario', data.usuario);
 

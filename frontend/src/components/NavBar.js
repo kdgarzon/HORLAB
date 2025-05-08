@@ -13,46 +13,22 @@ import SubjectIcon from '@mui/icons-material/Subject';
 import DomainIcon from '@mui/icons-material/Domain';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 
-const NAVIGATION = [
-  {
-    segment: 'Login/admin',
-    title: 'Página Principal',
-    icon: <DashboardIcon />,
-  },
-  {
-    kind: 'divider',
-  },
-  {
-    segment: 'ListarUsuarios',
-    title: 'Usuarios',
-    icon: <PersonIcon />,
-  },
-  {
-    segment: 'ListarDocentes',
-    title: 'Docentes',
-    icon: <SchoolIcon />,
-  },
-  {
-    segment: 'ListarAsignaturas',
-    title: 'Asignaturas',
-    icon: <SubjectIcon />,
-  },
-  {
-    segment: 'ListarSalas',
-    title: 'Salas',
-    icon: <DomainIcon />,
-  },
-  {
-    segment: 'ListarHorarios',
-    title: 'Horarios',
-    icon: <CalendarMonthIcon />,
-  },
-  {
-    segment: 'ListarReportes',
-    title: 'Reportes',
-    icon: <DescriptionIcon />,
-  },
+const NAVIGATION_ADMIN = [
+  {segment: 'Login/admin', title: 'Página Principal', icon: <DashboardIcon />,},
+  {kind: 'divider',},
+  {segment: 'ListarUsuarios', title: 'Usuarios', icon: <PersonIcon />,},
+  {segment: 'ListarDocentes', title: 'Docentes', icon: <SchoolIcon />,},
+  {segment: 'ListarAsignaturas', title: 'Asignaturas', icon: <SubjectIcon />,},
+  {segment: 'ListarSalas', title: 'Salas', icon: <DomainIcon />,},
+  {segment: 'ListarHorarios', title: 'Horarios', icon: <CalendarMonthIcon />,},
+  {segment: 'ListarReportes', title: 'Reportes', icon: <DescriptionIcon />,},
 ];
+
+const NAVIGATION_DOCENTE = [
+  {segment: 'Login/docente', title: 'Página Principal', icon: <DashboardIcon />,},
+  {kind: 'divider',},
+  {segment: 'ListarDocentes', title: 'Docentes', icon: <SchoolIcon />,},
+]
 
 const demoTheme = createTheme({
   cssVariables: {
@@ -101,20 +77,30 @@ function DashboardLayoutBranding(props) {
   };
   const demoWindow = window !== undefined ? window() : undefined;
 
+  const rol = localStorage.getItem('id_rol');
+
+  const filteredNavigation =
+  rol === '1' ? NAVIGATION_ADMIN :
+  rol === '2' ? NAVIGATION_DOCENTE :
+  [];
+
+  const homeUrl =
+  rol === '1' ? '/Login/admin' :
+  rol === '2' ? '/Login/docente' :
+  '/Login'; // Por si no hay rol válido
+
   return (
-    // preview-start
     <AppProvider
-      navigation={NAVIGATION}
+      navigation={filteredNavigation}
       branding={{
-        logo: <img src="https://mui.com/static/logo.png" alt="MUI logo" />,
-        title: 'MUI',
-        homeUrl: '/toolpad/core/introduction',
+        logo: <img src="cientifico.png" alt="HORLAB logo" />,
+        title: 'HORLAB',
+        homeUrl: homeUrl,
       }}
       router={router}
       theme={demoTheme}
       window={demoWindow}
     >
-
       <DashboardLayout>
         <Outlet />
       </DashboardLayout>
