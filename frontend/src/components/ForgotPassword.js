@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TextField, Button, Typography, Container } from '@mui/material';
+import { TextField, Button, Typography, Container, Box } from '@mui/material';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
@@ -19,19 +19,45 @@ export default function ForgotPassword() {
   };
 
   return (
-    <Container>
-      <Typography variant="h5">¿Olvidaste tu contraseña?</Typography>
-      <form onSubmit={handleSubmit}>
-        <TextField
-          label="Correo electrónico"
-          fullWidth
-          margin="normal"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-        />
-        <Button type="submit" variant="contained">Enviar enlace</Button>
-      </form>
-      {msg && <Typography>{msg}</Typography>}
-    </Container>
+    <Box
+      sx={{
+        backgroundImage: `url('Rojo_naranja.jpg')`, // Asegúrate que esté en /public
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        minHeight: '100vh',
+      }}
+    >
+      <Container maxWidth="sm">
+        <Box
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+          minHeight="100vh"
+        >
+          <Typography variant="h5">¿Olvidaste tu contraseña?</Typography>
+          <form onSubmit={handleSubmit}>
+            <TextField
+              label="Correo electrónico"
+              fullWidth
+              margin="normal"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+            />
+            <Button 
+              type="submit" 
+              variant="contained"
+              fullWidth
+              sx={{ mt: 2, bgcolor: '#FF4500', '&:hover': { bgcolor: '#b30000' } }}
+            >
+              Enviar enlace
+            </Button>
+          </form>
+          {msg && <Typography sx={{ mt: 2 }} color="text.secondary">
+            {msg}
+          </Typography>}
+        </Box>
+      </Container>
+    </Box>
   );
 }
