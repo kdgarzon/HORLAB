@@ -19,10 +19,10 @@ export default function HomePage() {
             <Typography variant="h3" fontWeight="bold" gutterBottom> 
               Bienvenido(a) a HORLAB 
             </Typography> 
-            <Typography variant="h5" color="text.secondary"> 
+            <Typography variant="h5" color="text.secondary" mt={2}> 
               Organiza tus clases de manera fácil y eficiente. 
             </Typography> 
-            <Typography variant="subtitle1" color="text.secondary"> 
+            <Typography variant="subtitle1" color="text.secondary" mt={2}> 
               Aquí podrás consultar tus asignaturas, revisar tus horarios asignados y mantener todo bajo control para que tu experiencia docente sea más productiva y sin contratiempos. 
             </Typography> 
           </Box> 
@@ -50,7 +50,7 @@ export default function HomePage() {
             {/* Imagen 2 (vertical grande) */} 
             <Box 
               component="img" 
-              src="/Segunda foto.jpg" 
+              src="/Segunda imagen.jpg" 
               alt="Imagen 2" 
               sx={{ 
                 width: { xs: 160, sm: 250, md: 350 }, 
@@ -67,7 +67,7 @@ export default function HomePage() {
             {/* Imagen 1 (vertical pequeña encima de la 2) */} 
             <Box 
               component="img" 
-              src="/Primera iamgen.jpg" 
+              src="/Primera imagen.jpg" 
               alt="Imagen 1" 
               sx={{ 
                 width: { xs: 120, sm: 180, md: 280 }, 
@@ -83,7 +83,7 @@ export default function HomePage() {
             {/* Imagen 3 (cuadrada pequeña) */} 
             <Box 
               component="img" 
-              src="/Tercera foto.jpg" 
+              src="/Tercera imagen.jpg" 
               alt="Imagen 3" 
               sx={{ 
                 width: { xs: 100, sm: 200, md: 300 }, 
