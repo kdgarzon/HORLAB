@@ -21,7 +21,7 @@ export default function ForgotPassword() {
   return (
     <Box
       sx={{
-        backgroundImage: `url('Rojo_naranja.jpg')`, // Asegúrate que esté en /public
+        backgroundImage: `url('Rojo_naranja.jpg')`, 
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         minHeight: '100vh',
