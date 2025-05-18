@@ -72,12 +72,28 @@ SELECT DISTINCT docente FROM matrizgeneral WHERE docente IS NOT NULL;
 
 CREATE TABLE Asignaturas (
     id_asignatura SERIAL,
-    nombre VARCHAR(100) UNIQUE NOT NULL,
+    codigo_asig VARCHAR(10) NOT NULL,
+    nombre VARCHAR(100) NOT NULL,
+    UNIQUE (codigo_asig, nombre),
     PRIMARY KEY (id_asignatura)
 );
 
-INSERT INTO Asignaturas(nombre)
-SELECT DISTINCT asignatura FROM matrizgeneral WHERE asignatura IS NOT NULL;
+INSERT INTO Asignaturas (codigo_asig, nombre)
+SELECT DISTINCT
+    codigo, nombre
+FROM (
+    SELECT 
+        TRIM(SPLIT_PART(asignatura, '-', 1)) AS codigo,
+        TRIM(SPLIT_PART(asignatura, '-', 2)) AS nombre
+    FROM matrizgeneral
+    WHERE asignatura IS NOT NULL
+      AND asignatura LIKE '%-%'
+) AS datos
+WHERE NOT EXISTS (
+    SELECT 1 FROM Asignaturas a
+    WHERE a.codigo_asig = datos.codigo
+      AND a.nombre = datos.nombre
+);
 
 CREATE TABLE Dia (
     id_dia SERIAL,

@@ -24,10 +24,11 @@ const getSubject = async (req, res, next) => {
 }
 
 const createSubject = async (req, res, next) => {
-    const {nombre} = req.body
+    const {codigo_asig, nombre} = req.body
     try {
-        const result = await pool.query("INSERT INTO asignaturas (nombre) VALUES ($1) RETURNING *", 
+        const result = await pool.query("INSERT INTO asignaturas (codigo_asig, nombre) VALUES ($1, $2) RETURNING *", 
         [
+            codigo_asig,
             nombre
         ]);
     
@@ -55,9 +56,9 @@ const deleteSubject = async (req, res, next) => {
 const updateSubject = async (req, res, next) => {
     const {idsubjectActualizar} = req.params;
     try {
-        const {nombre} = req.body;
-        const result = await pool.query("UPDATE asignaturas SET nombre = $1 WHERE id_asignatura = $2 RETURNING *", 
-            [nombre, idsubjectActualizar]);
+        const {codigo_asig, nombre} = req.body;
+        const result = await pool.query("UPDATE asignaturas SET codigo_asig = $1, nombre = $2 WHERE id_asignatura = $3 RETURNING *", 
+            [codigo_asig, nombre, idsubjectActualizar]);
 
         if(result.rows.length === 0) return res.status(404).json({
             message: "No es posible modificar la asignatura seleccionada"

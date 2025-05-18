@@ -5,7 +5,7 @@ import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
 import EditSquareIcon from '@mui/icons-material/EditSquare';
 import {useNavigate, useLocation} from 'react-router-dom'
 import AddReactionIcon from '@mui/icons-material/AddReaction';
-import UserForm from './UserForm';
+import AsignaturaForm from './AsignaturaForm';
 
 //Estilo del modal que vamos a generar
 const style = {
@@ -23,28 +23,24 @@ const style = {
 };
 
 const columns = [
-  { id: 'id_usuario', label: 'ID Usuario'},
-  { id: 'nombre', label: 'Nombre del usuario', minWidth: 100 },
-  { id: 'apellido', label: 'Apellido del usuario', minWidth: 100 },
-  { id: 'correo', label: 'Correo institucional' },
-  { id: 'usuario', label: 'Usuario'},
-  {id: 'pass', label: 'Contraseña', align: 'right'},
-  {id: 'nombre_rol', label: 'Rol de usuario', align: 'right'}
+  { id: 'id_asignatura', label: 'ID Asignatura'},
+  { id: 'codigo_asig', label: 'Código de asignatura', minWidth: 100 },
+  { id: 'nombre', label: 'Asignatura', minWidth: 100 }
 ];
 
 export default function UserList() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [users, setUsers] = useState([]);
+  const [asignaturas, setAsignaturas] = useState([]);
   const [search, setSearch] = useState("");
   
   const navigate = useNavigate();
   const location = useLocation();
-  const userId = location.pathname.match(/^\/ListarUsuarios\/Usuarios\/(\d+)$/)?.[1] || null;
-  const modalOpen = location.pathname === '/ListarUsuarios/Usuarios' || location.pathname.match(/^\/ListarUsuarios\/Usuarios\/\d+$/);
+  const asigId = location.pathname.match(/^\/ListarAsignaturas\/Asignaturas\/(\d+)$/)?.[1] || null;
+  const modalOpen = location.pathname === '/ListarAsignaturas/Asignaturas' || location.pathname.match(/^\/ListarAsignaturas\/Asignaturas\/\d+$/);
 
   const handleCloseModal = () => {
-    navigate('/ListarUsuarios');
+    navigate('/ListarAsignaturas');
   };
 
   const handleChangePage = (event, newPage) => {
@@ -56,30 +52,30 @@ export default function UserList() {
     setPage(0);
   };
 
-  const loadUsers = async () => {
-    const response = await fetch('http://localhost:5000/users')
+  const loadAsignaturas = async () => {
+    const response = await fetch('http://localhost:5000/subjects')
     const data = await response.json()
     //console.log("Respuesta del backend:", data);
-    setUsers(data)
+    setAsignaturas(data)
   }
 
   const handleDelete = async (id) => {
     try {
-      await fetch(`http://localhost:5000/users/${id}`, {
+      await fetch(`http://localhost:5000/subjects/${id}`, {
         method: "DELETE",
       })
-      setUsers(users.filter(user => user.id_usuario !== id));
+      setAsignaturas(asignaturas.filter(asig => asig.id_asignatura !== id));
     } catch (error) {
       console.log(error)
     }
   }
 
   useEffect(() => {
-    loadUsers()
+    loadAsignaturas()
   }, [])
 
-  const filteredUsers = users.filter((user) =>
-    Object.values(user).some(
+  const filteredAsignaturas = asignaturas.filter((asignatura) =>
+    Object.values(asignatura).some(
       (val) => typeof val === "string" && val.toLowerCase().includes(search.toLowerCase())
     )
   );
@@ -87,11 +83,11 @@ export default function UserList() {
   return (
     <>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, ml: 5, mr: 5 }}>
-        <h1>USER LIST</h1>
+        <h1>SUBJECTS LIST</h1>
         <Button 
           variant="contained" 
           color="primary" 
-          onClick={() => navigate('/ListarUsuarios/Usuarios')}
+          onClick={() => navigate('/ListarAsignaturas/Asignaturas')}
         >
           <AddReactionIcon />
         </Button>
@@ -100,7 +96,7 @@ export default function UserList() {
       <Box sx={{ mb: 5, ml: 5, mr: 5 }}>
         <TextField 
           fullWidth 
-          label="Filtrar usuarios..." 
+          label="Filtrar asignaturas..." 
           variant="outlined" 
           value={search} 
           onChange={(e) => setSearch(e.target.value)} 
@@ -127,13 +123,13 @@ export default function UserList() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredUsers
+              {filteredAsignaturas
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((user) => {
+                .map((asignatura) => {
                   return (
-                    <TableRow hover role="checkbox" tabIndex={-1} key={user.id_usuario}>
+                    <TableRow hover role="checkbox" tabIndex={-1} key={asignatura.id_asignatura}>
                       {columns.map((column) => {
-                        const value = user[column.id];
+                        const value = asignatura[column.id];
                         return (
                           <TableCell key={column.id} align={column.align}>
                             {column.format && typeof value === 'number'
@@ -145,7 +141,7 @@ export default function UserList() {
                       <TableCell align="center">
                         <Button 
                           variant='contained'
-                          onClick={() => navigate(`/ListarUsuarios/Usuarios/${user.id_usuario}`)}
+                          onClick={() => navigate(`/ListarAsignaturas/Asignaturas/${asignatura.id_asignatura}`)}
                           sx={{ backgroundColor: '#fbc02d', color: 'white', '&:hover': { backgroundColor: '#fdd835' } }}
                         >
                           <EditSquareIcon />
@@ -153,7 +149,7 @@ export default function UserList() {
                         <Button 
                           variant='contained' 
                           color='warning' 
-                          onClick={() => handleDelete(user.id_usuario)}
+                          onClick={() => handleDelete(asignatura.id_asignatura)}
                           style={{marginLeft: ".5rem"}}
                         >
                           <DeleteRoundedIcon />
@@ -168,7 +164,7 @@ export default function UserList() {
         <TablePagination
           rowsPerPageOptions={[10, 25, 100]}
           component="div"
-          count={users.length}
+          count={asignaturas.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
@@ -182,13 +178,13 @@ export default function UserList() {
         aria-labelledby="modal-title"
       >
         <Box sx={style}>
-          <h2 id="modal-title"> {location.pathname.includes('/Usuarios/') ? 'EDITAR USUARIO' : 'CREAR USUARIO'}</h2>
-          <UserForm
-            key={userId || 'new'}
-            userId={userId}
+          <h2 id="modal-title"> {location.pathname.includes('/Asignaturas/') ? 'EDITAR ASIGNATURA' : 'CREAR ASIGNATURA'}</h2>
+          <AsignaturaForm
+            key={asigId || 'new'}
+            asigId={asigId}
             hideInternalSubmitButton
             onExternalSubmit={() => {
-              loadUsers();
+              loadAsignaturas();
               handleCloseModal();
             }}
           />
@@ -197,7 +193,7 @@ export default function UserList() {
             <Button variant="outlined" onClick={handleCloseModal} sx={{ mr: 1 }}>Cerrar</Button>
             <Button
               type="submit"
-              form="user-form"
+              form="asignatura-form"
               onClick={() => {
                 // Triggerea el submit manualmente si lo necesitas
                 const form = document.querySelector('form');
@@ -206,7 +202,7 @@ export default function UserList() {
               variant="contained"
               color="info"
             >
-              {location.pathname.includes('/Usuarios/') ? 'EDITAR USUARIO' : 'CREAR USUARIO'}
+              {location.pathname.includes('/Asignaturas/') ? 'EDITAR ASIGNATURAS' : 'CREAR ASIGNATURAS'}
             </Button>
           </Box>
         </Box>

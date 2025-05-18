@@ -4,6 +4,7 @@ import InicioAdm from './components/Inicio/InicioAdm'
 import InicioDoc from './components/Inicio/InicioDoc'
 import UserList from './components/User/UserList'
 import DocenteList from './components/Docentes/DocenteList'
+import AsignaturaList from './components/Asignaturas/AsignaturaList'
 import PrivateRoute from './components/Inicio/PrivateRoute'
 import DashboardLayoutBranding from './components/NavBar'
 import ForgotPassword from './components/ForgotPassword';
@@ -32,6 +33,10 @@ function AppContent() {
             <Route path='/ListarUsuarios' element={<UserList />}>
               <Route path='/ListarUsuarios/Usuarios' element={null} />
               <Route path='/ListarUsuarios/Usuarios/:id' element={null} />
+            </Route>
+            <Route path='/ListarAsignaturas' element={<AsignaturaList />}>
+              <Route path='/ListarAsignaturas/Asignaturas' element={null} />
+              <Route path='/ListarAsignaturas/Asignaturas/:id' element={null} />
             </Route>
           </Route>
 
