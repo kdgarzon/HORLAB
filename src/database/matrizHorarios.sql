@@ -134,7 +134,9 @@ SELECT
 FROM matrizgeneral m
 JOIN Dia d ON m.dia = d.dia
 JOIN Hora h ON m.hora = h.hora
-JOIN Asignaturas a ON m.asignatura = a.nombre
+JOIN Asignaturas a 
+  ON TRIM(SPLIT_PART(m.asignatura, '-', 1)) = TRIM(a.codigo_asig::TEXT)
+ AND TRIM(SPLIT_PART(m.asignatura, '-', 2)) = TRIM(a.nombre)
 JOIN Proyecto p ON m.proyecto = p.proyecto
 WHERE m.grupo IS NOT NULL;
 
@@ -212,7 +214,9 @@ FROM matrizgeneral m
 JOIN Docentes d ON m.docente = d.nombre
 JOIN Dia di ON m.dia = di.dia
 JOIN Hora h ON m.hora = h.hora
-JOIN Asignaturas a ON m.asignatura = a.nombre
+JOIN Asignaturas a 
+  ON TRIM(SPLIT_PART(m.asignatura, '-', 1)) = TRIM(a.codigo_asig::TEXT)
+ AND TRIM(SPLIT_PART(m.asignatura, '-', 2)) = TRIM(a.nombre)
 JOIN Proyecto p ON m.proyecto = p.proyecto
 JOIN Grupos g ON 
     g.grupo = m.grupo AND
