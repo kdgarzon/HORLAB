@@ -68,12 +68,8 @@ export default function UserList() {
     mostrarAlertaConfirmacion({
       titulo: "¿Eliminar usuario?",
       texto: "Esta acción eliminará permanentemente el usuario.",
-      textoConfirmacion: "Sí, eliminar",
-      textoCancelacion: "No, cancelar",
       textoExito: "Usuario eliminado correctamente",
-      textoCancelado: "La operación fue cancelada",
       callbackConfirmacion: async () => {
-        console.log("Usuario eliminado");
         try {
           await fetch(`http://localhost:5000/users/${id}`, {
             method: "DELETE",

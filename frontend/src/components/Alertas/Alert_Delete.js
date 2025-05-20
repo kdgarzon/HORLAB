@@ -15,7 +15,7 @@ export const mostrarAlertaConfirmacion = async ({
   textoCancelacion = "Cancelar",
   icono = "warning",
   textoExito = "¡Eliminado!",
-  textoCancelado = "Acción cancelada",
+  textoCancelado = "La operación fue cancelada",
   callbackConfirmacion = () => {},
   callbackCancelacion = () => {}
 }) => {
