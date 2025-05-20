@@ -11,3 +11,38 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.mui-confirm-button {
+  background-color: #1976d2; /* Color primario MUI */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 16px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  cursor: pointer;
+  margin: 0 5px;
+}
+
+.mui-cancel-button {
+  background-color: #e0e0e0; /* Gris MUI */
+  color: black;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 16px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  cursor: pointer;
+  margin: 0 5px;
+}
+
+.mui-confirm-button:hover {
+  background-color: #1565c0;
+}
+
+.mui-cancel-button:hover {
+  background-color: #bdbdbd;
+}
+

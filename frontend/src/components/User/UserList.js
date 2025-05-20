@@ -6,6 +6,7 @@ import EditSquareIcon from '@mui/icons-material/EditSquare';
 import {useNavigate, useLocation} from 'react-router-dom'
 import AddReactionIcon from '@mui/icons-material/AddReaction';
 import UserForm from './UserForm';
+import { mostrarAlertaConfirmacion } from '../Alertas/Alert_Delete';
 
 //Estilo del modal que vamos a generar
 const style = {
@@ -64,14 +65,32 @@ export default function UserList() {
   }
 
   const handleDelete = async (id) => {
-    try {
-      await fetch(`http://localhost:5000/users/${id}`, {
-        method: "DELETE",
-      })
-      setUsers(users.filter(user => user.id_usuario !== id));
-    } catch (error) {
-      console.log(error)
-    }
+    mostrarAlertaConfirmacion({
+      titulo: "¿Eliminar usuario?",
+      texto: "Esta acción eliminará permanentemente el usuario.",
+      textoConfirmacion: "Sí, eliminar",
+      textoCancelacion: "No, cancelar",
+      textoExito: "Usuario eliminado correctamente",
+      textoCancelado: "La operación fue cancelada",
+      callbackConfirmacion: async () => {
+        console.log("Usuario eliminado");
+        try {
+          await fetch(`http://localhost:5000/users/${id}`, {
+            method: "DELETE",
+          })
+          setUsers(users.filter(user => user.id_usuario !== id));
+        } catch (error) {
+          console.log(error)
+        }
+      },
+      callbackCancelacion: () => {
+        console.log("Operación cancelada");
+      }
+    });
+
+
+
+    
   }
 
   useEffect(() => {
