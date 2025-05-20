@@ -1,13 +1,5 @@
 import Swal from 'sweetalert2';
 
-/*const swalWithBootstrapButtons = Swal.mixin({
-  customClass: {
-    confirmButton: "btn btn-success",
-    cancelButton: "btn btn-danger"
-  },
-  buttonsStyling: true
-});*/
-
 const swalWithMuiButtons = Swal.mixin({
   customClass: {
     confirmButton: 'mui-confirm-button',
@@ -15,7 +7,6 @@ const swalWithMuiButtons = Swal.mixin({
   },
   buttonsStyling: false
 });
-
 
 export const mostrarAlertaConfirmacion = async ({
   titulo = "¿Estás seguro?",
