@@ -83,10 +83,6 @@ export default function UserList() {
         console.log("Operación cancelada");
       }
     });
-
-
-
-    
   }
 
   useEffect(() => {

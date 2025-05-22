@@ -12,37 +12,37 @@ code {
     monospace;
 }
 
-.mui-confirm-button {
-  background-color: #1976d2; /* Color primario MUI */
+.mui-confirm-button, .mui-cancel-button {
+  min-width: 150px; 
+  padding: 0.5rem 1rem;
+  font-size: 1.2rem; 
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  margin: 5px 5px;
+  cursor: pointer;
   color: white;
   border: none;
-  border-radius: 4px;
-  padding: 6px 16px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  cursor: pointer;
-  margin: 0 5px;
+  border-radius: 1rem;
+  font-weight: 400; 
+  text-transform: none; 
+  transition: background-color 0.15s ease-in-out;
+}
+
+.mui-confirm-button {
+  background-color: #37d438; 
 }
 
 .mui-cancel-button {
-  background-color: #e0e0e0; /* Gris MUI */
-  color: black;
-  border: none;
-  border-radius: 4px;
-  padding: 6px 16px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  cursor: pointer;
-  margin: 0 5px;
+  background-color: #ff5733; 
 }
 
 .mui-confirm-button:hover {
-  background-color: #1565c0;
+  background-color: #01ae00; 
 }
 
 .mui-cancel-button:hover {
-  background-color: #bdbdbd;
+  background-color: #cb2100;
 }
-
