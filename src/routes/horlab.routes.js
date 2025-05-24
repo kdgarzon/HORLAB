@@ -21,6 +21,14 @@ const {
 } = require('../controllers/controllerAsignaturas')
 
 const {
+    getAllGroups,
+    getGroup,
+    createGroup,
+    deleteGroup,
+    updateGroup
+} = require('../controllers/controllerGrupos')
+
+const {
     getAllTeachers,
     getTeacher,
     getTeacherSchedule,
@@ -36,7 +44,6 @@ const {
     deleteClassroom,
     updateClassroom
 } = require('../controllers/controllerSalones')
-
 
 const router = Router(); //Nos permite crear nuevas URL
 
@@ -58,6 +65,13 @@ router.get('/subjects/:id', getSubject)
 router.post('/subjects', createSubject)
 router.delete('/subjects/:idsubjectEliminar', deleteSubject)
 router.put('/subjects/:idsubjectActualizar', updateSubject)
+
+//RUTAS PARA EL CONTROLADOR DE GRUPOS
+router.get('/groups', getAllGroups)
+router.get('/groups/:id', getGroup)
+router.post('/groups', createGroup)
+router.delete('/groups/:idgroupEliminar', deleteGroup)
+router.put('/groups/:idgroupActualizar', updateGroup)
 
 //RUTAS PARA EL CONTROLADOR DE DOCENTE
 router.get('/teachers', getAllTeachers)
