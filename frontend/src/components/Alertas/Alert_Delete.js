@@ -34,7 +34,7 @@ export const mostrarAlertaConfirmacion = async ({
       title: textoExito,
       icon: "success"
     });
-    callbackConfirmacion(); // Ejecuta función que pasaste como argumento
+    callbackConfirmacion();
   } else if (result.dismiss === Swal.DismissReason.cancel) {
     await swalWithMuiButtons.fire({
       title: textoCancelado,

@@ -98,7 +98,7 @@ export default function UserList() {
   return (
     <>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, ml: 5, mr: 5 }}>
-        <h1>USER LIST</h1>
+        <h1>GESTIÓN DE USUARIOS</h1>
         <Button 
           variant="contained" 
           color="primary" 

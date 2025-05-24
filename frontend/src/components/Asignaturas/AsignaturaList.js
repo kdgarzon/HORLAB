@@ -5,7 +5,9 @@ import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
 import EditSquareIcon from '@mui/icons-material/EditSquare';
 import {useNavigate, useLocation} from 'react-router-dom'
 import AddReactionIcon from '@mui/icons-material/AddReaction';
+import GroupsIcon from '@mui/icons-material/Groups';
 import AsignaturaForm from './AsignaturaForm';
+import { mostrarAlertaConfirmacion } from '../Alertas/Alert_Delete';
 
 //Estilo del modal que vamos a generar
 const style = {
@@ -60,13 +62,33 @@ export default function UserList() {
   }
 
   const handleDelete = async (id) => {
+    mostrarAlertaConfirmacion({
+      titulo: "¿Eliminar asignatura?",
+      texto: "Esta acción eliminará permanentemente la asignatura.",
+      textoExito: "Asignatura eliminada correctamente",
+      callbackConfirmacion: async () => {
+        try {
+          await fetch(`http://localhost:5000/subjects/${id}`, {
+            method: "DELETE",
+          })
+          setAsignaturas(asignaturas.filter(asig => asig.id_asignatura !== id));
+        } catch (error) {
+          console.log(error)
+        }
+      },
+      callbackCancelacion: () => {
+        console.log("Operación cancelada");
+      }
+    });
+  }
+
+  const handleVerGrupos = async (id) => {
     try {
-      await fetch(`http://localhost:5000/subjects/${id}`, {
-        method: "DELETE",
-      })
-      setAsignaturas(asignaturas.filter(asig => asig.id_asignatura !== id));
+      const response = await fetch(`http://localhost:5000/subjects/${id}/groups`);
+      const data = await response.json();
+      console.log("Grupos de la asignatura:", data);
     } catch (error) {
-      console.log(error)
+      console.error("Error al obtener los grupos de la asignatura:", error);
     }
   }
 
@@ -153,6 +175,14 @@ export default function UserList() {
                           style={{marginLeft: ".5rem"}}
                         >
                           <DeleteRoundedIcon />
+                        </Button>
+                        <Button
+                          variant='contained' 
+                          color='success' 
+                          onClick={() => handleVerGrupos(asignatura.id_asignatura)}
+                          style={{marginLeft: ".5rem"}}
+                        >
+                          <GroupsIcon />
                         </Button>
                       </TableCell>
                     </TableRow>

@@ -7,8 +7,7 @@ import {useNavigate, useLocation} from 'react-router-dom'
 import AddReactionIcon from '@mui/icons-material/AddReaction';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import DocenteForm from './DocenteForm';
-
-import React from 'react';
+import { mostrarAlertaConfirmacion } from '../Alertas/Alert_Delete';
 
 //Estilo del modal que vamos a generar
 const style = {
@@ -155,14 +154,24 @@ export default function DocenteList() {
   }
 
   const handleDelete = async (id) => {
-    try {
-      await fetch(`http://localhost:5000/teachers/${id}`, {
-        method: "DELETE",
-      })
-      setDocentes(docentes.filter(docente => docente.id_docente !== id));
-    } catch (error) {
-      console.log(error)
-    }
+    mostrarAlertaConfirmacion({
+      titulo: "¿Eliminar docente?",
+      texto: "Esta acción eliminará permanentemente el docente.",
+      textoExito: "Docente eliminado correctamente",
+      callbackConfirmacion: async () => {
+        try {
+          await fetch(`http://localhost:5000/teachers/${id}`, {
+            method: "DELETE",
+          })
+          setDocentes(docentes.filter(docente => docente.id_docente !== id));
+        } catch (error) {
+          console.log(error)
+        }
+      },
+      callbackCancelacion: () => {
+        console.log("Operación cancelada");
+      }
+    });
   }
 
   const handleDisponibilidad = async (id) => {
