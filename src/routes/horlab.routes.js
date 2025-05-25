@@ -66,12 +66,12 @@ router.post('/subjects', createSubject)
 router.delete('/subjects/:idsubjectEliminar', deleteSubject)
 router.put('/subjects/:idsubjectActualizar', updateSubject)
 
-//RUTAS PARA EL CONTROLADOR DE GRUPOS
-router.get('/groups', getAllGroups)
-router.get('/groups/:id', getGroup)
-router.post('/groups', createGroup)
-router.delete('/groups/:idgroupEliminar', deleteGroup)
-router.put('/groups/:idgroupActualizar', updateGroup)
+// RUTAS RELACIONADAS: GRUPOS DENTRO DE UNA ASIGNATURA
+router.get('/subjects/:id/groups', getAllGroups)
+router.get('/subjects/:id_asignatura/groups/:id_grupo', getGroup)
+router.post('/subjects/:id_asignatura/groups', createGroup)
+router.delete('/subjects/:id_asignatura/groups/:idgroupEliminar', deleteGroup)
+router.put('/subjects/:id_asignatura/groups/:idgroupActualizar', updateGroup)
 
 //RUTAS PARA EL CONTROLADOR DE DOCENTE
 router.get('/teachers', getAllTeachers)
