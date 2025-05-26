@@ -5,12 +5,14 @@ const getAllGroups = async (req, res, next) => {
     try {
         const allGroups = await pool.query(`
         SELECT 
-            g.id_grupo, g.grupo, g.inscritos, d.dia, h.hora, p.proyecto
+            g.id_grupo, d.dia, h.hora, a.nombre, p.proyecto, g.grupo, g.inscritos 
         FROM Grupos g
         JOIN Dia d ON g.id_dia = d.id_dia
         JOIN Hora h ON g.id_hora = h.id_hora
+        JOIN Asignaturas a ON g.id_asignatura = a.id_asignatura
         JOIN Proyecto p ON g.id_proyecto = p.id_proyecto
-        WHERE g.id_asignatura = $1
+        WHERE g.id_asignatura = $1 
+        ORDER BY d.orden, h.hora
         `, [id]);
         res.json(allGroups.rows)
         console.log(allGroups.rows);
@@ -45,14 +47,19 @@ const getGroup = async (req, res, next) => {
 
 //FALTA MODIFICAR DE AQUI PARA ABAJO
 const createGroup = async (req, res, next) => {
-    const {codigo_asig, nombre} = req.body
+    const {id_dia, id_hora, grupo, id_asignatura, id_proyecto, inscritos} = req.body
     try {
-        const result = await pool.query("INSERT INTO asignaturas (codigo_asig, nombre) VALUES ($1, $2) RETURNING *", 
+        const result = await pool.query(`
+            INSERT INTO Grupos (id_dia, id_hora, grupo, id_asignatura, id_proyecto, inscritos)
+            VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`, 
         [
-            codigo_asig,
-            nombre
+            id_dia,
+            id_hora,
+            grupo,
+            id_asignatura, 
+            id_proyecto,
+            inscritos
         ]);
-    
         res.json(result.rows[0])
     } catch (error) {
         next(error)
@@ -60,12 +67,12 @@ const createGroup = async (req, res, next) => {
 }
 
 const deleteGroup = async (req, res, next) => {
-    const {idsubjectEliminar} = req.params
+    const {idgrupoeliminar} = req.params
     try {
-        const result = await pool.query("DELETE FROM asignaturas WHERE id_asignatura = $1", [idsubjectEliminar])
+        const result = await pool.query("DELETE FROM grupos WHERE id_grupo = $1", [idgrupoeliminar])
     
         if(result.rowCount === 0) return res.status(400).json({
-            message: "La asignatura no se ha podido eliminar"
+            message: "El grupo no se ha podido eliminar"
         });
         
         return res.sendStatus(204);
@@ -75,14 +82,25 @@ const deleteGroup = async (req, res, next) => {
 }
 
 const updateGroup = async (req, res, next) => {
-    const {idsubjectActualizar} = req.params;
+    const {idgrupoActualizar} = req.params;
     try {
-        const {codigo_asig, nombre} = req.body;
-        const result = await pool.query("UPDATE asignaturas SET codigo_asig = $1, nombre = $2 WHERE id_asignatura = $3 RETURNING *", 
-            [codigo_asig, nombre, idsubjectActualizar]);
+        const {id_dia, id_hora, grupo, id_asignatura, id_proyecto, inscritos} = req.body;
+        const result = await pool.query(`
+            UPDATE Grupos
+            SET id_dia = $1, id_hora = $2, grupo = $3, id_asignatura = $4, id_proyecto = $5, inscritos = $6
+            WHERE id_grupo = $7 RETURNING *`, 
+        [
+            id_dia,
+            id_hora,
+            grupo,
+            id_asignatura, 
+            id_proyecto,
+            inscritos,
+            idgrupoActualizar
+        ]);
 
         if(result.rows.length === 0) return res.status(404).json({
-            message: "No es posible modificar la asignatura seleccionada"
+            message: "No es posible modificar el grupo seleccionado"
         });
         return res.json(result.rows[0])
     } catch (error) {
