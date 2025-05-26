@@ -15,8 +15,6 @@ const getAllGroups = async (req, res, next) => {
         ORDER BY d.orden, h.hora
         `, [id]);
         res.json(allGroups.rows)
-        console.log(allGroups.rows);
-        
     } catch (err) {
         next(err)
         res.status(500).send("Error al obtener los grupos.");

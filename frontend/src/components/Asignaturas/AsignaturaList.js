@@ -83,14 +83,7 @@ export default function UserList() {
   }
 
   const handleVerGrupos = async (id) => {
-    navigate(`/ListarAsignaturas/Asignaturas/${id}/ListarGrupos/Grupos`);
-    /*try {
-      const response = await fetch(`http://localhost:5000/subjects/${id}/groups`);
-      const data = await response.json();
-      console.log("Grupos de la asignatura:", data);
-    } catch (error) {
-      console.error("Error al obtener los grupos de la asignatura:", error);
-    }*/
+    navigate(`/ListarAsignaturas/Asignaturas/${id}/ListarGrupos`);
   }
 
   useEffect(() => {

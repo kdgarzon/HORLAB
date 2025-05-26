@@ -1,13 +1,12 @@
-import {useEffect, useState} from 'react'
+import {useEffect, useState, useCallback} from 'react'
 import { Paper, Table, TableBody, TablePagination, TableCell, TableContainer, TableHead, 
   TableRow, Button, Box, TextField, Modal} from "@mui/material";
 import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
 import EditSquareIcon from '@mui/icons-material/EditSquare';
-import {useNavigate, useLocation} from 'react-router-dom'
+import {useNavigate, useLocation, useParams} from 'react-router-dom'
 import AddReactionIcon from '@mui/icons-material/AddReaction';
 import GruposForm from './GruposForm';
 import { mostrarAlertaConfirmacion } from '../Alertas/Alert_Delete';
-import { useParams } from 'react-router-dom';
 
 //Estilo del modal que vamos a generar
 const style = {
@@ -26,11 +25,11 @@ const style = {
 
 const columns = [
   { id: 'id_grupo', label: 'ID Grupo', align: 'center', minWidth: 50 },
-  { id: 'dia', label: 'Dia', minWidth: 100, align: 'center' },
-  { id: 'hora', label: 'Franja Horaria', minWidth: 100, align: 'center' },
+  { id: 'dia', label: 'Dia', minWidth: 50, align: 'center' },
+  { id: 'hora', label: 'Franja Horaria', minWidth: 50, align: 'center' },
   { id: 'grupo', label: 'Grupo', align: 'center' },
   { id: 'nombre', label: 'Asignatura', align: 'center'},
-  {id: 'proyecto', label: 'Proyecto', align: 'center', minWidth: 100},
+  {id: 'proyecto', label: 'Proyecto', align: 'center', minWidth: 80},
   {id: 'inscritos', label: 'Número de inscritos', align: 'center'}
 ];
 
@@ -43,7 +42,7 @@ export default function GruposList() {
   const navigate = useNavigate();
   const location = useLocation();
   const groupId = location.pathname.match(/^\/ListarAsignaturas\/Asignaturas\/\d+$\/ListarGrupos\/Grupos\/(\d+)$/)?.[1] || null;
-  const modalOpen = location.pathname === `/ListarAsignaturas/Asignaturas/${id}/ListarGrupos/Grupos` || location.pathname.match(/^\/ListarAsignaturas\/Asignaturas\/\d+$\/ListarGrupos\/Grupos\/(\d+)$/);
+  const modalOpen = location.pathname === `/ListarAsignaturas/Asignaturas/${id}/ListarGrupos/Grupos` || location.pathname.match(/^\/ListarAsignaturas\/Asignaturas\/\d+\/ListarGrupos\/Grupos\/\d+$/);
 
   const handleCloseModal = () => {
     navigate(`/ListarAsignaturas/Asignaturas/${id}/ListarGrupos`);
@@ -58,13 +57,12 @@ export default function GruposList() {
     setPage(0);
   };
 
-  //FALTA EDITAR GRUPO
-  const loadGroups = async () => {
+  const loadGroups = useCallback(async () => {
     const response = await fetch(`http://localhost:5000/subjects/${id}/groups`);
-    const data = await response.json()
+    const data = await response.json();
     //console.log("Respuesta del backend:", data);
-    setGroups(data)
-  }
+    setGroups(data);
+  }, [id]); 
 
   const handleDelete = async (id_grupo) => {
     mostrarAlertaConfirmacion({
@@ -89,7 +87,7 @@ export default function GruposList() {
 
   useEffect(() => {
     loadGroups()
-  }, [])
+  }, [loadGroups])
 
   const filteredGroups = groups.filter((group) =>
     Object.values(group).some(

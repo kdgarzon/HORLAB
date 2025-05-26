@@ -2,26 +2,33 @@ import { Box, Button, CircularProgress, TextField } from "@mui/material"
 import { useState, useEffect } from "react";
 import {useNavigate, useParams} from 'react-router-dom'
 
-const initialSubjectState = {
-  codigo_asig: '',
-  nombre: ''
+const initialGroupState = {
+  dia: '',
+  hora: '',
+  grupo: '',
+  nombre: '',
+  proyecto: '',
+  inscritos: 0
 };
 
-export default function GruposForm({ asigId, hideInternalSubmitButton = false, onExternalSubmit }) {
+export default function GruposForm({ groupId, hideInternalSubmitButton = false, onExternalSubmit }) {
   const navigate = useNavigate();
   const params = useParams();
   const [loadingCrear, setLoadingCrear] = useState(false);
   const [editing, setEditing] = useState(false)
-  
-  const [asignatura, setAsignatura] = useState(initialSubjectState);
+  const [grupo, setGrupo] = useState(initialGroupState);
 
   const handleSubmit = async e => {
     e.preventDefault(); //Cancela el refresh del boton del formulario
     setLoadingCrear(true);
 
     if (
-        !asignatura.codigo_asig ||
-        !asignatura.nombre
+        !grupo.dia ||
+        !grupo.hora ||
+        !grupo.grupo ||
+        !grupo.nombre ||
+        !grupo.proyecto ||
+        !grupo.inscritos
     ) {
       alert("Por favor, completa todos los campos antes de continuar.");
       setLoadingCrear(false);
@@ -30,9 +37,9 @@ export default function GruposForm({ asigId, hideInternalSubmitButton = false, o
     
 
     if (editing) {
-      const res = await fetch(`http://localhost:5000/subjects/${params.id}`, {
+      const res = await fetch(`http://localhost:5000/subjects/${params.id}/groups/${groupId}`, {
         method: 'PUT',
-        body: JSON.stringify(asignatura),
+        body: JSON.stringify(grupo),
         headers: {"Content-Type": "application/json"}
       });
       
@@ -41,9 +48,9 @@ export default function GruposForm({ asigId, hideInternalSubmitButton = false, o
 
     } else {
       try {
-        const res = await fetch('http://localhost:5000/subjects', {
+        const res = await fetch(`http://localhost:5000/subjects/${params.id}/groups`, {
           method: 'POST',
-          body: JSON.stringify(asignatura),
+          body: JSON.stringify(grupo),
           headers: {"Content-Type": "application/json"}
         });
   
@@ -57,48 +64,51 @@ export default function GruposForm({ asigId, hideInternalSubmitButton = false, o
         console.log("Respuesta del servidor: ", data);
         
       } catch (error) {
-        console.error("Error al crear asignatura:", error);
+        console.error("Error al crear grupo:", error);
         // Muestra un mensaje de error al usuario
-        alert(`Error al crear asignatura: ${error.message}`);
+        alert(`Error al crear grupo: ${error.message}`);
       }
     }
     setLoadingCrear(false);
     if (onExternalSubmit) {
       onExternalSubmit();
     } else {
-      navigate('/ListarAsignaturas');
+      navigate(`/ListarAsignaturas/Asignaturas/${params.id}/ListarGrupos`);
     }
   }
   
 
   const handleChange = (e) => 
-    setAsignatura({...asignatura, [e.target.name]: e.target.value}); //Actualiza el valor que vamos a enviar del TextField
+    setGrupo({...grupo, [e.target.name]: e.target.value}); //Actualiza el valor que vamos a enviar del TextField
   
-  const loadOneAsignatura = async (id) => {
-    const res = await fetch(`http://localhost:5000/subjects/${id}`)
+  const loadOneGrupo = async (id_grupo) => {
+    const res = await fetch(`http://localhost:5000/subjects/${params.id}/groups/${id_grupo}`);
     const data = await res.json()
     
-    setAsignatura({
-        codigo_asig: data.codigo_asig ?? null,
-        nombre: data.nombre ?? ''
+    setGrupo({
+      dia: data.dia ?? '',
+      hora: data.hora ?? '',
+      grupo: data.grupo ?? '',
+      nombre: data.nombre ?? '',
+      proyecto: data.proyecto ?? '',
+      inscritos: data.inscritos ?? 0
     });
-
     setEditing(true);
   }
 
   useEffect(() => {
-    if (asigId) {
-        loadOneAsignatura(asigId);
+    if (groupId) {
+        loadOneGrupo(groupId);
         setEditing(true);
     } else {
-        setAsignatura(initialSubjectState);
+        setGrupo(initialGroupState);  
         setEditing(false);
     }
-  }, [asigId]);
+  }, [groupId]);
 
   return (
     <Box
-      id="asignatura-form"
+      id="group-form"
       component="form"
       onSubmit={handleSubmit}
       noValidate
@@ -115,18 +125,19 @@ export default function GruposForm({ asigId, hideInternalSubmitButton = false, o
       <TextField
         fullWidth
         variant="outlined"
-        label="Código de la asignatura"
-        type="number"
-        name="codigo_asig"
-        value={asignatura.codigo_asig}
+        label="Dia de la semana"
+        name="dia"
+        type="text"
+        value={grupo.dia}
         onChange={handleChange}
       />
       <TextField
         fullWidth
         variant="outlined"
-        label="Nombre de la asignatura"
-        name="nombre"
-        value={asignatura.nombre}
+        label="Franja horaria"
+        name="hora"
+        type="text"
+        value={grupo.hora}
         onChange={handleChange}
       />
   
@@ -136,13 +147,17 @@ export default function GruposForm({ asigId, hideInternalSubmitButton = false, o
           color="info"
           type="submit"
           disabled={
-            !asignatura.codigo_asig ||
-            !asignatura.nombre
+            !grupo.dia ||
+            !grupo.hora ||
+            !grupo.grupo ||
+            !grupo.nombre ||
+            !grupo.proyecto ||
+            !grupo.inscritos
           }
         >
           {loadingCrear ? (
             <CircularProgress color="inherit" size={24} />
-          ) : params.id ? 'EDITAR ASIGNATURA' : 'CREAR ASIGNATURA'}
+          ) : params.id ? 'EDITAR GRUPO' : 'CREAR GRUPO'}
         </Button>
       )}
     </Box>
