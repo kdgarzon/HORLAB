@@ -22,6 +22,9 @@ const {
 
 const {
     getAllGroups,
+    getAllDays,
+    getAllHours,
+    getAllProjects,
     getGroup,
     createGroup,
     deleteGroup,
@@ -72,6 +75,9 @@ router.get('/subjects/:id_asignatura/groups/:id_grupo', getGroup)
 router.post('/subjects/:id_asignatura/groups', createGroup)
 router.delete('/subjects/:id_asignatura/groups/:idgroupEliminar', deleteGroup)
 router.put('/subjects/:id_asignatura/groups/:idgroupActualizar', updateGroup)
+router.get('/days', getAllDays) 
+router.get('/hours', getAllHours)
+router.get('/projects', getAllProjects) 
 
 //RUTAS PARA EL CONTROLADOR DE DOCENTE
 router.get('/teachers', getAllTeachers)

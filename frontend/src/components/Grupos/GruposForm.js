@@ -1,33 +1,75 @@
 import { Box, Button, CircularProgress, TextField } from "@mui/material"
 import { useState, useEffect } from "react";
 import {useNavigate, useParams} from 'react-router-dom'
+import Dias from "./ListasDesplegables/Dias";
+import Horas from "./ListasDesplegables/Horas";
+import Asignaturas from "./ListasDesplegables/Asignaturas";
+import Proyectos from "./ListasDesplegables/Proyectos";
 
 const initialGroupState = {
-  dia: '',
-  hora: '',
+  id_dia: null,
+  id_hora: null,
   grupo: '',
-  nombre: '',
-  proyecto: '',
+  id_asignatura: null,
+  id_proyecto: null,
   inscritos: 0
 };
 
 export default function GruposForm({ groupId, hideInternalSubmitButton = false, onExternalSubmit }) {
+  //Listas desplegables
+  const [dias, setDias] = useState([]); // Array para almacenar los dias { id_dia, dia } 
+  const [horas, setHoras] = useState([]); // Array para almacenar las horas { id_hora, hora } 
+  const [asignaturas, setAsignaturas] = useState([]); // Array para almacenar las asignaturas { id_asignatura, asignatura } 
+  const [proyectos, setProyectos] = useState([]); // Array para almacenar los proyectos { id_proyecto, proyecto  } 
+  
   const navigate = useNavigate();
   const params = useParams();
   const [loadingCrear, setLoadingCrear] = useState(false);
   const [editing, setEditing] = useState(false)
+  
   const [grupo, setGrupo] = useState(initialGroupState);
+
+  // Manejador para cuando se selecciona un dia de la lista
+  const handleDaySelect = (dayId) => {
+    setGrupo((prevGroup) => ({
+      ...prevGroup,
+      id_dia: dayId
+    }));
+  };
+
+  // Manejador para cuando se selecciona una hora de la lista
+  const handleHourSelect = (hourId) => {
+    setGrupo((prevGroup) => ({
+      ...prevGroup,
+      id_hora: hourId
+    }));
+  };
+  // Manejador para cuando se selecciona una asignatura de la lista
+  const handleSubjectSelect = (subjectId) => {
+    setGrupo((prevGroup) => ({
+      ...prevGroup,
+      id_asignatura: subjectId
+    }));
+  };
+
+  // Manejador para cuando se selecciona un proyecto de la lista
+  const handleProjectSelect = (projectId) => {
+    setGrupo((prevGroup) => ({
+      ...prevGroup,
+      id_proyecto: projectId
+    }));
+  };
 
   const handleSubmit = async e => {
     e.preventDefault(); //Cancela el refresh del boton del formulario
     setLoadingCrear(true);
 
     if (
-        !grupo.dia ||
-        !grupo.hora ||
+        !grupo.id_dia ||
+        !grupo.id_hora ||
         !grupo.grupo ||
-        !grupo.nombre ||
-        !grupo.proyecto ||
+        !grupo.id_asignatura ||
+        !grupo.id_proyecto ||
         !grupo.inscritos
     ) {
       alert("Por favor, completa todos los campos antes de continuar.");
@@ -46,6 +88,12 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
       console.log("Respuesta del servidor: ", data);
 
     } else {
+      if (!grupo.id_dia || !grupo.id_hora || !grupo.id_asignatura || !grupo.id_proyecto) {
+        alert("Por favor, asegurate de seleccionar un dia, una hora, una asignatura y un proyecto."); 
+        //setLoadingCrear(false);
+        return;
+      }
+
       try {
         const res = await fetch(`http://localhost:5000/subjects/${params.id}/groups`, {
           method: 'POST',
@@ -85,11 +133,12 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
     const data = await res.json()
     
     setGrupo({
-      dia: data.dia ?? '',
-      hora: data.hora ?? '',
+      id_dia: data.id_dia ?? null,
+      id_hora: data.id_hora ?? null,
       grupo: data.grupo ?? '',
-      nombre: data.nombre ?? '',
-      proyecto: data.proyecto ?? '',
+      id_asignatura: data.id_asignatura ?? null,
+      id_proyecto: data.id_proyecto ?? null,
+      hora: data.hora ?? '',
       inscritos: data.inscritos ?? 0
     });
     setEditing(true);
@@ -121,14 +170,11 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
         gap: 2,
       }}
     >
-      <TextField
-        fullWidth
-        variant="outlined"
-        label="Dia de la semana"
-        name="dia"
-        type="text"
-        value={grupo.dia}
-        onChange={handleChange}
+      <Dias
+        dias={dias}
+        setDias={setDias}
+        selectedDiaId={grupo.id_dia}
+        onSelect={handleDaySelect}
       />
       <TextField
         fullWidth

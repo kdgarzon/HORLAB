@@ -43,7 +43,6 @@ const getGroup = async (req, res, next) => {
     }
 }
 
-//FALTA MODIFICAR DE AQUI PARA ABAJO
 const createGroup = async (req, res, next) => {
     const {id_dia, id_hora, grupo, id_asignatura, id_proyecto, inscritos} = req.body
     try {
@@ -106,9 +105,39 @@ const updateGroup = async (req, res, next) => {
     }
 }
 
+const getAllDays = async (req, res, next) => {
+    try {
+        const result = await pool.query("SELECT * FROM Dia ORDER BY orden");
+        res.json(result.rows);
+    } catch (error) {
+        next(error);
+    }
+}
+
+const getAllHours = async (req, res, next) => {
+    try {
+        const result = await pool.query("SELECT * FROM Hora ORDER BY hora");
+        res.json(result.rows);
+    } catch (error) {
+        next(error);
+    }
+}
+
+const getAllProjects = async (req, res, next) => {
+    try {
+        const result = await pool.query("SELECT * FROM Proyecto ORDER BY proyecto");
+        res.json(result.rows);
+    } catch (error) {
+        next(error);
+    }
+}
+
 module.exports = {
     getAllGroups,
     getGroup,
+    getAllDays,
+    getAllHours,
+    getAllProjects,
     createGroup,
     deleteGroup,
     updateGroup
