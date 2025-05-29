@@ -35,7 +35,6 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
       return;
     }
     
-
     if (editing) {
       const res = await fetch(`http://localhost:5000/subjects/${params.id}/groups/${groupId}`, {
         method: 'PUT',
