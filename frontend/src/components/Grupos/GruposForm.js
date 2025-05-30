@@ -123,7 +123,6 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
       navigate(`/ListarAsignaturas/Asignaturas/${params.id}/ListarGrupos`);
     }
   }
-  
 
   const handleChange = (e) => 
     setGrupo({...grupo, [e.target.name]: e.target.value}); //Actualiza el valor que vamos a enviar del TextField
@@ -181,6 +180,12 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
         setHoras={setHoras}
         selectedHourId={grupo.id_hora}
         onSelect={handleHourSelect}
+      />
+      <Proyectos
+        proyectos={proyectos}
+        setProyectos={setProyectos}
+        selectedProyectoId={grupo.id_proyecto}
+        onSelect={handleProjectSelect}
       />
   
       {!hideInternalSubmitButton && (
