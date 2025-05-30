@@ -176,14 +176,11 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
         selectedDiaId={grupo.id_dia}
         onSelect={handleDaySelect}
       />
-      <TextField
-        fullWidth
-        variant="outlined"
-        label="Franja horaria"
-        name="hora"
-        type="text"
-        value={grupo.hora}
-        onChange={handleChange}
+      <Horas
+        horas={horas}
+        setHoras={setHoras}
+        selectedHourId={grupo.id_hora}
+        onSelect={handleHourSelect}
       />
   
       {!hideInternalSubmitButton && (
