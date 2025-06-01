@@ -41,7 +41,7 @@ export default function GruposList() {
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
-  const groupId = location.pathname.match(/^\/ListarAsignaturas\/Asignaturas\/\d+$\/ListarGrupos\/Grupos\/(\d+)$/)?.[1] || null;
+  const groupId = location.pathname.match(/^\/ListarAsignaturas\/Asignaturas\/\d+\/ListarGrupos\/Grupos\/(\d+)$/)?.[1] || null;
   const modalOpen = location.pathname === `/ListarAsignaturas/Asignaturas/${id}/ListarGrupos/Grupos` || location.pathname.match(/^\/ListarAsignaturas\/Asignaturas\/\d+\/ListarGrupos\/Grupos\/\d+$/);
 
   const handleCloseModal = () => {
@@ -193,7 +193,7 @@ export default function GruposList() {
         aria-labelledby="modal-title"
       >
         <Box sx={style}>
-          <h2 id="modal-title"> {location.pathname.includes(`/Asignaturas/${id}/ListarGrupos/Grupos`) ? 'EDITAR GRUPO' : 'CREAR GRUPO'}</h2>
+          <h2 id="modal-title"> {groupId ? 'EDITAR GRUPO' : 'CREAR GRUPO'}</h2>
           <GruposForm
             key={groupId || 'new'}
             groupId={groupId}
@@ -217,7 +217,7 @@ export default function GruposList() {
               variant="contained"
               color="info"
             >
-              {location.pathname.includes(`/Asignaturas/${id}/ListarGrupos/Grupos`) ? 'EDITAR GRUPO' : 'CREAR GRUPO'}
+              {groupId ? 'EDITAR GRUPO' : 'CREAR GRUPO'}
             </Button>
           </Box>
         </Box>

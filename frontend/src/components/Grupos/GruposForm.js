@@ -144,12 +144,13 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
   }
 
   useEffect(() => {
+    //if (groupId !== undefined && groupId !== null && groupId !== '') {
     if (groupId) {
-        loadOneGrupo(groupId);
-        setEditing(true);
+      loadOneGrupo(groupId);
+      //setEditing(true);
     } else {
-        setGrupo(initialGroupState);  
-        setEditing(false);
+      setGrupo(initialGroupState);  
+      setEditing(false);
     }
   }, [groupId]);
 
@@ -169,6 +170,21 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
         gap: 2,
       }}
     >
+      <TextField
+        label="Nombre del grupo"
+        name="grupo"
+        value={grupo.grupo}
+        onChange={handleChange}
+      />
+
+      <TextField
+        label="Número de inscritos"
+        name="inscritos"
+        type="number"
+        value={grupo.inscritos}
+        onChange={handleChange}
+      />
+
       <Dias
         dias={dias}
         setDias={setDias}
@@ -210,7 +226,7 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
         >
           {loadingCrear ? (
             <CircularProgress color="inherit" size={24} />
-          ) : params.id ? 'EDITAR GRUPO' : 'CREAR GRUPO'}
+          ) : editing ? 'EDITAR GRUPO' : 'CREAR GRUPO'}
         </Button>
       )}
     </Box>
