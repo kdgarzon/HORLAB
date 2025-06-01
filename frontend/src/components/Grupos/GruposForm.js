@@ -181,6 +181,12 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
         selectedHourId={grupo.id_hora}
         onSelect={handleHourSelect}
       />
+      <Asignaturas
+        asignaturas={asignaturas}
+        setAsignaturas={setAsignaturas}
+        selectedSubjectId={grupo.id_asignatura}
+        onSelect={handleSubjectSelect}
+      />
       <Proyectos
         proyectos={proyectos}
         setProyectos={setProyectos}

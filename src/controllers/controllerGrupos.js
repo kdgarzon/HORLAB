@@ -1,4 +1,5 @@
 const pool = require('../dbconexion')
+const { getAllSubjects } = require('./controllerAsignaturas');
 
 const getAllGroups = async (req, res, next) => {
     const {id} = req.params
@@ -138,6 +139,7 @@ module.exports = {
     getAllDays,
     getAllHours,
     getAllProjects,
+    getAllSubjects,
     createGroup,
     deleteGroup,
     updateGroup

@@ -79,6 +79,7 @@ router.get('/days', getAllDays)
 router.get('/hours', getAllHours)
 router.get('/projects', getAllProjects) 
 
+
 //RUTAS PARA EL CONTROLADOR DE DOCENTE
 router.get('/teachers', getAllTeachers)
 router.get('/teachers/:id', getTeacher)
