@@ -191,7 +191,7 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
       <Asignaturas
         asignaturas={asignaturas}
         setAsignaturas={setAsignaturas}
-        selectedSubjectId={grupo.id_asignatura}
+        selectedAsignaturaId={grupo.id_asignatura}
         onSelect={handleSubjectSelect}
       />
       <Proyectos

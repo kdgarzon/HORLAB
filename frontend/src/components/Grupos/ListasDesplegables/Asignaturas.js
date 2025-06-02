@@ -1,7 +1,8 @@
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
-import { CircularProgress, Collapse, List, ListItemButton, ListItemText } from '@mui/material';
+import { Box, CircularProgress, Collapse, List, ListItem, ListItemButton, ListItemText } from '@mui/material';
 import { useState, useEffect } from 'react';
+import { FixedSizeList } from 'react-window';
 
 export default function Asignaturas({ asignaturas, setAsignaturas, selectedAsignaturaId, onSelect  }) {
     const [open, setOpen] = useState(false); //Que la lista de asignaturas aparezca desplegada
@@ -33,6 +34,23 @@ export default function Asignaturas({ asignaturas, setAsignaturas, selectedAsign
     const selectedAsignatura = asignaturas.find(a => a.id_asignatura === selectedAsignaturaId);
     const displayAsignaturaName = selectedAsignatura ? selectedAsignatura.nombre : "Seleccionar Asignatura";
 
+    const renderRow = ({ index, style }) => {
+        const asignatura = asignaturas[index];
+        return (
+        <ListItem style={style} key={asignatura.id_asignatura} component="div" disablePadding>
+            <ListItemButton
+            selected={selectedAsignaturaId === asignatura.id_asignatura}
+            onClick={() => {
+                onSelect(asignatura.id_asignatura);
+                setOpen(false);
+            }}
+            >
+            <ListItemText primary={asignatura.nombre} />
+            </ListItemButton>
+        </ListItem>
+        );
+    };
+
     return (
         <List sx={{ bgcolor: 'background.paper', borderRadius: 1 }}>
             <ListItemButton onClick={() => setOpen(!open)}>
@@ -40,28 +58,28 @@ export default function Asignaturas({ asignaturas, setAsignaturas, selectedAsign
             {open ? <ExpandLess /> : <ExpandMore />}
             </ListItemButton>
             <Collapse in={open} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding>
                 {loadingAsignaturas ? (
-                <ListItemText sx={{ pl: 4 }} primary={<CircularProgress size={20} />} />
-                ) : asignaturas.length === 0 ? (
-                <ListItemText sx={{ pl: 4, fontStyle: 'italic' }} primary="No hay asignaturas disponibles" />
-                ) : (
-                asignaturas.map((asignatura) => (
-                    <ListItemButton
-                    key={asignatura.id_asignatura}
-                    sx={{ pl: 4 }}
-                    onClick={() => {
-                        onSelect(asignatura.id_asignatura);
-                        setOpen(false);
-                        }
-                    }
-                    selected={selectedAsignaturaId === asignatura.id_asignatura}
-                    >
-                    <ListItemText primary={asignatura.nombre} />
-                    </ListItemButton>
-                ))
+                    <Box sx={{ pl: 4, py: 1 }}>
+                        <CircularProgress size={20} />
+                    </Box>
+                    ) : asignaturas.length === 0 ? (
+                    <ListItemText
+                        sx={{ pl: 4, fontStyle: 'italic' }}
+                        primary="No hay asignaturas disponibles"
+                    />
+                    ) : (
+                    <Box sx={{ height: 138, width: '100%' }}>
+                        <FixedSizeList
+                        height={138} // 46 * 4 = muestra 4 ítems
+                        width="100%"
+                        itemSize={46}
+                        itemCount={asignaturas.length}
+                        overscanCount={2}
+                        >
+                        {renderRow}
+                        </FixedSizeList>
+                    </Box>
                 )}
-            </List>
             </Collapse>
         </List>
     );
