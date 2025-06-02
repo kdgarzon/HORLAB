@@ -1,7 +1,8 @@
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
-import { CircularProgress, Collapse, List, ListItemButton, ListItemText } from '@mui/material';
+import { Box, CircularProgress, Collapse, List, ListItem, ListItemButton, ListItemText } from '@mui/material';
 import { useState, useEffect } from 'react';
+import { FixedSizeList } from 'react-window';
 
 export default function Proyectos({ proyectos, setProyectos, selectedProyectoId, onSelect  }) {
     const [open, setOpen] = useState(false); //Que la lista de proyectos aparezca desplegada
@@ -33,6 +34,23 @@ export default function Proyectos({ proyectos, setProyectos, selectedProyectoId,
     const selectedProyecto = proyectos.find(p => p.id_proyecto === selectedProyectoId);
     const displayProyectoName = selectedProyecto ? selectedProyecto.proyecto : "Seleccionar Proyecto";
 
+    const renderRow = ({ index, style }) => {
+        const proyecto = proyectos[index];
+        return (
+        <ListItem style={style} key={proyecto.id_proyecto} component="div" disablePadding>
+            <ListItemButton
+            selected={selectedProyectoId === proyecto.id_proyecto}
+            onClick={() => {
+                onSelect(proyecto.id_proyecto);
+                setOpen(false);
+            }}
+            >
+            <ListItemText primary={proyecto.proyecto} />
+            </ListItemButton>
+        </ListItem>
+        );
+    };
+
     return (
         <List sx={{ bgcolor: 'background.paper', borderRadius: 1 }}>
             <ListItemButton onClick={() => setOpen(!open)}>
@@ -40,28 +58,28 @@ export default function Proyectos({ proyectos, setProyectos, selectedProyectoId,
             {open ? <ExpandLess /> : <ExpandMore />}
             </ListItemButton>
             <Collapse in={open} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding>
                 {loadingProyectos ? (
-                <ListItemText sx={{ pl: 4 }} primary={<CircularProgress size={20} />} />
-                ) : proyectos.length === 0 ? (
-                <ListItemText sx={{ pl: 4, fontStyle: 'italic' }} primary="No hay proyectos disponibles" />
-                ) : (
-                proyectos.map((proyecto) => (
-                    <ListItemButton
-                    key={proyecto.id_proyecto}
-                    sx={{ pl: 4 }}
-                    onClick={() => {
-                        onSelect(proyecto.id_proyecto);
-                        setOpen(false);
-                        }
-                    }
-                    selected={selectedProyectoId === proyecto.id_proyecto}
-                    >
-                    <ListItemText primary={proyecto.proyecto} />
-                    </ListItemButton>
-                ))
+                    <Box sx={{ pl: 4, py: 1 }}>
+                        <CircularProgress size={20} />
+                    </Box>
+                    ) : proyectos.length === 0 ? (
+                    <ListItemText
+                        sx={{ pl: 4, fontStyle: 'italic' }}
+                        primary="No hay proyectos disponibles"
+                    />
+                    ) : (
+                    <Box sx={{ height: 138, width: '100%' }}>
+                        <FixedSizeList
+                        height={138} // 46 * 4 = muestra 4 ítems
+                        width="100%"
+                        itemSize={46}
+                        itemCount={proyectos.length}
+                        overscanCount={2}
+                        >
+                        {renderRow}
+                        </FixedSizeList>
+                    </Box>
                 )}
-            </List>
             </Collapse>
         </List>
     );
