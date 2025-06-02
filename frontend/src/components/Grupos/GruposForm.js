@@ -1,5 +1,5 @@
 import { Box, Button, CircularProgress, TextField } from "@mui/material"
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {useNavigate, useParams} from 'react-router-dom'
 import Dias from "./ListasDesplegables/Dias";
 import Horas from "./ListasDesplegables/Horas";
@@ -7,13 +7,14 @@ import Asignaturas from "./ListasDesplegables/Asignaturas";
 import Proyectos from "./ListasDesplegables/Proyectos";
 
 const initialGroupState = {
-  id_dia: null,
-  id_hora: null,
+  dia: '',
+  hora: '',
   grupo: '',
   id_asignatura: null,
-  id_proyecto: null,
+  proyecto: '',
   inscritos: 0
 };
+console.log("Grupo inicial:", initialGroupState);
 
 export default function GruposForm({ groupId, hideInternalSubmitButton = false, onExternalSubmit }) {
   //Listas desplegables
@@ -29,20 +30,31 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
   
   const [grupo, setGrupo] = useState(initialGroupState);
 
+
+  const [rawGrupo, setRawGrupo] = useState(null);
+
   // Manejador para cuando se selecciona un dia de la lista
   const handleDaySelect = (dayId) => {
     setGrupo((prevGroup) => ({
       ...prevGroup,
-      id_dia: dayId
+      dia: dayId // Cambiado de id_dia a dia
     }));
+    /*setGrupo((prevGroup) => ({
+      ...prevGroup,
+      id_dia: dayId
+    }));*/
   };
 
   // Manejador para cuando se selecciona una hora de la lista
   const handleHourSelect = (hourId) => {
     setGrupo((prevGroup) => ({
       ...prevGroup,
-      id_hora: hourId
+      hora: hourId // Cambiado de id_dia a dia
     }));
+    /*setGrupo((prevGroup) => ({
+      ...prevGroup,
+      id_hora: hourId
+    }));*/
   };
   // Manejador para cuando se selecciona una asignatura de la lista
   const handleSubjectSelect = (subjectId) => {
@@ -56,8 +68,12 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
   const handleProjectSelect = (projectId) => {
     setGrupo((prevGroup) => ({
       ...prevGroup,
-      id_proyecto: projectId
+      proyecto: projectId 
     }));
+    /*setGrupo((prevGroup) => ({
+      ...prevGroup,
+      id_proyecto: projectId
+    }));*/
   };
 
   const handleSubmit = async e => {
@@ -65,11 +81,11 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
     setLoadingCrear(true);
 
     if (
-        !grupo.id_dia ||
-        !grupo.id_hora ||
+        !grupo.dia ||
+        !grupo.hora ||
         !grupo.grupo ||
         !grupo.id_asignatura ||
-        !grupo.id_proyecto ||
+        !grupo.proyecto ||
         !grupo.inscritos
     ) {
       alert("Por favor, completa todos los campos antes de continuar.");
@@ -127,32 +143,58 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
   const handleChange = (e) => 
     setGrupo({...grupo, [e.target.name]: e.target.value}); //Actualiza el valor que vamos a enviar del TextField
   
-  const loadOneGrupo = async (id_grupo) => {
+  const loadOneGrupo = useCallback(async (id_grupo) => {
+    //const idDeAsignatura = params.id;
     const res = await fetch(`http://localhost:5000/subjects/${params.id}/groups/${id_grupo}`);
     const data = await res.json()
     
-    setGrupo({
-      id_dia: data.id_dia ?? null,
-      id_hora: data.id_hora ?? null,
-      grupo: data.grupo ?? '',
-      id_asignatura: data.id_asignatura ?? null,
-      id_proyecto: data.id_proyecto ?? null,
+    console.log("Datos del grupo:", data);
+    setRawGrupo(data); // Guarda los datos crudos
+    /*setGrupo({
+      dia: data.dia ?? '',
       hora: data.hora ?? '',
+      grupo: data.grupo ?? '',
+      id_asignatura: idDeAsignatura ?? null,
+      proyecto: data.proyecto ?? '',
       inscritos: data.inscritos ?? 0
-    });
+    });*/
+    
     setEditing(true);
-  }
+  }, [params.id/*, setGrupo, setEditing*/]);
 
   useEffect(() => {
-    //if (groupId !== undefined && groupId !== null && groupId !== '') {
+    if (rawGrupo && dias.length && horas.length && proyectos.length) {
+      // Busca los IDs correspondientes
+      const diaObj = dias.find(d => d.dia === rawGrupo.dia);
+      const horaObj = horas.find(h => h.hora === rawGrupo.hora);
+      const proyectoObj = proyectos.find(p => p.proyecto === rawGrupo.proyecto);
+
+      setGrupo({
+        dia: diaObj ? diaObj.id_dia : '',
+        hora: horaObj ? horaObj.id_hora : '',
+        grupo: rawGrupo.grupo ?? '',
+        id_asignatura: params.id ?? null,
+        proyecto: proyectoObj ? proyectoObj.id_proyecto : '',
+        inscritos: rawGrupo.inscritos ?? 0
+      });
+    }
+  }, [rawGrupo, dias, horas, proyectos, params.id]);
+
+
+  useEffect(() => {
+    const idDeAsignatura = params.id;
     if (groupId) {
       loadOneGrupo(groupId);
       //setEditing(true);
     } else {
-      setGrupo(initialGroupState);  
+      setGrupo({
+        ...initialGroupState,
+        id_asignatura: idDeAsignatura ?? null // Aseguramos que la asignatura se establezca al crear un nuevo grupo
+      })
+      //setGrupo(initialGroupState);  
       setEditing(false);
     }
-  }, [groupId]);
+  }, [groupId, params.id, loadOneGrupo, setGrupo, setEditing]);
 
   return (
     <Box
@@ -173,13 +215,15 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
       <Dias
         dias={dias}
         setDias={setDias}
-        selectedDiaId={grupo.id_dia}
+        selectedDiaId={grupo.dia}
+        //selectedDiaId={grupo.id_dia}
         onSelect={handleDaySelect}
       />
       <Horas
         horas={horas}
         setHoras={setHoras}
-        selectedHoraId={grupo.id_hora}
+        selectedHoraId={grupo.hora}
+        //selectedHoraId={grupo.id_hora}
         onSelect={handleHourSelect}
       />
       <TextField
@@ -197,7 +241,8 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
       <Proyectos
         proyectos={proyectos}
         setProyectos={setProyectos}
-        selectedProyectoId={grupo.id_proyecto}
+        selectedProyectoId={grupo.proyecto}
+        //selectedProyectoId={grupo.id_proyecto}
         onSelect={handleProjectSelect}
       />
       <TextField
