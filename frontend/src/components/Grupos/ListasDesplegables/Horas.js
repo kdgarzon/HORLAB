@@ -1,7 +1,8 @@
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
-import { CircularProgress, Collapse, List, ListItemButton, ListItemText } from '@mui/material';
+import { Box, CircularProgress, Collapse, List, ListItem, ListItemButton, ListItemText } from '@mui/material';
 import { useState, useEffect } from 'react';
+import { FixedSizeList } from 'react-window';
 
 export default function Horas({ horas, setHoras, selectedHoraId, onSelect  }) {
     const [open, setOpen] = useState(false); //Que la lista de horas aparezca desplegada
@@ -33,6 +34,23 @@ export default function Horas({ horas, setHoras, selectedHoraId, onSelect  }) {
     const selectedHour = horas.find(h => h.id_hora === selectedHoraId);
     const displayHourName = selectedHour ? selectedHour.hora : "Seleccionar Hora";
 
+    const renderRow = ({ index, style }) => {
+        const hora = horas[index];
+        return (
+        <ListItem style={style} key={hora.id_hora} component="div" disablePadding>
+            <ListItemButton
+            selected={selectedHoraId === hora.id_hora}
+            onClick={() => {
+                onSelect(hora.id_hora);
+                setOpen(false);
+            }}
+            >
+            <ListItemText primary={hora.hora} />
+            </ListItemButton>
+        </ListItem>
+        );
+    };
+
     return (
         <List sx={{ bgcolor: 'background.paper', borderRadius: 1 }}>
             <ListItemButton onClick={() => setOpen(!open)}>
@@ -40,28 +58,28 @@ export default function Horas({ horas, setHoras, selectedHoraId, onSelect  }) {
             {open ? <ExpandLess /> : <ExpandMore />}
             </ListItemButton>
             <Collapse in={open} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding>
                 {loadingHoras ? (
-                <ListItemText sx={{ pl: 4 }} primary={<CircularProgress size={20} />} />
-                ) : horas.length === 0 ? (
-                <ListItemText sx={{ pl: 4, fontStyle: 'italic' }} primary="No hay horas disponibles" />
-                ) : (
-                horas.map((hora) => (
-                    <ListItemButton
-                    key={hora.id_hora}
-                    sx={{ pl: 4 }}
-                    onClick={() => {
-                        onSelect(hora.id_hora);
-                        setOpen(false);
-                        }
-                    }
-                    selected={selectedHoraId === hora.id_hora}
-                    >
-                    <ListItemText primary={hora.hora} />
-                    </ListItemButton>
-                ))
+                    <Box sx={{ pl: 4, py: 1 }}>
+                        <CircularProgress size={20} />
+                    </Box>
+                    ) : horas.length === 0 ? (
+                    <ListItemText
+                        sx={{ pl: 4, fontStyle: 'italic' }}
+                        primary="No hay horas disponibles"
+                    />
+                    ) : (
+                    <Box sx={{ height: 138, width: '100%' }}>
+                        <FixedSizeList
+                        height={138} // 46 * 4 = muestra 4 ítems
+                        width="100%"
+                        itemSize={46}
+                        itemCount={horas.length}
+                        overscanCount={2}
+                        >
+                        {renderRow}
+                        </FixedSizeList>
+                    </Box>
                 )}
-            </List>
             </Collapse>
         </List>
     );

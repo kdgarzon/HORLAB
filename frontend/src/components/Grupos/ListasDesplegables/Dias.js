@@ -1,7 +1,8 @@
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
-import { CircularProgress, Collapse, List, ListItemButton, ListItemText } from '@mui/material';
+import { CircularProgress, Collapse, List, ListItemButton, ListItemText, ListItem, Box } from '@mui/material';
 import { useState, useEffect } from 'react';
+import { FixedSizeList } from 'react-window';
 
 export default function Dias({ dias, setDias, selectedDiaId, onSelect  }) {
     const [open, setOpen] = useState(false); //Que la lista de dias aparezca desplegada
@@ -33,6 +34,23 @@ export default function Dias({ dias, setDias, selectedDiaId, onSelect  }) {
     const selectedDia = dias.find(d => d.id_dia === selectedDiaId);
     const displayDayName = selectedDia ? selectedDia.dia : "Seleccionar Dia";
 
+    const renderRow = ({ index, style }) => {
+        const dia = dias[index];
+        return (
+        <ListItem style={style} key={dia.id_dia} component="div" disablePadding>
+            <ListItemButton
+            selected={selectedDiaId === dia.id_dia}
+            onClick={() => {
+                onSelect(dia.id_dia);
+                setOpen(false);
+            }}
+            >
+            <ListItemText primary={dia.dia} />
+            </ListItemButton>
+        </ListItem>
+        );
+    };
+
     return (
         <List sx={{ bgcolor: 'background.paper', borderRadius: 1 }}>
             <ListItemButton onClick={() => setOpen(!open)}>
@@ -40,28 +58,28 @@ export default function Dias({ dias, setDias, selectedDiaId, onSelect  }) {
             {open ? <ExpandLess /> : <ExpandMore />}
             </ListItemButton>
             <Collapse in={open} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding>
                 {loadingDias ? (
-                <ListItemText sx={{ pl: 4 }} primary={<CircularProgress size={20} />} />
-                ) : dias.length === 0 ? (
-                <ListItemText sx={{ pl: 4, fontStyle: 'italic' }} primary="No hay dias disponibles" />
-                ) : (
-                dias.map((dia) => (
-                    <ListItemButton
-                    key={dia.id_dia}
-                    sx={{ pl: 4 }}
-                    onClick={() => {
-                        onSelect(dia.id_dia);
-                        setOpen(false);
-                        }
-                    }
-                    selected={selectedDiaId === dia.id_dia}
-                    >
-                    <ListItemText primary={dia.dia} />
-                    </ListItemButton>
-                ))
+                    <Box sx={{ pl: 4, py: 1 }}>
+                        <CircularProgress size={20} />
+                    </Box>
+                    ) : dias.length === 0 ? (
+                    <ListItemText
+                        sx={{ pl: 4, fontStyle: 'italic' }}
+                        primary="No hay dias disponibles"
+                    />
+                    ) : (
+                    <Box sx={{ height: 138, width: '100%' }}>
+                        <FixedSizeList
+                        height={138} // 46 * 4 = muestra 4 ítems
+                        width="100%"
+                        itemSize={46}
+                        itemCount={dias.length}
+                        overscanCount={2}
+                        >
+                        {renderRow}
+                        </FixedSizeList>
+                    </Box>
                 )}
-            </List>
             </Collapse>
         </List>
     );

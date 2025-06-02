@@ -170,21 +170,6 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
         gap: 2,
       }}
     >
-      <TextField
-        label="Nombre del grupo"
-        name="grupo"
-        value={grupo.grupo}
-        onChange={handleChange}
-      />
-
-      <TextField
-        label="Número de inscritos"
-        name="inscritos"
-        type="number"
-        value={grupo.inscritos}
-        onChange={handleChange}
-      />
-
       <Dias
         dias={dias}
         setDias={setDias}
@@ -194,8 +179,14 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
       <Horas
         horas={horas}
         setHoras={setHoras}
-        selectedHourId={grupo.id_hora}
+        selectedHoraId={grupo.id_hora}
         onSelect={handleHourSelect}
+      />
+      <TextField
+        label="Grupo"
+        name="grupo"
+        value={grupo.grupo}
+        onChange={handleChange}
       />
       <Asignaturas
         asignaturas={asignaturas}
@@ -208,6 +199,13 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
         setProyectos={setProyectos}
         selectedProyectoId={grupo.id_proyecto}
         onSelect={handleProjectSelect}
+      />
+      <TextField
+        label="Número de inscritos"
+        name="inscritos"
+        type="number"
+        value={grupo.inscritos}
+        onChange={handleChange}
       />
   
       {!hideInternalSubmitButton && (
