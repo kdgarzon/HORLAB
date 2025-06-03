@@ -54,10 +54,12 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
   };
 
   const handleProjectSelect = (projectId) => {
+    //const proyectoSeleccionado = proyectos.find(p => p.id_proyecto === projectId);
     setGrupo((prevGroup) => ({
       ...prevGroup,
       proyecto: projectId 
     }));
+    generarNombreGrupo(params.id, projectId);
   };
 
   const handleSubmit = async e => {
@@ -131,6 +133,24 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
     setEditing(true);
   }, [params.id]);
 
+  const generarNombreGrupo = async (idAsignatura, id_proyecto) => {
+    const res = await fetch(`http://localhost:5000/subjects/${idAsignatura}/projects/${id_proyecto}/consecutive`);
+    const data = await res.json();
+
+    const nuevoNombre = `${data.codigo}-${data.siguiente}`;
+    setGrupo((prev) => ({ 
+      ...prev, 
+      grupo: nuevoNombre 
+    }));
+  };  
+
+  useEffect(() => {
+    if (!editing && grupo.id_asignatura && grupo.proyecto) {
+      generarNombreGrupo(grupo.id_asignatura, grupo.proyecto);
+    }
+  }, [grupo.id_asignatura, grupo.proyecto, editing]);
+
+
   useEffect(() => {
     if (rawGrupo && dias.length && horas.length && proyectos.length) {
       // Busca los IDs correspondientes
@@ -158,7 +178,9 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
 
       if (data.length === 1) {
         setProyectoFijo(data[0]); // Solo hay un proyecto, se fija
+        console.log("Proyecto fijo encontrado:", data[0]);  
         setGrupo((prev) => ({ ...prev, proyecto: data[0].id_proyecto }));
+        generarNombreGrupo(params.id, data[0].id_proyecto);
       } else {
         setProyectoFijo(null); // Hay múltiples proyectos, se habilita el selector
       }
@@ -212,8 +234,9 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
       <TextField
         label="Grupo"
         name="grupo"
-        value={grupo.grupo}
+        value={grupo.grupo || ""}
         onChange={handleChange}
+        disabled
       />
       <Asignaturas
         asignaturas={asignaturas}

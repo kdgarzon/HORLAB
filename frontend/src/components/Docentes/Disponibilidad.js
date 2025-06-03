@@ -59,7 +59,7 @@ export function fusionarFranjasConsecutivas(agrupado) {
     }
     resultadoFusionado.push({...actual});
   });
-  console.log("Fusionado:", resultadoFusionado);
+  //console.log("Fusionado:", resultadoFusionado);
 
   return resultadoFusionado;
 }

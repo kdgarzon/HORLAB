@@ -149,6 +149,37 @@ const getProjectsToSubject = async (req, res, next) => {
     }
 }
 
+const getNextGroupConsecutive = async (req, res, next) => {
+    const {id_asignatura, id_proyecto} = req.params
+    try {
+        // Obtener el mayor consecutivo de los grupos existentes
+        const result = await pool.query(`
+            SELECT MAX(CAST(SUBSTRING(grupo FROM '[0-9]+$') AS INTEGER)) AS max_consecutivo
+            FROM Grupos
+            WHERE id_asignatura = $1 AND id_proyecto = $2
+        `, [id_asignatura, id_proyecto]);
+
+        console.log(`Max consecutivo: ${result.rows[0].max_consecutivo}`);
+        
+
+        // Obtener el código del proyecto desde el campo `proyecto` (extrae lo antes del " -")
+        const proyectoResult = await pool.query(`
+            SELECT TRIM(SPLIT_PART(proyecto, '-', 1)) AS codigo_proyecto
+            FROM Proyecto
+            WHERE id_proyecto = $1
+        `, [id_proyecto]);
+
+        console.log(`Código del proyecto: ${proyectoResult.rows[0].codigo_proyecto}`);
+        
+
+        const siguiente = (result.rows[0].max_consecutivo || 0) + 1;
+        const codigo = proyectoResult.rows[0].codigo_proyecto;
+        res.json({ siguiente, codigo });
+    } catch (error) {
+        next(error);
+    }
+}
+
 module.exports = {
     getAllGroups,
     getGroup,
@@ -159,5 +190,6 @@ module.exports = {
     createGroup,
     deleteGroup,
     updateGroup,
-    getProjectsToSubject
+    getProjectsToSubject,
+    getNextGroupConsecutive
 }

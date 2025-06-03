@@ -29,7 +29,8 @@ const {
     createGroup,
     deleteGroup,
     updateGroup,
-    getProjectsToSubject
+    getProjectsToSubject,
+    getNextGroupConsecutive
 } = require('../controllers/controllerGrupos')
 
 const {
@@ -80,6 +81,7 @@ router.get('/days', getAllDays)
 router.get('/hours', getAllHours)
 router.get('/projects', getAllProjects) 
 router.get('/subjects/:id_asignatura/projects', getProjectsToSubject);
+router.get('/subjects/:id_asignatura/projects/:id_proyecto/consecutive', getNextGroupConsecutive);
 
 //RUTAS PARA EL CONTROLADOR DE DOCENTE
 router.get('/teachers', getAllTeachers)
