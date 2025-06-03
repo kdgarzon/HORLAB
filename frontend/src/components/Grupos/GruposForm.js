@@ -30,6 +30,7 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
   
   const [grupo, setGrupo] = useState(initialGroupState);
   const [rawGrupo, setRawGrupo] = useState(null);
+  const [proyectoFijo, setProyectoFijo] = useState(null); // Si solo hay un proyecto asociado
 
   const handleDaySelect = (dayId) => {
     setGrupo((prevGroup) => ({
@@ -149,6 +150,25 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
   }, [rawGrupo, dias, horas, proyectos, params.id]);
 
   useEffect(() => {
+    const cargarProyectosPorAsignatura = async () => {
+      const res = await fetch(`http://localhost:5000/subjects/${params.id}/projects`);
+      const data = await res.json();
+
+      setProyectos(data);
+
+      if (data.length === 1) {
+        setProyectoFijo(data[0]); // Solo hay un proyecto, se fija
+        setGrupo((prev) => ({ ...prev, proyecto: data[0].id_proyecto }));
+      } else {
+        setProyectoFijo(null); // Hay múltiples proyectos, se habilita el selector
+      }
+    };
+
+    cargarProyectosPorAsignatura();
+  }, [params.id]);
+
+
+  useEffect(() => {
     const idDeAsignatura = params.id;
     if (groupId) {
       loadOneGrupo(groupId);
@@ -201,12 +221,20 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
         selectedAsignaturaId={grupo.id_asignatura}
         onSelect={handleSubjectSelect}
       />
-      <Proyectos
-        proyectos={proyectos}
-        setProyectos={setProyectos}
-        selectedProyectoId={grupo.proyecto}
-        onSelect={handleProjectSelect}
-      />
+      {proyectoFijo ? (
+        <TextField
+          label="Proyecto"
+          value={proyectoFijo.proyecto}
+          disabled
+        />
+      ) : (
+        <Proyectos
+          proyectos={proyectos}
+          setProyectos={setProyectos}
+          selectedProyectoId={grupo.proyecto}
+          onSelect={handleProjectSelect}
+        />
+      )}
       <TextField
         label="Número de inscritos"
         name="inscritos"
@@ -229,7 +257,7 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
             <CircularProgress color="inherit" size={24} />
           ) : editing ? 'EDITAR GRUPO' : 'CREAR GRUPO'}
         </Button>
-      )}
+      )}  
     </Box>
   );
   

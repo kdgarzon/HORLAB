@@ -28,7 +28,8 @@ const {
     getGroup,
     createGroup,
     deleteGroup,
-    updateGroup
+    updateGroup,
+    getProjectsToSubject
 } = require('../controllers/controllerGrupos')
 
 const {
@@ -78,7 +79,7 @@ router.put('/subjects/:id_asignatura/groups/:idgroupActualizar', updateGroup)
 router.get('/days', getAllDays) 
 router.get('/hours', getAllHours)
 router.get('/projects', getAllProjects) 
-
+router.get('/subjects/:id_asignatura/projects', getProjectsToSubject);
 
 //RUTAS PARA EL CONTROLADOR DE DOCENTE
 router.get('/teachers', getAllTeachers)
