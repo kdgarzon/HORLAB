@@ -1,8 +1,24 @@
+//FUSIONAR HORAS CONSECUTIVAS EN DOCENTES
 export function agruparDisponibilidadPorDia(disponibilidad) {
   const agrupado = {};
 
   disponibilidad.forEach(item => {
     const key = `${item.dia}|${item.salon}|${item.edificio}|${item.nombre_asignatura}`;
+    if (!agrupado[key]) {
+      agrupado[key] = [];
+    }
+    agrupado[key].push(item);
+  });
+
+  return agrupado;
+}
+
+// FUSIONAR HORAS CONSECUTIVAS EN GRUPOS
+export function agruparDisponibilidadPorDiaenGrupos(disponibilidad) {
+  const agrupado = {};
+
+  disponibilidad.forEach(item => {
+    const key = `${item.dia}|${item.grupo}|${item.nombre}|${item.proyecto}|${item.inscritos}`;
     if (!agrupado[key]) {
       agrupado[key] = [];
     }

@@ -29,34 +29,22 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
   const [editing, setEditing] = useState(false)
   
   const [grupo, setGrupo] = useState(initialGroupState);
-
-
   const [rawGrupo, setRawGrupo] = useState(null);
 
-  // Manejador para cuando se selecciona un dia de la lista
   const handleDaySelect = (dayId) => {
     setGrupo((prevGroup) => ({
       ...prevGroup,
-      dia: dayId // Cambiado de id_dia a dia
+      dia: dayId 
     }));
-    /*setGrupo((prevGroup) => ({
-      ...prevGroup,
-      id_dia: dayId
-    }));*/
   };
 
-  // Manejador para cuando se selecciona una hora de la lista
   const handleHourSelect = (hourId) => {
     setGrupo((prevGroup) => ({
       ...prevGroup,
-      hora: hourId // Cambiado de id_dia a dia
+      hora: hourId
     }));
-    /*setGrupo((prevGroup) => ({
-      ...prevGroup,
-      id_hora: hourId
-    }));*/
   };
-  // Manejador para cuando se selecciona una asignatura de la lista
+
   const handleSubjectSelect = (subjectId) => {
     setGrupo((prevGroup) => ({
       ...prevGroup,
@@ -64,16 +52,11 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
     }));
   };
 
-  // Manejador para cuando se selecciona un proyecto de la lista
   const handleProjectSelect = (projectId) => {
     setGrupo((prevGroup) => ({
       ...prevGroup,
       proyecto: projectId 
     }));
-    /*setGrupo((prevGroup) => ({
-      ...prevGroup,
-      id_proyecto: projectId
-    }));*/
   };
 
   const handleSubmit = async e => {
@@ -81,12 +64,8 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
     setLoadingCrear(true);
 
     if (
-        !grupo.dia ||
-        !grupo.hora ||
-        !grupo.grupo ||
-        !grupo.id_asignatura ||
-        !grupo.proyecto ||
-        !grupo.inscritos
+        !grupo.dia || !grupo.hora || !grupo.grupo ||
+        !grupo.id_asignatura || !grupo.proyecto || !grupo.inscritos
     ) {
       alert("Por favor, completa todos los campos antes de continuar.");
       setLoadingCrear(false);
@@ -106,7 +85,6 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
     } else {
       if (!grupo.id_dia || !grupo.id_hora || !grupo.id_asignatura || !grupo.id_proyecto) {
         alert("Por favor, asegurate de seleccionar un dia, una hora, una asignatura y un proyecto."); 
-        //setLoadingCrear(false);
         return;
       }
 
@@ -144,23 +122,13 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
     setGrupo({...grupo, [e.target.name]: e.target.value}); //Actualiza el valor que vamos a enviar del TextField
   
   const loadOneGrupo = useCallback(async (id_grupo) => {
-    //const idDeAsignatura = params.id;
     const res = await fetch(`http://localhost:5000/subjects/${params.id}/groups/${id_grupo}`);
     const data = await res.json()
     
     console.log("Datos del grupo:", data);
     setRawGrupo(data); // Guarda los datos crudos
-    /*setGrupo({
-      dia: data.dia ?? '',
-      hora: data.hora ?? '',
-      grupo: data.grupo ?? '',
-      id_asignatura: idDeAsignatura ?? null,
-      proyecto: data.proyecto ?? '',
-      inscritos: data.inscritos ?? 0
-    });*/
-    
     setEditing(true);
-  }, [params.id/*, setGrupo, setEditing*/]);
+  }, [params.id]);
 
   useEffect(() => {
     if (rawGrupo && dias.length && horas.length && proyectos.length) {
@@ -180,18 +148,15 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
     }
   }, [rawGrupo, dias, horas, proyectos, params.id]);
 
-
   useEffect(() => {
     const idDeAsignatura = params.id;
     if (groupId) {
       loadOneGrupo(groupId);
-      //setEditing(true);
     } else {
       setGrupo({
         ...initialGroupState,
         id_asignatura: idDeAsignatura ?? null // Aseguramos que la asignatura se establezca al crear un nuevo grupo
       })
-      //setGrupo(initialGroupState);  
       setEditing(false);
     }
   }, [groupId, params.id, loadOneGrupo, setGrupo, setEditing]);
@@ -216,14 +181,12 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
         dias={dias}
         setDias={setDias}
         selectedDiaId={grupo.dia}
-        //selectedDiaId={grupo.id_dia}
         onSelect={handleDaySelect}
       />
       <Horas
         horas={horas}
         setHoras={setHoras}
         selectedHoraId={grupo.hora}
-        //selectedHoraId={grupo.id_hora}
         onSelect={handleHourSelect}
       />
       <TextField
@@ -242,7 +205,6 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
         proyectos={proyectos}
         setProyectos={setProyectos}
         selectedProyectoId={grupo.proyecto}
-        //selectedProyectoId={grupo.id_proyecto}
         onSelect={handleProjectSelect}
       />
       <TextField
@@ -259,12 +221,8 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
           color="info"
           type="submit"
           disabled={
-            !grupo.dia ||
-            !grupo.hora ||
-            !grupo.grupo ||
-            !grupo.nombre ||
-            !grupo.proyecto ||
-            !grupo.inscritos
+            !grupo.dia || !grupo.hora || !grupo.grupo ||
+            !grupo.nombre || !grupo.proyecto || !grupo.inscritos
           }
         >
           {loadingCrear ? (

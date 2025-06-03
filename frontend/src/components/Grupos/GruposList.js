@@ -7,6 +7,7 @@ import {useNavigate, useLocation, useParams} from 'react-router-dom'
 import AddReactionIcon from '@mui/icons-material/AddReaction';
 import GruposForm from './GruposForm';
 import { mostrarAlertaConfirmacion } from '../Alertas/Alert_Delete';
+import {agruparDisponibilidadPorDiaenGrupos, fusionarFranjasConsecutivas, extraerHoraInicial} from '../Docentes/Disponibilidad';
 
 //Estilo del modal que vamos a generar
 const style = {
@@ -24,7 +25,7 @@ const style = {
 };
 
 const columns = [
-  { id: 'id_grupo', label: 'ID Grupo', align: 'center', minWidth: 50 },
+  //{ id: 'id_grupo', label: 'ID Grupo', align: 'center', minWidth: 50 },
   { id: 'dia', label: 'Dia', minWidth: 50, align: 'center' },
   { id: 'hora', label: 'Franja Horaria', minWidth: 50, align: 'center' },
   { id: 'grupo', label: 'Grupo', align: 'center' },
@@ -44,6 +45,9 @@ export default function GruposList() {
   const groupId = location.pathname.match(/^\/ListarAsignaturas\/Asignaturas\/\d+\/ListarGrupos\/Grupos\/(\d+)$/)?.[1] || null;
   const modalOpen = location.pathname === `/ListarAsignaturas/Asignaturas/${id}/ListarGrupos/Grupos` || location.pathname.match(/^\/ListarAsignaturas\/Asignaturas\/\d+\/ListarGrupos\/Grupos\/\d+$/);
 
+  const [disponibilidad, setDisponibilidad] = useState([]);
+  const [sinDisponibilidad, setSinDisponibilidad] = useState(false);
+
   const handleCloseModal = () => {
     navigate(`/ListarAsignaturas/Asignaturas/${id}/ListarGrupos`);
   };
@@ -58,10 +62,32 @@ export default function GruposList() {
   };
 
   const loadGroups = useCallback(async () => {
-    const response = await fetch(`http://localhost:5000/subjects/${id}/groups`);
-    const data = await response.json();
-    //console.log("Respuesta del backend:", data);
-    setGroups(data);
+    try {
+      const res = await fetch(`http://localhost:5000/subjects/${id}/groups`, {
+          method: "GET",
+      })
+      if (!res.ok) {
+        // Si la respuesta no es 200, abrir modal vacío y terminar
+        setDisponibilidad([]);
+        return;
+      }
+      const data = await res.json();
+      setGroups(data);
+    
+      if (!Array.isArray(data)) {
+        // Si por alguna razón no es un arreglo, también mostramos vacío
+        setDisponibilidad([]);
+      } else {
+        // Aplicar lógica de fusión solo si hay datos
+        const agrupado = agruparDisponibilidadPorDiaenGrupos(data);
+        const fusionado = fusionarFranjasConsecutivas(agrupado);
+        setDisponibilidad(fusionado);
+        setSinDisponibilidad(fusionado.length === 0); // activa la alerta si no hay datos
+      }
+    } catch (error) {
+      console.log(error)
+      setDisponibilidad([]); // Mostrar alerta si hubo error de red
+    }
   }, [id]); 
 
   const handleDelete = async (id_grupo) => {
@@ -94,6 +120,9 @@ export default function GruposList() {
       (val) => typeof val === "string" && val.toLowerCase().includes(search.toLowerCase())
     )
   );
+
+  const disponibilidadAgrupada = agruparDisponibilidadPorDiaenGrupos(filteredGroups);
+  const gruposFusionados = fusionarFranjasConsecutivas(disponibilidadAgrupada);
 
   return (
     <>
@@ -138,48 +167,42 @@ export default function GruposList() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredGroups
+              {gruposFusionados
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((group) => {
-                  return (
-                    <TableRow hover role="checkbox" tabIndex={-1} key={group.id_grupo}>
-                      {columns.map((column) => {
-                        const value = group[column.id];
-                        return (
-                          <TableCell key={column.id} align={column.align}>
-                            {column.format && typeof value === 'number'
-                              ? column.format(value)
-                              : value}
-                          </TableCell>
-                        );
-                      })}
-                      <TableCell align="center">
-                        <Button 
-                          variant='contained'
-                          onClick={() => navigate(`/ListarAsignaturas/Asignaturas/${id}/ListarGrupos/Grupos/${group.id_grupo}`)}
-                          sx={{ backgroundColor: '#fbc02d', color: 'white', '&:hover': { backgroundColor: '#fdd835' } }}
-                        >
-                          <EditSquareIcon />
-                        </Button>
-                        <Button 
-                          variant='contained' 
-                          color='warning' 
-                          onClick={() => handleDelete(group.id_grupo)}
-                          style={{marginLeft: ".5rem"}}
-                        >
-                          <DeleteRoundedIcon />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
+                .map((group, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{group.dia}</TableCell>
+                    <TableCell>{`${extraerHoraInicial(group.hora_inicio)} - ${group.hora_fin}`}</TableCell>
+                    <TableCell>{group.grupo}</TableCell>
+                    <TableCell>{group.nombre}</TableCell>
+                    <TableCell>{group.proyecto}</TableCell>
+                    <TableCell>{group.inscritos}</TableCell>
+                    <TableCell align="center">
+                      <Button 
+                        variant='contained'
+                        onClick={() => navigate(`/ListarAsignaturas/Asignaturas/${id}/ListarGrupos/Grupos/${group.id_grupo}`)}
+                        sx={{ backgroundColor: '#fbc02d', color: 'white', '&:hover': { backgroundColor: '#fdd835' } }}
+                      >
+                        <EditSquareIcon />
+                      </Button>
+                      <Button 
+                        variant='contained' 
+                        color='warning' 
+                        onClick={() => handleDelete(group.id_grupo)}
+                        style={{marginLeft: ".5rem"}}
+                      >
+                        <DeleteRoundedIcon />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
         </TableContainer>
         <TablePagination
           rowsPerPageOptions={[10, 25, 100]}
           component="div"
-          count={groups.length}
+          count={gruposFusionados.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
