@@ -1,6 +1,7 @@
 import { Box, Button, CircularProgress, TextField } from "@mui/material"
 import { useState, useEffect } from "react";
 import {useNavigate, useParams} from 'react-router-dom'
+import { alertaSuccessorError } from "../Alertas/Alert_Success";
 
 const initialSubjectState = {
   codigo_asig: '',
@@ -23,7 +24,10 @@ export default function AsignaturaForm({ asigId, hideInternalSubmitButton = fals
         !asignatura.codigo_asig ||
         !asignatura.nombre
     ) {
-      alert("Por favor, completa todos los campos antes de continuar.");
+      alertaSuccessorError({
+        titulo: 'Campos incompletos',
+        icono: 'warning',
+      });
       setLoadingCrear(false);
       return;
     }
@@ -35,9 +39,13 @@ export default function AsignaturaForm({ asigId, hideInternalSubmitButton = fals
         body: JSON.stringify(asignatura),
         headers: {"Content-Type": "application/json"}
       });
-      
       const data = await res.json()
       console.log("Respuesta del servidor: ", data);
+
+      alertaSuccessorError({
+        titulo: 'Asignatura editada correctamente',
+        icono: 'success',
+      });
 
     } else {
       try {
@@ -52,14 +60,20 @@ export default function AsignaturaForm({ asigId, hideInternalSubmitButton = fals
           const errorData = await res.text();
           throw new Error(`Error del servidor: ${res.status} - ${errorData}`);
         }
-    
         const data = await res.json()
         console.log("Respuesta del servidor: ", data);
+
+        alertaSuccessorError({
+          titulo: 'Asignatura creada correctamente',
+          icono: 'success',
+        });
         
       } catch (error) {
         console.error("Error al crear asignatura:", error);
-        // Muestra un mensaje de error al usuario
-        alert(`Error al crear asignatura: ${error.message}`);
+        alertaSuccessorError({
+          titulo: 'Error al crear la asignatura',
+          icono: 'error',
+        });
       }
     }
     setLoadingCrear(false);
@@ -69,7 +83,6 @@ export default function AsignaturaForm({ asigId, hideInternalSubmitButton = fals
       navigate('/ListarAsignaturas');
     }
   }
-  
 
   const handleChange = (e) => 
     setAsignatura({...asignatura, [e.target.name]: e.target.value}); //Actualiza el valor que vamos a enviar del TextField

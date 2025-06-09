@@ -7,6 +7,7 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { AppProvider } from '@toolpad/core/AppProvider';
 import { SignInPage } from '@toolpad/core/SignInPage';
 import { useTheme } from '@mui/material/styles';
+import { alertaSuccessorError } from "./Alertas/Alert_Success";
 
 const providers = [{ id: 'credentials', name: 'User and Password' }];
 
@@ -38,7 +39,6 @@ function CustomEmailField() {
 
 function CustomPasswordField() {
   const [showPassword, setShowPassword] = React.useState(false);
-
   const handleClickShowPassword = () => setShowPassword((show) => !show);
   const handleMouseDownPassword = (event) => {
     event.preventDefault();
@@ -130,6 +130,10 @@ const signIn = async (provider, formData) => {
 
         if (!res.ok) {
           const errorText = await res.text();
+          alertaSuccessorError({
+            titulo: 'Credenciales incorrectas',
+            icono: 'error',
+          });
           return {
             type: 'CredentialsSignin',
             error: errorText || 'Error al iniciar sesión',
@@ -137,7 +141,6 @@ const signIn = async (provider, formData) => {
         }
 
         const data = await res.json();
-        //localStorage.setItem('id_rol', data.id_rol);
         localStorage.setItem('id_rol', data.id_rol);
         localStorage.setItem('usuario', data.usuario);
 
@@ -146,12 +149,21 @@ const signIn = async (provider, formData) => {
         } else if (data.id_rol === 2) {
           window.location.href = '/Login/docente';
         } else {
-          alert('Rol desconocido');
+          alertaSuccessorError({
+            titulo: 'Acceso no autorizado',
+            text: 'Tu rol no tiene acceso a esta aplicación.',
+            icono: 'error',
+          });
         }
 
         resolve({ type: 'CredentialsSignin' });
 
       } catch (error) {
+        alertaSuccessorError({
+          titulo: 'Error de red o del servidor',
+          text: 'Por favor, verifica tu conexión a Internet o intenta más tarde.',
+          icono: 'error',
+        });
         return {
           type: 'CredentialsSignin',
           error: 'Error de red o del servidor',

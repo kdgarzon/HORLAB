@@ -3,6 +3,7 @@ import ExpandMore from '@mui/icons-material/ExpandMore';
 import { Box, CircularProgress, Collapse, List, ListItem, ListItemButton, ListItemText } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { FixedSizeList } from 'react-window';
+import { alertaSuccessorError } from "../../Alertas/Alert_Success";
 
 export default function Horas({ horas, setHoras, selectedHoraId, onSelect  }) {
     const [open, setOpen] = useState(false); //Que la lista de horas aparezca desplegada
@@ -24,6 +25,10 @@ export default function Horas({ horas, setHoras, selectedHoraId, onSelect  }) {
                 setHoras(data);
             } catch (error) {
                 console.error("Error al obtener horas:", error);
+                alertaSuccessorError({
+                    titulo: 'Error al cargar las horas',
+                    icono: 'error',
+                });
             } finally {
                 setLoadingHoras(false); // Termina la carga
             }

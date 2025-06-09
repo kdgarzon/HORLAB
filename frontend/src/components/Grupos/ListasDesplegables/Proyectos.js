@@ -3,6 +3,7 @@ import ExpandMore from '@mui/icons-material/ExpandMore';
 import { Box, CircularProgress, Collapse, List, ListItem, ListItemButton, ListItemText } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { FixedSizeList } from 'react-window';
+import { alertaSuccessorError } from "../../Alertas/Alert_Success";
 
 export default function Proyectos({ proyectos, setProyectos, selectedProyectoId, onSelect  }) {
     const [open, setOpen] = useState(false); //Que la lista de proyectos aparezca desplegada
@@ -24,6 +25,10 @@ export default function Proyectos({ proyectos, setProyectos, selectedProyectoId,
                 setProyectos(data);
             } catch (error) {
                 console.error("Error al obtener proyectos:", error);
+                alertaSuccessorError({
+                    titulo: 'Error al cargar proyectos',
+                    icono: 'error',
+                });
             } finally {
                 setLoadingProyectos(false); // Termina la carga
             }

@@ -1,6 +1,7 @@
 import { Alert, AlertTitle, Box, Button, CircularProgress, TextField } from "@mui/material"
 import { useState, useEffect } from "react";
 import {useNavigate, useParams} from 'react-router-dom'
+import { alertaSuccessorError } from "../Alertas/Alert_Success";
 
 const initialDocenteState = {
   nombre: ''
@@ -21,7 +22,10 @@ export default function DocenteForm({ docenteId, hideInternalSubmitButton = fals
     setLoadingCrear(true);
 
     if (!docente.nombre) {
-      alert("Por favor, completa todos los campos antes de continuar.");
+      alertaSuccessorError({
+        titulo: 'Campos incompletos',
+        icono: 'warning',
+      });
       setLoadingCrear(false);
       return;
     }
@@ -32,9 +36,13 @@ export default function DocenteForm({ docenteId, hideInternalSubmitButton = fals
         body: JSON.stringify(docente),
         headers: {"Content-Type": "application/json"}
       });
-      
       const data = await res.json()
       console.log("Respuesta del servidor: ", data);
+
+      alertaSuccessorError({
+        titulo: 'Docente editado correctamente',
+        icono: 'success',
+      });
 
     } else {
       try {
@@ -46,7 +54,6 @@ export default function DocenteForm({ docenteId, hideInternalSubmitButton = fals
   
         if(!res.ok){
           // Si la respuesta no es OK, intenta leer el cuerpo como texto para ver el error del backend
-
           const errorData = await res.json();
           if(res.status === 409){
             setErrorMessage(errorData.error)
@@ -55,14 +62,20 @@ export default function DocenteForm({ docenteId, hideInternalSubmitButton = fals
             throw new Error(errorData.error || `Error del servidor: ${res.status}`);
           }
         }
-    
         const data = await res.json()
         console.log("Respuesta del servidor: ", data);
+
+        alertaSuccessorError({
+          titulo: 'Docente creado correctamente',
+          icono: 'success',
+        });
         
       } catch (error) {
         console.error("Error al crear el docente:", error);
-        // Muestra un mensaje de error al usuario
-        alert(`Error al crear un docente: ${error.message}`);
+        alertaSuccessorError({
+          titulo: 'Error al crear el docente',
+          icono: 'error',
+        });
       }
     }
     setLoadingCrear(false);
@@ -73,7 +86,6 @@ export default function DocenteForm({ docenteId, hideInternalSubmitButton = fals
     }
   }
   
-
   const handleChange = (e) => 
     setDocente({...docente, [e.target.name]: e.target.value.toUpperCase()}); //Actualiza el valor que vamos a enviar del TextField
   

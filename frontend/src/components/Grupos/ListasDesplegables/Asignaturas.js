@@ -3,6 +3,7 @@ import ExpandMore from '@mui/icons-material/ExpandMore';
 import { Box, CircularProgress, Collapse, List, ListItem, ListItemButton, ListItemText } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { FixedSizeList } from 'react-window';
+import { alertaSuccessorError } from "../../Alertas/Alert_Success";
 
 export default function Asignaturas({ asignaturas, setAsignaturas, selectedAsignaturaId, onSelect  }) {
     const [open, setOpen] = useState(false); //Que la lista de asignaturas aparezca desplegada
@@ -24,6 +25,10 @@ export default function Asignaturas({ asignaturas, setAsignaturas, selectedAsign
                 setAsignaturas(data);
             } catch (error) {
                 console.error("Error al obtener asignaturas:", error);
+                alertaSuccessorError({
+                    titulo: 'Error al cargar asignaturas',
+                    icono: 'error',
+                });
             } finally {
                 setLoadingAsignaturas(false); // Termina la carga
             }

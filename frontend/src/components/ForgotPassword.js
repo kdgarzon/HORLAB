@@ -1,21 +1,38 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { TextField, Button, Typography, Container, Box } from '@mui/material';
+import { alertaSuccessorError } from "./Alertas/Alert_Success";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
-  const [msg, setMsg] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const res = await fetch('http://localhost:5000/forgot-password', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ correo: email })
-    });
-    const data = await res.json();
-    setMsg(data.message);
-    console.log(data);
-    
+
+    try {
+      const res = await fetch('http://localhost:5000/forgot-password', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ correo: email })
+      });
+      const data = await res.json();
+      
+      if (res.ok) {
+        alertaSuccessorError({
+          titulo: 'Enlace enviado',
+          icono: 'success',
+        });
+      }else {
+        alertaSuccessorError({
+          titulo: data.error || 'Error al enviar el enlace de restablecimiento',
+          icono: 'error',
+        });
+      }
+    } catch (error) {
+      alertaSuccessorError({
+        titulo: 'Error de red o del servidor',
+        icono: 'error',
+      });
+    }
   };
 
   return (
@@ -53,9 +70,6 @@ export default function ForgotPassword() {
               Enviar enlace
             </Button>
           </form>
-          {msg && <Typography sx={{ mt: 2 }} color="text.secondary">
-            {msg}
-          </Typography>}
         </Box>
       </Container>
     </Box>

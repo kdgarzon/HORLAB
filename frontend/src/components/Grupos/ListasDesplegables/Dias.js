@@ -3,6 +3,7 @@ import ExpandMore from '@mui/icons-material/ExpandMore';
 import { CircularProgress, Collapse, List, ListItemButton, ListItemText, ListItem, Box } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { FixedSizeList } from 'react-window';
+import { alertaSuccessorError } from "../../Alertas/Alert_Success";
 
 export default function Dias({ dias, setDias, selectedDiaId, onSelect  }) {
     const [open, setOpen] = useState(false); //Que la lista de dias aparezca desplegada
@@ -24,6 +25,10 @@ export default function Dias({ dias, setDias, selectedDiaId, onSelect  }) {
                 setDias(data);
             } catch (error) {
                 console.error("Error al obtener dias:", error);
+                alertaSuccessorError({
+                    titulo: 'Error al cargar los dias',
+                    icono: 'error',
+                });
             } finally {
                 setLoadingDias(false); // Termina la carga
             }

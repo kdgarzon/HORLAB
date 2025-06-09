@@ -5,6 +5,7 @@ import Dias from "./ListasDesplegables/Dias";
 import Horas from "./ListasDesplegables/Horas";
 import Asignaturas from "./ListasDesplegables/Asignaturas";
 import Proyectos from "./ListasDesplegables/Proyectos";
+import { alertaSuccessorError } from "../Alertas/Alert_Success";
 
 const initialGroupState = {
   dia: '',
@@ -54,7 +55,6 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
   };
 
   const handleProjectSelect = (projectId) => {
-    //const proyectoSeleccionado = proyectos.find(p => p.id_proyecto === projectId);
     setGrupo((prevGroup) => ({
       ...prevGroup,
       proyecto: projectId 
@@ -70,7 +70,10 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
         !grupo.dia || !grupo.hora || !grupo.grupo ||
         !grupo.id_asignatura || !grupo.proyecto || !grupo.inscritos
     ) {
-      alert("Por favor, completa todos los campos antes de continuar.");
+      alertaSuccessorError({
+        titulo: 'Campos incompletos',
+        icono: 'warning',
+      });
       setLoadingCrear(false);
       return;
     }
@@ -81,13 +84,20 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
         body: JSON.stringify(grupo),
         headers: {"Content-Type": "application/json"}
       });
-      
       const data = await res.json()
       console.log("Respuesta del servidor: ", data);
 
+      alertaSuccessorError({
+        titulo: 'Grupo editado correctamente',
+        icono: 'success',
+      });
+
     } else {
       if (!grupo.id_dia || !grupo.id_hora || !grupo.id_asignatura || !grupo.id_proyecto) {
-        alert("Por favor, asegurate de seleccionar un dia, una hora, una asignatura y un proyecto."); 
+        alertaSuccessorError({
+          titulo: 'Campos incompletos',
+          icono: 'warning',
+        });
         return;
       }
 
@@ -103,14 +113,20 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
           const errorData = await res.text();
           throw new Error(`Error del servidor: ${res.status} - ${errorData}`);
         }
-    
         const data = await res.json()
         console.log("Respuesta del servidor: ", data);
+
+        alertaSuccessorError({
+          titulo: 'Grupo creado correctamente',
+          icono: 'success',
+        });
         
       } catch (error) {
         console.error("Error al crear grupo:", error);
-        // Muestra un mensaje de error al usuario
-        alert(`Error al crear grupo: ${error.message}`);
+        alertaSuccessorError({
+          titulo: 'Error al crear grupo',
+          icono: 'error',
+        });
       }
     }
     setLoadingCrear(false);

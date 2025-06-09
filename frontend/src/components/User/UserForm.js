@@ -2,6 +2,7 @@ import { Box, Button, CircularProgress, TextField } from "@mui/material"
 import { useState, useEffect } from "react";
 import {useNavigate, useParams} from 'react-router-dom'
 import Roles from "./Roles";
+import { alertaSuccessorError } from "../Alertas/Alert_Success";
 
 const initialUserState = {
   nombreUser: '',
@@ -34,14 +35,13 @@ export default function UserForm({ userId, hideInternalSubmitButton = false, onE
     setLoadingCrear(true);
 
     if (
-      !user.nombreUser ||
-      !user.apellidoUser ||
-      !user.correo ||
-      !user.usuario ||
-      !user.pass ||
-      !user.id_rol
+      !user.nombreUser || !user.apellidoUser || !user.correo ||
+      !user.usuario || !user.pass || !user.id_rol
     ) {
-      alert("Por favor, completa todos los campos antes de continuar.");
+      alertaSuccessorError({
+        titulo: 'Campos incompletos',
+        icono: 'warning',
+      });
       setLoadingCrear(false);
       return;
     }
@@ -52,16 +52,19 @@ export default function UserForm({ userId, hideInternalSubmitButton = false, onE
         body: JSON.stringify(user),
         headers: {"Content-Type": "application/json"}
       });
-      
       const data = await res.json()
       console.log("Respuesta del servidor: ", data);
+      
+      alertaSuccessorError({
+        titulo: 'Usuario editado correctamente',
+        icono: 'success',
+      });
 
     } else {
       if (!user.id_rol) {
         alert("Por favor, selecciona un rol."); 
         return;
       }
-  
       try {
         const res = await fetch('http://localhost:5000/users', {
           method: 'POST',
@@ -74,14 +77,20 @@ export default function UserForm({ userId, hideInternalSubmitButton = false, onE
           const errorData = await res.text();
           throw new Error(`Error del servidor: ${res.status} - ${errorData}`);
         }
-    
         const data = await res.json()
         console.log("Respuesta del servidor: ", data);
+
+        alertaSuccessorError({
+          titulo: 'Usuario creado correctamente',
+          icono: 'success',
+        });
         
       } catch (error) {
         console.error("Error al crear usuario:", error);
-        // Muestra un mensaje de error al usuario
-        alert(`Error al crear usuario: ${error.message}`);
+        alertaSuccessorError({
+          titulo: 'Error al crear usuario',
+          icono: 'error',
+        });
       }
     }
     setLoadingCrear(false);

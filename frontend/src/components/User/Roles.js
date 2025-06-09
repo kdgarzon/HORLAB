@@ -13,20 +13,20 @@ export default function Roles({ roles, setRoles, selectedRoleId, onSelect  }) {
     // --- FETCHING DE ROLES ---
     useEffect(() => {
         const fetchRoles = async () => {
-        setLoadingRoles(true); // Inicia la carga
-        try {
-            const response = await fetch('http://localhost:5000/roles'); // Endpoint para obtener roles
-            if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            setLoadingRoles(true); // Inicia la carga
+            try {
+                const response = await fetch('http://localhost:5000/roles'); // Endpoint para obtener roles
+                if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                // Asume que la data es un array de objetos: [{ id_rol: 1, rol: 'Administrador' }, ...]
+                setRoles(data);
+            } catch (error) {
+                console.error("Error al obtener roles:", error);
+            } finally {
+                setLoadingRoles(false); // Termina la carga
             }
-            const data = await response.json();
-            // Asume que la data es un array de objetos: [{ id_rol: 1, rol: 'Administrador' }, ...]
-            setRoles(data);
-        } catch (error) {
-            console.error("Error al obtener roles:", error);
-        } finally {
-            setLoadingRoles(false); // Termina la carga
-        }
         };
 
         fetchRoles();

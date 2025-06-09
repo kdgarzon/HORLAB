@@ -1,21 +1,41 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { TextField, Button, Typography, Container, Box } from '@mui/material';
+import { alertaSuccessorError } from "./Alertas/Alert_Success";
 
 export default function ResetPassword() {
   const { token } = useParams();
   const [newPassword, setNewPassword] = useState('');
-  const [msg, setMsg] = useState('');
 
   const handleReset = async (e) => {
     e.preventDefault();
-    const res = await fetch(`http://localhost:5000/reset-password/${token}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ newPassword }) 
-    });
-    const data = await res.json();
-    setMsg(data.message);
+
+    try {
+      const res = await fetch(`http://localhost:5000/reset-password/${token}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ newPassword }) 
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        alertaSuccessorError({
+          titulo: 'Contraseña restablecida con éxito',
+          icono: 'success',
+        });
+      }else {
+        alertaSuccessorError({
+          titulo: data.error || 'Error al restablecer la contraseña',
+          icono: 'error',
+        });
+      }
+
+    } catch (error) {
+      alertaSuccessorError({
+        titulo: 'Error de red o del servidor',
+        icono: 'error',
+      });
+    }
   };
 
   return (
@@ -54,11 +74,6 @@ export default function ResetPassword() {
               Actualizar contraseña
             </Button>
           </form>
-          {msg && (
-            <Typography sx={{ mt: 2 }} color="text.secondary">
-              {msg}
-            </Typography>
-          )}
         </Box>
       </Container>
     </Box>
