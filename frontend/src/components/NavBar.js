@@ -4,8 +4,7 @@ import {Box, Typography, createTheme} from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import { AppProvider } from '@toolpad/core/AppProvider';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
-import { useNavigate, useLocation} from 'react-router-dom';
-import { Outlet } from 'react-router-dom';
+import { useNavigate, useLocation, Outlet} from 'react-router-dom';
 import PersonIcon from '@mui/icons-material/Person';
 import SchoolIcon from '@mui/icons-material/School';
 import DescriptionIcon from '@mui/icons-material/Description';
@@ -40,13 +39,47 @@ const demoTheme = createTheme({
     colorSchemeSelector: 'data-toolpad-color-scheme',
   },
   colorSchemes: { light: true, dark: true },
+  palette: {
+    primary: {
+      main: '#ff0000', // rojo puro
+    },
+  },
   breakpoints: {
     values: {
-      xs: 0,
-      sm: 600,
-      md: 600,
-      lg: 1200,
-      xl: 1536,
+      xs: 0, sm: 600, md: 600, lg: 1200, xl: 1536,
+    },
+  },
+  components: {
+    MuiListItemButton: {
+      styleOverrides: {
+        root: {
+          '&:hover': {
+            backgroundColor: 'rgba(255, 0, 0, 0.1)', // Rojo clarito al hacer hover
+            '& .MuiListItemIcon-root, & .MuiTypography-root': {
+              color: '#ff0000', // rojo claro en hover
+            },
+            '& .MuiListItemIcon-root svg': {
+              color: '#ff0000 !important',
+            },
+          },
+          '&.Mui-selected': {
+            backgroundColor: 'rgba(255, 0, 0, 0.2)',
+            '& .MuiListItemIcon-root, & .MuiTypography-root': {
+              color: '#bd0402', // rojo al estar seleccionado
+            },
+            '& .MuiListItemIcon-root svg': {
+              color: '#bd0402 !important',
+            },
+          },
+        },
+      },
+    },
+    MuiListItemIcon: {
+      styleOverrides: {
+        root: {
+          color: 'inherit', // Forzar que herede color del ListItemButton
+        },
+      },
     },
   },
 });
@@ -55,11 +88,8 @@ function DemoPageContent({ pathname }) {
   return (
     <Box
       sx={{
-        py: 4,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        textAlign: 'center',
+        py: 4, display: 'flex', flexDirection: 'column',
+        alignItems: 'center', textAlign: 'center',
       }}
     >
       <Typography>Dashboard content for {pathname}</Typography>
@@ -115,8 +145,16 @@ function DashboardLayoutBranding(props) {
     <AppProvider
       navigation={filteredNavigation}
       branding={{
-        logo: <img src="/cientifico.png" alt="HORLAB logo" />,
-        title: 'HORLAB',
+        logo: (
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <img src="/cientifico.png" alt="HORLAB logo" />
+          </Box>
+        ),
+        title: (
+          <Typography variant="h6" sx={{ color: 'red', fontWeight: 'bold' }}>
+            HORLAB
+          </Typography>
+        ),
         homeUrl: homeUrl,
       }}
       router={router}
@@ -124,7 +162,6 @@ function DashboardLayoutBranding(props) {
       window={demoWindow}
     >
       <DashboardLayout>
-
         <Outlet />
       </DashboardLayout>
     </AppProvider>
