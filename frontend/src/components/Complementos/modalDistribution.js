@@ -22,3 +22,9 @@ export const columnsDocentes = [
   { id: 'id_docente', label: 'ID Docente'},
   { id: 'nombre', label: 'Nombre del docente'}
 ];
+
+export const columnsSubjects = [
+  { id: 'id_asignatura', label: 'ID Asignatura'},
+  { id: 'codigo_asig', label: 'Código de asignatura', minWidth: 100 },
+  { id: 'nombre', label: 'Asignatura', minWidth: 100 }
+];

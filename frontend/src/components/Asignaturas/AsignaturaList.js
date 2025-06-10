@@ -8,27 +8,8 @@ import AddReactionIcon from '@mui/icons-material/AddReaction';
 import GroupsIcon from '@mui/icons-material/Groups';
 import AsignaturaForm from './AsignaturaForm';
 import { mostrarAlertaConfirmacion } from '../Alertas/Alert_Delete';
-
-//Estilo del modal que vamos a generar
-const style = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: 500,
-  bgcolor: 'background.paper',
-  border: '2px solid #000',
-  boxShadow: 24,
-  pt: 2,
-  px: 4,
-  pb: 4,
-};
-
-const columns = [
-  { id: 'id_asignatura', label: 'ID Asignatura'},
-  { id: 'codigo_asig', label: 'Código de asignatura', minWidth: 100 },
-  { id: 'nombre', label: 'Asignatura', minWidth: 100 }
-];
+import { style } from "../Complementos/stylesFiles";
+import { columnsSubjects } from "../Complementos/modalDistribution";
 
 export default function UserList() {
   const [page, setPage] = useState(0);
@@ -124,7 +105,7 @@ export default function UserList() {
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>
-                {columns.map((column) => (
+                {columnsSubjects.map((column) => (
                   <TableCell
                     key={column.id}
                     align={column.align}
@@ -144,7 +125,7 @@ export default function UserList() {
                 .map((asignatura) => {
                   return (
                     <TableRow hover role="checkbox" tabIndex={-1} key={asignatura.id_asignatura}>
-                      {columns.map((column) => {
+                      {columnsSubjects.map((column) => {
                         const value = asignatura[column.id];
                         return (
                           <TableCell key={column.id} align={column.align}>
