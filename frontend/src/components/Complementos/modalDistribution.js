@@ -17,3 +17,8 @@ export const columnsUsers = [
   {id: 'pass', label: 'Contraseña', align: 'right'},
   {id: 'nombre_rol', label: 'Rol de usuario', align: 'right'}
 ];
+
+export const columnsDocentes = [
+  { id: 'id_docente', label: 'ID Docente'},
+  { id: 'nombre', label: 'Nombre del docente'}
+];

@@ -9,26 +9,8 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import DocenteForm from './DocenteForm';
 import { mostrarAlertaConfirmacion } from '../Alertas/Alert_Delete';
 import { agruparDisponibilidadPorDia, fusionarFranjasConsecutivas, extraerHoraInicial } from './Disponibilidad';
-
-//Estilo del modal que vamos a generar
-const style = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: 500,
-  bgcolor: 'background.paper',
-  border: '2px solid #000',
-  boxShadow: 24,
-  pt: 2,
-  px: 4,
-  pb: 4,
-};
-
-const columns = [
-  { id: 'id_docente', label: 'ID Docente'},
-  { id: 'nombre', label: 'Nombre del docente'}
-];
+import { style } from "../Complementos/stylesFiles";
+import { columnsDocentes } from "../Complementos/modalDistribution";
 
 export default function DocenteList() {
   const [page, setPage] = useState(0);
@@ -158,7 +140,7 @@ export default function DocenteList() {
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>
-                {columns.map((column) => (
+                {columnsDocentes.map((column) => (
                   <TableCell
                     key={column.id}
                     align={column.align}
@@ -178,7 +160,7 @@ export default function DocenteList() {
                 .map((docente) => {
                   return (
                     <TableRow hover role="checkbox" tabIndex={-1} key={docente.id_docente}>
-                      {columns.map((column) => {
+                      {columnsDocentes.map((column) => {
                         const value = docente[column.id];
                         return (
                           <TableCell key={column.id} align={column.align}>
