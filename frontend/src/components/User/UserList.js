@@ -7,31 +7,8 @@ import {useNavigate, useLocation} from 'react-router-dom'
 import AddReactionIcon from '@mui/icons-material/AddReaction';
 import UserForm from './UserForm';
 import { mostrarAlertaConfirmacion } from '../Alertas/Alert_Delete';
-
-//Estilo del modal que vamos a generar
-const style = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: 500,
-  bgcolor: 'background.paper',
-  border: '2px solid #000',
-  boxShadow: 24,
-  pt: 2,
-  px: 4,
-  pb: 4,
-};
-
-const columns = [
-  { id: 'id_usuario', label: 'ID Usuario'},
-  { id: 'nombre', label: 'Nombre del usuario', minWidth: 100 },
-  { id: 'apellido', label: 'Apellido del usuario', minWidth: 100 },
-  { id: 'correo', label: 'Correo institucional' },
-  { id: 'usuario', label: 'Usuario'},
-  {id: 'pass', label: 'Contraseña', align: 'right'},
-  {id: 'nombre_rol', label: 'Rol de usuario', align: 'right'}
-];
+import { style } from "../Complementos/stylesFiles";
+import { columnsUsers } from "../Complementos/modalDistribution";
 
 export default function UserList() {
   const [page, setPage] = useState(0);
@@ -123,7 +100,7 @@ export default function UserList() {
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>
-                {columns.map((column) => (
+                {columnsUsers.map((column) => (
                   <TableCell
                     key={column.id}
                     align={column.align}
@@ -143,7 +120,7 @@ export default function UserList() {
                 .map((user) => {
                   return (
                     <TableRow hover role="checkbox" tabIndex={-1} key={user.id_usuario}>
-                      {columns.map((column) => {
+                      {columnsUsers.map((column) => {
                         const value = user[column.id];
                         return (
                           <TableCell key={column.id} align={column.align}>

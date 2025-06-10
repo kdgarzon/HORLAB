@@ -7,3 +7,13 @@ export const columnsGroups = [
   {id: 'proyecto', label: 'Proyecto', align: 'center', minWidth: 80},
   {id: 'inscritos', label: 'Número de inscritos', align: 'center'}
 ];
+
+export const columnsUsers = [
+  { id: 'id_usuario', label: 'ID Usuario'},
+  { id: 'nombre', label: 'Nombre del usuario', minWidth: 100 },
+  { id: 'apellido', label: 'Apellido del usuario', minWidth: 100 },
+  { id: 'correo', label: 'Correo institucional' },
+  { id: 'usuario', label: 'Usuario'},
+  {id: 'pass', label: 'Contraseña', align: 'right'},
+  {id: 'nombre_rol', label: 'Rol de usuario', align: 'right'}
+];
