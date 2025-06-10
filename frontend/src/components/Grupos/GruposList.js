@@ -6,33 +6,10 @@ import EditSquareIcon from '@mui/icons-material/EditSquare';
 import {useNavigate, useLocation, useParams} from 'react-router-dom'
 import AddReactionIcon from '@mui/icons-material/AddReaction';
 import GruposForm from './GruposForm';
-import { mostrarAlertaConfirmacion } from '../Alertas/Alert_Delete';
-import {agruparDisponibilidadPorDiaenGrupos, fusionarFranjasConsecutivas, extraerHoraInicial} from '../Docentes/Disponibilidad';
-
-//Estilo del modal que vamos a generar
-const style = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: 500,
-  bgcolor: 'background.paper',
-  border: '2px solid #000',
-  boxShadow: 24,
-  pt: 2,
-  px: 4,
-  pb: 4,
-};
-
-const columns = [
-  //{ id: 'id_grupo', label: 'ID Grupo', align: 'center', minWidth: 50 },
-  { id: 'dia', label: 'Dia', minWidth: 50, align: 'center' },
-  { id: 'hora', label: 'Franja Horaria', minWidth: 50, align: 'center' },
-  { id: 'grupo', label: 'Grupo', align: 'center' },
-  { id: 'nombre', label: 'Asignatura', align: 'center'},
-  {id: 'proyecto', label: 'Proyecto', align: 'center', minWidth: 80},
-  {id: 'inscritos', label: 'Número de inscritos', align: 'center'}
-];
+import { handleCloseModal, loadGroups, handleDelete, getfilteredGroups, getGruposFusionados } from "./FuncionesGroups";
+import {extraerHoraInicial} from '../Docentes/Disponibilidad';
+import { style } from "../Complementos/stylesFiles";
+import { columnsGroups } from "../Complementos/modalDistribution";
 
 export default function GruposList() {
   const [page, setPage] = useState(0);
@@ -48,81 +25,35 @@ export default function GruposList() {
   const [disponibilidad, setDisponibilidad] = useState([]);
   const [sinDisponibilidad, setSinDisponibilidad] = useState(false);
 
-  const handleCloseModal = () => {
-    navigate(`/ListarAsignaturas/Asignaturas/${id}/ListarGrupos`);
-  };
-
+  // Cambio de página en la tabla
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
 
+  // Cambio de filas por página
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
 
-  const loadGroups = useCallback(async () => {
-    try {
-      const res = await fetch(`http://localhost:5000/subjects/${id}/groups`, {
-          method: "GET",
-      })
-      if (!res.ok) {
-        // Si la respuesta no es 200, abrir modal vacío y terminar
-        setDisponibilidad([]);
-        return;
-      }
-      const data = await res.json();
-      setGroups(data);
-    
-      if (!Array.isArray(data)) {
-        // Si por alguna razón no es un arreglo, también mostramos vacío
-        setDisponibilidad([]);
-      } else {
-        // Aplicar lógica de fusión solo si hay datos
-        const agrupado = agruparDisponibilidadPorDiaenGrupos(data);
-        const fusionado = fusionarFranjasConsecutivas(agrupado);
-        setDisponibilidad(fusionado);
-        setSinDisponibilidad(fusionado.length === 0); // activa la alerta si no hay datos
-      }
-    } catch (error) {
-      console.log(error)
-      setDisponibilidad([]); // Mostrar alerta si hubo error de red
-    }
-  }, [id]); 
-
-  const handleDelete = async (id_grupo) => {
-    mostrarAlertaConfirmacion({
-      titulo: "¿Eliminar grupo?",
-      texto: "Esta acción eliminará permanentemente el grupo.",
-      textoExito: "Grupo eliminado correctamente",
-      callbackConfirmacion: async () => {
-        try {
-          await fetch(`http://localhost:5000/subjects/${id}/groups/${id_grupo}`, { 
-            method: "DELETE", 
-          });
-          setGroups(groups.filter(group => group.id_grupo !== id_grupo));
-        } catch (error) {
-          console.log(error)
-        }
-      },
-      callbackCancelacion: () => {
-        console.log("Operación cancelada");
-      }
-    });
-  }
+  const loadGroupsCallback = useCallback(() => {
+    loadGroups(id, setGroups, setDisponibilidad, setSinDisponibilidad);
+  }, [id]);
 
   useEffect(() => {
-    loadGroups()
-  }, [loadGroups])
+    loadGroupsCallback();
+  }, [loadGroupsCallback]);
 
-  const filteredGroups = groups.filter((group) =>
-    Object.values(group).some(
-      (val) => typeof val === "string" && val.toLowerCase().includes(search.toLowerCase())
-    )
-  );
+  const handleCloseModalCallback = useCallback(() => {
+    handleCloseModal(navigate, id);
+  }, [navigate, id]);
 
-  const disponibilidadAgrupada = agruparDisponibilidadPorDiaenGrupos(filteredGroups);
-  const gruposFusionados = fusionarFranjasConsecutivas(disponibilidadAgrupada);
+  const handleDeleteCallback = (id_grupo) => {
+    handleDelete(id, id_grupo, navigate, groups, setGroups);
+  };  
+
+  const filteredGroups = getfilteredGroups(groups, search);
+  const gruposFusionados = getGruposFusionados(filteredGroups);
 
   return (
     <>
@@ -152,7 +83,7 @@ export default function GruposList() {
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>
-                {columns.map((column) => (
+                {columnsGroups.map((column) => (
                   <TableCell
                     key={column.id}
                     align={column.align}
@@ -188,7 +119,7 @@ export default function GruposList() {
                       <Button 
                         variant='contained' 
                         color='warning' 
-                        onClick={() => handleDelete(group.id_grupo)}
+                        onClick={() => handleDeleteCallback(group.id_grupo)}
                         style={{marginLeft: ".5rem"}}
                       >
                         <DeleteRoundedIcon />
@@ -212,7 +143,7 @@ export default function GruposList() {
       {/* MODAL PADRE */}
       <Modal
         open={modalOpen}
-        onClose={handleCloseModal}
+        onClose={handleCloseModalCallback}
         aria-labelledby="modal-title"
       >
         <Box sx={style}>
@@ -222,13 +153,13 @@ export default function GruposList() {
             groupId={groupId}
             hideInternalSubmitButton
             onExternalSubmit={() => {
-              loadGroups();
-              handleCloseModal();
+              loadGroupsCallback();
+              handleCloseModal(navigate, id);
             }}
           />
 
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-            <Button variant="outlined" onClick={handleCloseModal} sx={{ mr: 1 }}>Cerrar</Button>
+            <Button variant="outlined" onClick={() => handleCloseModal(navigate, id)} sx={{ mr: 1 }}>Cerrar</Button>
             <Button
               type="submit"
               form="group-form"
