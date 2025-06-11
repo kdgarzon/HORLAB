@@ -2,11 +2,7 @@ import { Box, Button, CircularProgress, TextField } from "@mui/material"
 import { useState, useEffect } from "react";
 import {useNavigate, useParams} from 'react-router-dom'
 import { alertaSuccessorError } from "../Alertas/Alert_Success";
-
-const initialSubjectState = {
-  codigo_asig: '',
-  nombre: ''
-};
+import { initialSubjectState } from "../Complementos/initialStates";
 
 export default function AsignaturaForm({ asigId, hideInternalSubmitButton = false, onExternalSubmit }) {
   const navigate = useNavigate();

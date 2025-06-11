@@ -2,10 +2,7 @@ import { Alert, AlertTitle, Box, Button, CircularProgress, TextField } from "@mu
 import { useState, useEffect } from "react";
 import {useNavigate, useParams} from 'react-router-dom'
 import { alertaSuccessorError } from "../Alertas/Alert_Success";
-
-const initialDocenteState = {
-  nombre: ''
-};
+import { initialDocenteState } from "../Complementos/initialStates";
 
 export default function DocenteForm({ docenteId, hideInternalSubmitButton = false, onExternalSubmit }) {
 

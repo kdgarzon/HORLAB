@@ -177,7 +177,7 @@ CREATE TABLE Usuarios (
     id_usuario SERIAL,
     nombreUser VARCHAR(100) NOT NULL,
     apellidoUser VARCHAR(100) NOT NULL,
-    correo VARCHAR(100) NOT NULL,
+    correo VARCHAR(100) UNIQUE NOT NULL,
     usuario VARCHAR(100) UNIQUE NOT NULL,
     pass VARCHAR(100) NOT NULL,
     id_rol INTEGER,

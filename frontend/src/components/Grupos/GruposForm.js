@@ -6,16 +6,7 @@ import Horas from "./ListasDesplegables/Horas";
 import Asignaturas from "./ListasDesplegables/Asignaturas";
 import Proyectos from "./ListasDesplegables/Proyectos";
 import { alertaSuccessorError } from "../Alertas/Alert_Success";
-
-const initialGroupState = {
-  dia: '',
-  hora: '',
-  grupo: '',
-  id_asignatura: null,
-  proyecto: '',
-  inscritos: 0
-};
-console.log("Grupo inicial:", initialGroupState);
+import { initialGroupState } from "../Complementos/initialStates";
 
 export default function GruposForm({ groupId, hideInternalSubmitButton = false, onExternalSubmit }) {
   //Listas desplegables

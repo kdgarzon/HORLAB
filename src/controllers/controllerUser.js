@@ -72,7 +72,20 @@ const createUser = async (req, res, next) => {
     
         res.json(result.rows[0])
     } catch (error) {
-        next(error)
+        // Error por restricción única (usuario o correo ya existen)
+        if (error.code === '23505') {
+            let campoDuplicado = 'usuario o correo';
+
+            if (error.constraint === 'usuarios_usuario_key') {
+                campoDuplicado = 'usuario';
+            } else if (error.constraint === 'unique_correo') {
+                campoDuplicado = 'correo';
+            }
+
+            return res.status(400).json({ message: `El ${campoDuplicado} ya está en uso.` });
+        }
+
+        next(error); // Otros errores
     }
 }
 
@@ -104,7 +117,13 @@ const updateUser = async (req, res, next) => {
         });
         return res.json(result.rows[0])
     } catch (error) {
-        next(error)
+        if (error.code === '23505') {
+            // Error por restricción UNIQUE (ya existe el usuario)
+            return res.status(400).json({
+                message: 'Ya existe un usuario con ese nombre de usuario o correo electrónico.'
+            });
+        }
+        next(error);
     }
 }
 

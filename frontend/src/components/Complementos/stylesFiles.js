@@ -1,4 +1,4 @@
-//Estilo del modal que vamos a generar en grupos
+//Estilo del modal que vamos a generar en los archivos para crear y editar
 export const style = {
   position: 'absolute',
   top: '50%',

@@ -3,15 +3,7 @@ import { useState, useEffect } from "react";
 import {useNavigate, useParams} from 'react-router-dom'
 import Roles from "./Roles";
 import { alertaSuccessorError } from "../Alertas/Alert_Success";
-
-const initialUserState = {
-  nombreUser: '',
-  apellidoUser: '',
-  correo: '',
-  usuario: '',
-  pass: '',
-  id_rol: null
-};
+import { initialUserState } from "../Complementos/initialStates";
 
 export default function UserForm({ userId, hideInternalSubmitButton = false, onExternalSubmit }) {
   const [roles, setRoles] = useState([]); // Array para almacenar los roles { id_rol, rol }
@@ -19,7 +11,7 @@ export default function UserForm({ userId, hideInternalSubmitButton = false, onE
   const params = useParams();
   const [loadingCrear, setLoadingCrear] = useState(false);
   const [editing, setEditing] = useState(false)
-  
+  const [alertaEstado, setAlertaEstado] = useState(null); 
   const [user, setUser] = useState(initialUserState);
 
   // Manejador para cuando se selecciona un rol de la lista
@@ -30,15 +22,24 @@ export default function UserForm({ userId, hideInternalSubmitButton = false, onE
     }));
   };
 
+  useEffect(() => {
+    if (alertaEstado) {
+      alertaSuccessorError(alertaEstado);
+      // Limpia el estado después de mostrar la alerta
+      const timer = setTimeout(() => setAlertaEstado(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [alertaEstado]);
+
   const handleSubmit = async e => {
     e.preventDefault(); //Cancela el refresh del boton del formulario
-    setLoadingCrear(true);
+    setAlertaEstado(null); // Resetea el estado de alerta
 
     if (
       !user.nombreUser || !user.apellidoUser || !user.correo ||
       !user.usuario || !user.pass || !user.id_rol
     ) {
-      alertaSuccessorError({
+      setAlertaEstado({
         titulo: 'Campos incompletos',
         icono: 'warning',
       });
@@ -47,53 +48,76 @@ export default function UserForm({ userId, hideInternalSubmitButton = false, onE
     }
 
     if (editing) {
-      const res = await fetch(`http://localhost:5000/users/${params.id}`, {
-        method: 'PUT',
-        body: JSON.stringify(user),
-        headers: {"Content-Type": "application/json"}
-      });
-      const data = await res.json()
-      console.log("Respuesta del servidor: ", data);
-      
-      alertaSuccessorError({
-        titulo: 'Usuario editado correctamente',
-        icono: 'success',
-      });
+      try {
+        const res = await fetch(`http://localhost:5000/users/${params.id}`, {
+          method: 'PUT',
+          body: JSON.stringify(user),
+          headers: {"Content-Type": "application/json"}
+        });
 
+        if(!res.ok){
+          const errorData = await res.json(); // Ahora sí es seguro acceder
+          throw new Error(errorData.message || 'Error del servidor');
+        }
+        const data = await res.json()
+        console.log("Respuesta del servidor: ", data);
+
+        setAlertaEstado({
+          titulo: 'Usuario editado correctamente',
+          icono: 'success',
+        });
+      } catch (error) {
+        console.error("Error al editar usuario:", error);
+
+        setAlertaEstado({
+          titulo: error.message.includes("ya existe") ? error.message : 'Error al editar usuario',
+          icono: 'error',
+          texto: 'El usuario o correo ya existe, por favor verifica los datos ingresados.',
+          timer: 3000
+        });
+      }
     } else {
       if (!user.id_rol) {
         alert("Por favor, selecciona un rol."); 
         return;
       }
       try {
+        setLoadingCrear(true);
+
         const res = await fetch('http://localhost:5000/users', {
           method: 'POST',
           body: JSON.stringify(user),
           headers: {"Content-Type": "application/json"}
         });
-  
+ 
         if(!res.ok){
-          // Si la respuesta no es OK, intenta leer el cuerpo como texto para ver el error del backend
-          const errorData = await res.text();
-          throw new Error(`Error del servidor: ${res.status} - ${errorData}`);
+          const errorData = await res.json(); 
+          throw new Error(errorData.message || 'Error del servidor');
         }
-        const data = await res.json()
+        const data = await res.json();
         console.log("Respuesta del servidor: ", data);
 
-        alertaSuccessorError({
+        setAlertaEstado({
           titulo: 'Usuario creado correctamente',
           icono: 'success',
         });
+
+        setUser({
+          nombreUser: '', apellidoUser: '', correo: '', usuario: '', pass: '', id_rol: '',
+        }); 
         
       } catch (error) {
         console.error("Error al crear usuario:", error);
-        alertaSuccessorError({
-          titulo: 'Error al crear usuario',
+        setAlertaEstado({
+          titulo: error.message.includes("ya existe") ? error.message : 'Error al crear usuario',
           icono: 'error',
+          texto: 'El usuario o correo ya existe, por favor verifica los datos ingresados.',
+          timer: 3000
         });
+      } finally {
+        setLoadingCrear(false);
       }
     }
-    setLoadingCrear(false);
     if (onExternalSubmit) {
       onExternalSubmit();
     } else {
