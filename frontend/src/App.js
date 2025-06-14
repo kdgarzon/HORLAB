@@ -10,6 +10,7 @@ import PrivateRoute from './components/Inicio/PrivateRoute'
 import DashboardLayoutBranding from './components/NavBar'
 import ForgotPassword from './components/ForgotPassword';
 import ResetPassword from './components/ResetPassword';
+import ClassroomList from "./components/Salas/ClassroomList";
 
 function AppContent() {
   return (
@@ -42,6 +43,10 @@ function AppContent() {
             <Route path='/ListarAsignaturas/Asignaturas/:id/ListarGrupos' element={<GruposList />}>
               <Route path='/ListarAsignaturas/Asignaturas/:id/ListarGrupos/Grupos' element={null} />
               <Route path='/ListarAsignaturas/Asignaturas/:id/ListarGrupos/Grupos/:grupoId' element={null} />
+            </Route>
+            <Route path='/ListarSalas' element={<ClassroomList />}>
+              <Route path='/ListarSalas/Salas' element={null} />
+              <Route path='/ListarSalas/Salas/:id' element={null} />
             </Route>
           </Route>
 

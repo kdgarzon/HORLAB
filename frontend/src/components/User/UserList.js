@@ -37,7 +37,6 @@ export default function UserList() {
   const loadUsers = async () => {
     const response = await fetch('http://localhost:5000/users')
     const data = await response.json()
-    //console.log("Respuesta del backend:", data);
     setUsers(data)
   }
 

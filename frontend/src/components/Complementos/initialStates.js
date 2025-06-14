@@ -24,3 +24,11 @@ export const initialSubjectState = {
   codigo_asig: '',
   nombre: ''
 };
+
+export const initialClassroomState = { //PENDIENTE REVISAR
+  id_salon: '',
+  nombre: '',
+  edificio: '',
+  capacidad: 0,
+  area: 0
+};

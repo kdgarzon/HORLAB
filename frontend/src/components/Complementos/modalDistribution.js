@@ -28,3 +28,11 @@ export const columnsSubjects = [
   { id: 'codigo_asig', label: 'Código de asignatura', minWidth: 100 },
   { id: 'nombre', label: 'Asignatura', minWidth: 100 }
 ];
+
+export const columnsClassrooms = [ //PENDIENTE REVISAR
+  { id: 'id_salon', label: 'ID Sala'},
+  { id: 'nombre', label: 'Nombre de sala', minWidth: 100 },
+  { id: 'edificio', label: 'Edificio', minWidth: 100 },
+  { id: 'capacidad', label: 'Capacidad', minWidth: 100, align: 'center' },
+  { id: 'area', label: 'Área (m2)', minWidth: 100, align: 'center' }
+];
