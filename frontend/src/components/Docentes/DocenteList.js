@@ -1,6 +1,7 @@
 import {useEffect, useState} from 'react'
 import { Paper, Table, TableBody, TablePagination, TableCell, TableContainer, TableHead, 
-  TableRow, Button, Box, TextField, Modal, Alert, AlertTitle} from "@mui/material";
+  TableRow, Button, Box, TextField, Modal, Alert, AlertTitle,
+  colors} from "@mui/material";
 import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
 import EditSquareIcon from '@mui/icons-material/EditSquare';
 import {useNavigate, useLocation} from 'react-router-dom'
@@ -20,6 +21,7 @@ export default function DocenteList() {
   const [disponibilidad, setDisponibilidad] = useState([]);
   const [disponibilidadModalOpen, setDisponibilidadModalOpen] = useState(false);
   const [sinDisponibilidad, setSinDisponibilidad] = useState(false);
+  const [docenteSeleccionado, setDocenteSeleccionado] = useState(null);
   
   const navigate = useNavigate();
   const location = useLocation();
@@ -176,7 +178,7 @@ export default function DocenteList() {
                             <Button 
                               variant='contained'
                               onClick={() => navigate(`/ListarDocentes/Docentes/${docente.id_docente}`)}
-                              sx={{ backgroundColor: '#fbc02d', color: 'white', '&:hover': { backgroundColor: '#fdd835' } }}
+                              sx={{ backgroundColor: '#ffd94d', color: 'white', '&:hover': { backgroundColor: '#ffca1a' } }}
                             >
                               <EditSquareIcon />
                             </Button>
@@ -184,6 +186,7 @@ export default function DocenteList() {
                               variant='contained' 
                               color='warning' 
                               onClick={() => handleDelete(docente.id_docente)}
+                              sx={{ backgroundColor: '#ff6b6b', color: 'white', '&:hover': { backgroundColor: '#ff3d2a' }}}
                               style={{marginLeft: ".5rem"}}
                             >
                               <DeleteRoundedIcon />
@@ -193,7 +196,11 @@ export default function DocenteList() {
                         <Button 
                           variant='contained' 
                           color='success' 
-                          onClick={() => handleDisponibilidad(docente.id_docente)}
+                          onClick={() => {
+                            setDocenteSeleccionado(docente);
+                            handleDisponibilidad(docente.id_docente);
+                          }}
+                          sx={{backgroundColor: '#ffbd59', color: 'white', '&:hover': { backgroundColor: '#f6a23f' }}}
                           style={{marginLeft: ".5rem"}}
                         >
                           <CalendarMonthIcon />
@@ -259,7 +266,9 @@ export default function DocenteList() {
         aria-labelledby="disponibilidad-modal-title"
       >
         <Box sx={{ ...style, width: 900 }}>
-          <h2 id="disponibilidad-modal-title">Disponibilidad del docente</h2>
+          <h2 id="disponibilidad-modal-title" style={{ textAlign: 'center' }}>
+            DISPONIBILIDAD DE: {docenteSeleccionado ? docenteSeleccionado.nombre : 'Docente'}
+          </h2>
           {disponibilidad.length > 0 ? (
             <Box sx={{ maxHeight: '50vh', overflowY: 'auto', mt: 2 }}>
               <Table>
