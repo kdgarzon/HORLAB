@@ -139,23 +139,23 @@ export default function UserList() {
                         <Button 
                           variant='contained'
                           onClick={() => navigate(`/ListarAsignaturas/Asignaturas/${asignatura.id_asignatura}`)}
-                          sx={{ backgroundColor: '#fbc02d', color: 'white', '&:hover': { backgroundColor: '#fdd835' } }}
+                          sx={{ backgroundColor: '#ffd94d', color: 'white', '&:hover': { backgroundColor: '#ffca1a' } }}
                         >
                           <EditSquareIcon />
                         </Button>
                         <Button 
                           variant='contained' 
-                          color='warning' 
                           onClick={() => handleDelete(asignatura.id_asignatura)}
                           style={{marginLeft: ".5rem"}}
+                          sx={{ backgroundColor: '#ff6b6b', color: 'white', '&:hover': { backgroundColor: '#ff3d2a' } }}
                         >
                           <DeleteRoundedIcon />
                         </Button>
                         <Button
-                          variant='contained' 
-                          color='success' 
+                          variant='contained'
                           onClick={() => handleVerGrupos(asignatura.id_asignatura)}
                           style={{marginLeft: ".5rem"}}
+                          sx={{ backgroundColor: '#ffbd59', color: 'white', '&:hover': { backgroundColor: '#f6a23f' } }}
                         >
                           <GroupsIcon />
                         </Button>

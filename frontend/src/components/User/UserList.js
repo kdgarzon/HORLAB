@@ -133,15 +133,15 @@ export default function UserList() {
                         <Button 
                           variant='contained'
                           onClick={() => navigate(`/ListarUsuarios/Usuarios/${user.id_usuario}`)}
-                          sx={{ backgroundColor: '#fbc02d', color: 'white', '&:hover': { backgroundColor: '#fdd835' } }}
+                          sx={{ backgroundColor: '#ffd94d', color: 'white', '&:hover': { backgroundColor: '#ffca1a' } }}
                         >
                           <EditSquareIcon />
                         </Button>
                         <Button 
-                          variant='contained' 
-                          color='warning' 
+                          variant='contained'
                           onClick={() => handleDelete(user.id_usuario)}
                           style={{marginLeft: ".5rem"}}
+                          sx={{ backgroundColor: '#ff6b6b', color: 'white', '&:hover': { backgroundColor: '#ff3d2a' } }}
                         >
                           <DeleteRoundedIcon />
                         </Button>
