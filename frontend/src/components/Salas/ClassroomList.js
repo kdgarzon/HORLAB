@@ -17,7 +17,7 @@ import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
 import EditSquareIcon from '@mui/icons-material/EditSquare';
 import {useNavigate, useLocation} from 'react-router-dom'
 import AddReactionIcon from '@mui/icons-material/AddReaction';
-import { ClassroomForm } from "./ClassroomForm";
+import ClassroomForm from "./ClassroomForm";
 import { mostrarAlertaConfirmacion } from '../Alertas/Alert_Delete';
 import { style } from "../Complementos/stylesFiles";
 import { columnsClassrooms } from "../Complementos/modalDistribution";

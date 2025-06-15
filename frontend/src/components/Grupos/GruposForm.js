@@ -1,10 +1,10 @@
 import { Box, Button, CircularProgress, TextField } from "@mui/material"
 import { useState, useEffect, useCallback } from "react";
 import {useNavigate, useParams} from 'react-router-dom'
-import Dias from "./ListasDesplegables/Dias";
-import Horas from "./ListasDesplegables/Horas";
-import Asignaturas from "./ListasDesplegables/Asignaturas";
-import Proyectos from "./ListasDesplegables/Proyectos";
+import Dias from "../Complementos/ListasDesplegables/Dias";
+import Horas from "../Complementos/ListasDesplegables/Horas";
+import Asignaturas from "../Complementos/ListasDesplegables/Asignaturas";
+import Proyectos from "../Complementos/ListasDesplegables/Proyectos";
 import { alertaSuccessorError } from "../Alertas/Alert_Success";
 import { initialGroupState } from "../Complementos/initialStates";
 
