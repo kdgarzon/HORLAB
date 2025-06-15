@@ -2,7 +2,7 @@ const pool = require('../dbconexion')
 
 const getAllClassrooms = async (req, res, next) => {
     try {
-        const allClassrooms = await pool.query("SELECT * FROM salones")
+        const allClassrooms = await pool.query("SELECT * FROM salones JOIN edificio ON salones.id_edificio = edificio.id_edificio")
         res.json(allClassrooms.rows)
     } catch (error) {
         next(error)

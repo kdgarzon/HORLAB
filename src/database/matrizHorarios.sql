@@ -343,7 +343,7 @@ CREATE TABLE AulasPisos (
     id_edificio INTEGER NOT NULL,
     PRIMARY KEY (id_aula_piso),
     FOREIGN KEY (id_piso) REFERENCES Pisos(id_piso) ON UPDATE CASCADE ON DELETE CASCADE,
-    FOREIGN KEY (id_edificio) REFERENCES Edificio(id_edificio) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (id_edificio) REFERENCES Edificio(id_edificio) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 --PISO 1 EDIFICIO TECHNE (1)
