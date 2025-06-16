@@ -28,7 +28,7 @@ export const initialSubjectState = {
 export const initialClassroomState = { //PENDIENTE REVISAR
   id_salon: '',
   nombre: '',
-  edificio: '',
+  id_edificio: null,
   capacidad: 0,
   area: 0
 };

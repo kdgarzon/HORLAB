@@ -47,7 +47,8 @@ const {
     getClassroom,
     createClassroom,
     deleteClassroom,
-    updateClassroom
+    updateClassroom,
+    getBuildings
 } = require('../controllers/controllerSalones')
 
 const router = Router(); //Nos permite crear nuevas URL
@@ -97,6 +98,7 @@ router.get('/classrooms/:id', getClassroom)
 router.post('/classrooms', createClassroom)
 router.delete('/classrooms/:idclassroomEliminar', deleteClassroom)
 router.put('/classrooms/:idclassroomActualizar', updateClassroom)
+router.get('/buildings', getBuildings); // Obtener todos los edificios
 
 
 module.exports = router; //Se exporta una función

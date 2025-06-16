@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import {useNavigate, useParams} from 'react-router-dom'
 import { alertaSuccessorError } from "../Alertas/Alert_Success";
 import { initialClassroomState } from "../Complementos/initialStates";
+import Edificios from "../Complementos/ListasDesplegables/Edificios";
 
 export default function ClassroomForm({ classId, hideInternalSubmitButton = false, onExternalSubmit }) {
   const navigate = useNavigate();
@@ -11,6 +12,15 @@ export default function ClassroomForm({ classId, hideInternalSubmitButton = fals
   const [editing, setEditing] = useState(false)
   const [alertaEstado, setAlertaEstado] = useState(null); 
   const [classroom, setClassroom] = useState(initialClassroomState);
+
+  const [edificios, setEdificios] = useState([]); // Array para almacenar los edificios { id_edificio, edificio }
+
+  const handleBuildingSelect = (BuildingId) => {
+    setEdificios((prevBuildings) => ({
+      ...prevBuildings,
+      id_edificio: BuildingId
+    }));
+  };
 
   useEffect(() => {
     if (alertaEstado) {
@@ -26,7 +36,7 @@ export default function ClassroomForm({ classId, hideInternalSubmitButton = fals
     setAlertaEstado(null); // Resetea el estado de alerta
 
     if (
-        !classroom.nombre || !classroom.edificio || 
+        !classroom.nombre || !classroom.id_edificio || 
         !classroom.capacidad || !classroom.area
     ) {
       setAlertaEstado({
@@ -58,13 +68,10 @@ export default function ClassroomForm({ classId, hideInternalSubmitButton = fals
         });
       } catch (error) {
         console.error("Error al editar sala:", error);
-
-        /*setAlertaEstado({
-          titulo: error.message.includes("ya existe") ? error.message : 'Error al editar sala',
+        alertaSuccessorError({
+          titulo: 'Error al crear sala',
           icono: 'error',
-          texto: 'El usuario o correo ya existe, por favor verifica los datos ingresados.',
-          timer: 3000
-        });*/
+        });
       }
     } else {
       try {
@@ -89,17 +96,15 @@ export default function ClassroomForm({ classId, hideInternalSubmitButton = fals
         });
 
         setClassroom({
-            nombre: '', edificio: '', capacidad: '', area: ''
+          nombre: '', id_edificio: null, capacidad: '', area: ''
         }); 
         
       } catch (error) {
         console.error("Error al crear sala:", error);
-        /*setAlertaEstado({
-          titulo: error.message.includes("ya existe") ? error.message : 'Error al crear sala',
+        alertaSuccessorError({
+          titulo: 'Error al crear sala',
           icono: 'error',
-          texto: 'El usuario o correo ya existe, por favor verifica los datos ingresados.',
-          timer: 3000
-        });*/
+        });
       } finally {
         setLoadingCrear(false);
       }
@@ -118,10 +123,10 @@ export default function ClassroomForm({ classId, hideInternalSubmitButton = fals
     const res = await fetch(`http://localhost:5000/classrooms/${id}`);
     const data = await res.json();
     setClassroom({
-        nombre: data.nombre ?? '',
-        edificio: data.edificio ?? '',
-        capacidad: data.capacidad ?? '',
-        area: data.area ?? ''
+      nombre: data.nombre ?? '',
+      id_edificio: data.id_edificio ?? null,
+      capacidad: data.capacidad ?? '',
+      area: data.area ?? ''
     });
     setEditing(true);
   }
@@ -160,13 +165,11 @@ export default function ClassroomForm({ classId, hideInternalSubmitButton = fals
         value={classroom.nombre}
         onChange={handleChange}
       />
-      <TextField
-        fullWidth
-        variant="outlined"
-        label="Edificio de la sala"
-        name="edificio"
-        value={classroom.edificio}
-        onChange={handleChange}
+      <Edificios
+        edificios={edificios}
+        setEdificios={setEdificios}
+        selectedEdificioId={classroom.edificio}
+        onSelect={handleBuildingSelect}
       />
       <TextField
         fullWidth
@@ -194,7 +197,7 @@ export default function ClassroomForm({ classId, hideInternalSubmitButton = fals
           type="submit"
           disabled={
             !classroom.nombre || 
-            !classroom.edificio || 
+            !classroom.id_edificio || 
             !classroom.capacidad || 
             !classroom.area
           }

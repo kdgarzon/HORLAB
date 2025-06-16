@@ -23,6 +23,19 @@ const getClassroom = async (req, res, next) => {
     }
 }
 
+const getBuildings = async (req, res, next) => {
+    try {
+        const result = await pool.query("SELECT * FROM edificio");
+    
+        if(result.rows.length === 0) return res.status(404).json({
+            message: "No hay edificios registrados"
+        });
+        res.json(result.rows);
+    } catch (error) {
+        next(error)
+    }
+}
+
 const createClassroom = async (req, res, next) => {
     const {nombre, id_edificio, capacidad, area} = req.body
     try {
@@ -77,5 +90,6 @@ module.exports = {
     getClassroom,
     createClassroom,
     deleteClassroom,
-    updateClassroom
+    updateClassroom,
+    getBuildings
 }
