@@ -115,6 +115,7 @@ SELECT DISTINCT hora FROM matrizgeneral WHERE hora IS NOT NULL;
 
 CREATE TABLE Grupos (
     id_grupo SERIAL,
+    id_periodo INTEGER NOT NULL,
     id_dia INTEGER,
     id_hora INTEGER,
     grupo VARCHAR(10) NOT NULL,
@@ -122,22 +123,24 @@ CREATE TABLE Grupos (
     id_proyecto INTEGER,
     inscritos INTEGER,
     PRIMARY KEY (id_grupo),
+    FOREIGN KEY (id_periodo) REFERENCES Periodo(id_periodo) ON UPDATE CASCADE ON DELETE SET NULL,
     FOREIGN KEY (id_dia) REFERENCES Dia(id_dia) ON UPDATE CASCADE ON DELETE SET NULL,
     FOREIGN KEY (id_hora) REFERENCES Hora(id_hora) ON UPDATE CASCADE ON DELETE SET NULL,
     FOREIGN KEY (id_asignatura) REFERENCES Asignaturas(id_asignatura) ON UPDATE CASCADE ON DELETE SET NULL,
     FOREIGN KEY (id_proyecto) REFERENCES Proyecto(id_proyecto) ON UPDATE CASCADE ON DELETE SET NULL
 );
 
-INSERT INTO Grupos(id_dia, id_hora, grupo, id_asignatura, id_proyecto, inscritos)
+INSERT INTO Grupos(id_dia, id_periodo, id_hora, grupo, id_asignatura, id_proyecto, inscritos)
 SELECT 
-    d.id_dia, h.id_hora, m.grupo, a.id_asignatura, p.id_proyecto, m.inscritos
+    d.id_dia, p.id_periodo, h.id_hora, m.grupo, a.id_asignatura, proj.id_proyecto, m.inscritos
 FROM matrizgeneral m
+JOIN Periodo p ON m.periodo = p.periodo
 JOIN Dia d ON m.dia = d.dia
 JOIN Hora h ON m.hora = h.hora
 JOIN Asignaturas a 
   ON TRIM(SPLIT_PART(m.asignatura, '-', 1)) = TRIM(a.codigo_asig::TEXT)
  AND TRIM(SPLIT_PART(m.asignatura, '-', 2)) = TRIM(a.nombre)
-JOIN Proyecto p ON m.proyecto = p.proyecto
+JOIN Proyecto proj ON m.proyecto = proj.proyecto
 WHERE m.grupo IS NOT NULL;
 
 CREATE TABLE Salones (
@@ -147,6 +150,7 @@ CREATE TABLE Salones (
     capacidad INTEGER NOT NULL,
     area FLOAT NOT NULL,
     PRIMARY KEY (id_salon),
+    FOREIGN KEY (id_edificio) REFERENCES Edificio(id_edificio) ON UPDATE CASCADE ON DELETE SET NULL,
     CONSTRAINT salon_unico UNIQUE (nombre, id_edificio)
 );
 

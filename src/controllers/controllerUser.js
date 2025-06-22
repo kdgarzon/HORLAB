@@ -51,7 +51,13 @@ const getUserLogin = async (req, res, next) => {
             });
         }
         const user = result.rows[0];
-        res.json({ usuario: user.usuario, id_rol: user.id_rol });
+        res.json({
+            usuario: user.usuario,
+            id_rol: user.id_rol,
+            nombre: user.nombreuser,
+            apellido: user.apellidouser,
+            correo: user.correo
+        });
     } catch (error) {
         next(error)
     }

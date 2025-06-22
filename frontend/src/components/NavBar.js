@@ -12,6 +12,7 @@ import SubjectIcon from '@mui/icons-material/Subject';
 import DomainIcon from '@mui/icons-material/Domain';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import LogoutIcon from '@mui/icons-material/Logout';
+import { Account } from '@toolpad/core/Account';
 
 const NAVIGATION_ADMIN = [
   {segment: 'Login/admin', title: 'Página Principal', icon: <DashboardIcon />,},
@@ -84,23 +85,6 @@ const demoTheme = createTheme({
   },
 });
 
-function DemoPageContent({ pathname }) {
-  return (
-    <Box
-      sx={{
-        py: 4, display: 'flex', flexDirection: 'column',
-        alignItems: 'center', textAlign: 'center',
-      }}
-    >
-      <Typography>Dashboard content for {pathname}</Typography>
-    </Box>
-  );
-}
-
-DemoPageContent.propTypes = {
-  pathname: PropTypes.string.isRequired,
-};
-
 function DashboardLayoutBranding(props) {
   const { window } = props;
   const navigate = useNavigate();
@@ -109,6 +93,32 @@ function DashboardLayoutBranding(props) {
     pathname: location.pathname,
     navigate: (path) => navigate(path),
   };
+
+  const [session, setSession] = React.useState(() => {
+    const name = `${localStorage.getItem('nombre') || ''} ${localStorage.getItem('apellido') || ''}`.trim();
+    const email = localStorage.getItem('correo');
+    const image = '/avatar.png'; // Opcional: reemplazar si tienes imagen real
+    return name && email
+      ? { user: { name, email, image } }
+      : null;
+  });
+
+  const authentication = React.useMemo(() => {
+    return {
+      signIn: () => setSession({
+        user: {
+          name: `${localStorage.getItem('nombre') || ''} ${localStorage.getItem('apellido') || ''}`.trim(),
+          email: localStorage.getItem('correo'),
+          image: '/avatar.png',
+        },
+      }),
+      signOut: () => {
+        localStorage.clear();
+        setSession(null);
+        navigate('/Login');
+      },
+    };
+  }, []);
 
   React.useEffect(() => {
     const handleClick = (e) => {
@@ -126,7 +136,7 @@ function DashboardLayoutBranding(props) {
 
     document.addEventListener('click', handleClick);
     return () => document.removeEventListener('click', handleClick);
-  }, [navigate]);
+  }, [navigate, authentication]);
   
   const demoWindow = window !== undefined ? window() : undefined;
   const rol = localStorage.getItem('id_rol');
@@ -143,7 +153,10 @@ function DashboardLayoutBranding(props) {
 
   return (
     <AppProvider
+      authentication={authentication}
+      session={session}
       navigation={filteredNavigation}
+      userMenu={<Account />}
       branding={{
         logo: (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>

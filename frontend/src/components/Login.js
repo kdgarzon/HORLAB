@@ -143,6 +143,9 @@ const signIn = async (provider, formData) => {
         const data = await res.json();
         localStorage.setItem('id_rol', data.id_rol);
         localStorage.setItem('usuario', data.usuario);
+        localStorage.setItem('nombre', data.nombre);
+        localStorage.setItem('apellido', data.apellido);
+        localStorage.setItem('correo', data.correo);
 
         if (data.id_rol === 1) {
           window.location.href = '/Login/admin';
