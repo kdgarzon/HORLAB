@@ -18,7 +18,8 @@ export function agruparDisponibilidadPorDiaenGrupos(disponibilidad) {
   const agrupado = {};
 
   disponibilidad.forEach(item => {
-    const key = `${item.dia}|${item.grupo}|${item.nombre}|${item.proyecto}|${item.inscritos}`;
+    const key = `${item.periodo}|${item.dia}|${item.grupo}|${item.nombre}|${item.proyecto}|${item.inscritos}`;
+    //const key = `${item.dia}|${item.grupo}|${item.nombre}|${item.proyecto}|${item.inscritos}`;
     if (!agrupado[key]) {
       agrupado[key] = [];
     }

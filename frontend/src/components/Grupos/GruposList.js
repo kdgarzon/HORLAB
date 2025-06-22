@@ -102,6 +102,7 @@ export default function GruposList() {
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((group, index) => (
                   <TableRow key={index}>
+                    <TableCell>{group.periodo}</TableCell>
                     <TableCell>{group.dia}</TableCell>
                     <TableCell>{`${extraerHoraInicial(group.hora_inicio)} - ${group.hora_fin}`}</TableCell>
                     <TableCell>{group.grupo}</TableCell>

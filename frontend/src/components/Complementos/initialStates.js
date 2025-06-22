@@ -8,6 +8,7 @@ export const initialUserState = {
 };
 
 export const initialGroupState = {
+  periodo: '',
   dia: '',
   hora: '',
   grupo: '',

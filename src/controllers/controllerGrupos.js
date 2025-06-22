@@ -6,12 +6,13 @@ const getAllGroups = async (req, res, next) => {
     try {
         const allGroups = await pool.query(`
         SELECT 
-            g.id_grupo, d.dia, h.hora, a.nombre, p.proyecto, g.grupo, g.inscritos 
+            g.id_grupo, p.periodo, d.dia, h.hora, a.nombre, proj.proyecto, g.grupo, g.inscritos 
         FROM Grupos g
+        JOIN Periodo p ON g.id_periodo = p.id_periodo
         JOIN Dia d ON g.id_dia = d.id_dia
         JOIN Hora h ON g.id_hora = h.id_hora
         JOIN Asignaturas a ON g.id_asignatura = a.id_asignatura
-        JOIN Proyecto p ON g.id_proyecto = p.id_proyecto
+        JOIN Proyecto proj ON g.id_proyecto = proj.id_proyecto
         WHERE g.id_asignatura = $1 
         ORDER BY d.orden, h.hora
         `, [id]);
@@ -27,11 +28,12 @@ const getGroup = async (req, res, next) => {
         const {id_asignatura, id_grupo} = req.params
         const result = await pool.query(`
             SELECT 
-                g.id_grupo, g.grupo, g.inscritos, d.dia, h.hora, p.proyecto
+                g.id_grupo, p.periodo, g.grupo, g.inscritos, d.dia, h.hora, proj.proyecto
             FROM Grupos g
+            JOIN Periodo p ON g.id_periodo = p.id_periodo
             JOIN Dia d ON g.id_dia = d.id_dia
             JOIN Hora h ON g.id_hora = h.id_hora
-            JOIN Proyecto p ON g.id_proyecto = p.id_proyecto
+            JOIN Proyecto proj ON g.id_proyecto = proj.id_proyecto
             WHERE g.id_asignatura = $1 AND g.id_grupo = $2
         `, [id_asignatura, id_grupo]);
     
@@ -45,12 +47,13 @@ const getGroup = async (req, res, next) => {
 }
 
 const createGroup = async (req, res, next) => {
-    const {id_dia, id_hora, grupo, id_asignatura, id_proyecto, inscritos} = req.body
+    const {id_periodo, id_dia, id_hora, grupo, id_asignatura, id_proyecto, inscritos} = req.body
     try {
         const result = await pool.query(`
-            INSERT INTO Grupos (id_dia, id_hora, grupo, id_asignatura, id_proyecto, inscritos)
-            VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`, 
+            INSERT INTO Grupos (id_periodo, id_dia, id_hora, grupo, id_asignatura, id_proyecto, inscritos)
+            VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`, 
         [
+            id_periodo,
             id_dia,
             id_hora,
             grupo,
@@ -82,12 +85,13 @@ const deleteGroup = async (req, res, next) => {
 const updateGroup = async (req, res, next) => {
     const {idgrupoActualizar} = req.params;
     try {
-        const {id_dia, id_hora, grupo, id_asignatura, id_proyecto, inscritos} = req.body;
+        const {id_periodo, id_dia, id_hora, grupo, id_asignatura, id_proyecto, inscritos} = req.body;
         const result = await pool.query(`
             UPDATE Grupos
-            SET id_dia = $1, id_hora = $2, grupo = $3, id_asignatura = $4, id_proyecto = $5, inscritos = $6
-            WHERE id_grupo = $7 RETURNING *`, 
+            SET id_periodo = $1 id_dia = $2, id_hora = $3, grupo = $4, id_asignatura = $5, id_proyecto = $6, inscritos = $7
+            WHERE id_grupo = $8 RETURNING *`, 
         [
+            id_periodo,
             id_dia,
             id_hora,
             grupo,
