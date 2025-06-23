@@ -3,7 +3,6 @@ import { useState, useEffect, useCallback } from "react";
 import {useNavigate, useParams} from 'react-router-dom'
 import Dias from "../Complementos/ListasDesplegables/Dias";
 import Horas from "../Complementos/ListasDesplegables/Horas";
-import Asignaturas from "../Complementos/ListasDesplegables/Asignaturas";
 import Proyectos from "../Complementos/ListasDesplegables/Proyectos";
 import { alertaSuccessorError } from "../Alertas/Alert_Success";
 import { initialGroupState } from "../Complementos/initialStates";
@@ -12,7 +11,6 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
   //Listas desplegables
   const [dias, setDias] = useState([]); // Array para almacenar los dias { id_dia, dia } 
   const [horas, setHoras] = useState([]); // Array para almacenar las horas { id_hora, hora } 
-  const [asignaturas, setAsignaturas] = useState([]); // Array para almacenar las asignaturas { id_asignatura, asignatura } 
   const [proyectos, setProyectos] = useState([]); // Array para almacenar los proyectos { id_proyecto, proyecto  } 
   
   const navigate = useNavigate();
@@ -23,6 +21,9 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
   const [grupo, setGrupo] = useState(initialGroupState);
   const [rawGrupo, setRawGrupo] = useState(null);
   const [proyectoFijo, setProyectoFijo] = useState(null); // Si solo hay un proyecto asociado
+  const [nombreAsignatura, setNombreAsignatura] = useState("");
+  const [idPeriodoFijo] = useState(1); // Período "2025-1"
+  const [nombrePeriodoFijo] = useState("2025-1");
 
   const handleDaySelect = (dayId) => {
     setGrupo((prevGroup) => ({
@@ -38,12 +39,15 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
     }));
   };
 
-  const handleSubjectSelect = (subjectId) => {
-    setGrupo((prevGroup) => ({
-      ...prevGroup,
-      id_asignatura: subjectId
-    }));
-  };
+  useEffect(() => {
+    const cargarNombreAsignatura = async () => {
+      const res = await fetch(`http://localhost:5000/subjects/${params.id}`);
+      const data = await res.json();
+      setNombreAsignatura(data.nombre); // Suponemos que el campo es `nombre`
+    };
+
+    cargarNombreAsignatura();
+  }, [params.id]);
 
   const handleProjectSelect = (projectId) => {
     setGrupo((prevGroup) => ({
@@ -58,7 +62,7 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
     setLoadingCrear(true);
 
     if (
-        !grupo.dia || !grupo.hora || !grupo.grupo ||
+        !grupo.periodo || !grupo.dia || !grupo.hora || !grupo.grupo ||
         !grupo.id_asignatura || !grupo.proyecto || !grupo.inscritos
     ) {
       alertaSuccessorError({
@@ -84,7 +88,7 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
       });
 
     } else {
-      if (!grupo.id_dia || !grupo.id_hora || !grupo.id_asignatura || !grupo.id_proyecto) {
+      if (!grupo.periodo || !grupo.id_dia || !grupo.id_hora || !grupo.id_asignatura || !grupo.proyecto) {
         alertaSuccessorError({
           titulo: 'Campos incompletos',
           icono: 'warning',
@@ -171,7 +175,8 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
         grupo: rawGrupo.grupo ?? '',
         id_asignatura: params.id ?? null,
         proyecto: proyectoObj ? proyectoObj.id_proyecto : '',
-        inscritos: rawGrupo.inscritos ?? 0
+        inscritos: rawGrupo.inscritos ?? 0,
+        id_periodo: idPeriodoFijo
       });
     }
   }, [rawGrupo, dias, horas, proyectos, params.id]);
@@ -204,7 +209,8 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
     } else {
       setGrupo({
         ...initialGroupState,
-        id_asignatura: idDeAsignatura ?? null // Aseguramos que la asignatura se establezca al crear un nuevo grupo
+        id_asignatura: idDeAsignatura ?? null, // Aseguramos que la asignatura se establezca al crear un nuevo grupo
+        id_periodo: idPeriodoFijo
       })
       setEditing(false);
     }
@@ -226,6 +232,11 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
         gap: 2,
       }}
     >
+      <TextField
+        label="Período académico"
+        value={nombrePeriodoFijo}
+        disabled
+      />
       <Dias
         dias={dias}
         setDias={setDias}
@@ -245,11 +256,10 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
         onChange={handleChange}
         disabled
       />
-      <Asignaturas
-        asignaturas={asignaturas}
-        setAsignaturas={setAsignaturas}
-        selectedAsignaturaId={grupo.id_asignatura}
-        onSelect={handleSubjectSelect}
+      <TextField
+        label="Asignatura"
+        value={nombreAsignatura}
+        disabled
       />
       {proyectoFijo ? (
         <TextField
