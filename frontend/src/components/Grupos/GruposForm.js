@@ -1,11 +1,15 @@
 import { Box, Button, CircularProgress, TextField } from "@mui/material"
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import {useNavigate, useParams} from 'react-router-dom'
 import Dias from "../Complementos/ListasDesplegables/Dias";
 import Horas from "../Complementos/ListasDesplegables/Horas";
 import Proyectos from "../Complementos/ListasDesplegables/Proyectos";
 import { alertaSuccessorError } from "../Alertas/Alert_Success";
 import { initialGroupState } from "../Complementos/initialStates";
+import { handleDaySelect, handleHourSelect, handleProjectSelect, handleChange, generarNombreGrupo, loadOneGrupo, handleSubmit } from "./FuncionesGroups";
+
+const ID_PERIODO_FIJO = 1; // ID del periodo fijo
+const NOMBRE_PERIODO_FIJO = "2025-1"; // Nombre del periodo fijo
 
 export default function GruposForm({ groupId, hideInternalSubmitButton = false, onExternalSubmit }) {
   //Listas desplegables
@@ -23,22 +27,12 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
   const [rawGrupo, setRawGrupo] = useState(null);
   const [proyectoFijo, setProyectoFijo] = useState(null); // Si solo hay un proyecto asociado
   const [nombreAsignatura, setNombreAsignatura] = useState("");
-  const [idPeriodoFijo] = useState(1); // Período "2025-1"
-  const [nombrePeriodoFijo] = useState("2025-1");
 
-  const handleDaySelect = (dayId) => {
-    setGrupo((prevGroup) => ({
-      ...prevGroup,
-      dia: dayId 
-    }));
-  };
-
-  const handleHourSelect = (hourIds) => {
-    setGrupo((prevGroup) => ({
-      ...prevGroup,
-      hora: hourIds
-    }));
-  };
+  //archivo de funciones
+  const onDaySelect = handleDaySelect(setGrupo);
+  const onHourSelect = handleHourSelect(setGrupo);
+  const onProjectSelect = handleProjectSelect(setGrupo, generarNombreGrupo, params.id);
+  const onChange = handleChange(setGrupo);
 
   useEffect(() => {
     const cargarNombreAsignatura = async () => {
@@ -46,128 +40,12 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
       const data = await res.json();
       setNombreAsignatura(data.nombre); // Suponemos que el campo es `nombre`
     };
-
     cargarNombreAsignatura();
   }, [params.id]);
 
-  const handleProjectSelect = (projectId) => {
-    setGrupo((prevGroup) => ({
-      ...prevGroup,
-      proyecto: projectId 
-    }));
-    generarNombreGrupo(params.id, projectId);
-  };
-
-  const handleSubmit = async e => {
-    e.preventDefault(); //Cancela el refresh del boton del formulario
-    setLoadingCrear(true);
-
-    if (
-        !grupo.periodo || !grupo.dia || !grupo.hora || !grupo.grupo ||
-        !grupo.id_asignatura || !grupo.proyecto || !grupo.inscritos
-    ) {
-      alertaSuccessorError({
-        titulo: 'Campos incompletos',
-        icono: 'warning',
-      });
-      setLoadingCrear(false);
-      return;
-    }
-    
-    if (editing) {
-      const res = await fetch(`http://localhost:5000/subjects/${params.id}/groups/${groupId}`, {
-        method: 'PUT',
-        body: JSON.stringify(grupo),
-        headers: {"Content-Type": "application/json"}
-      });
-      const data = await res.json()
-      console.log("Respuesta del servidor: ", data);
-
-      alertaSuccessorError({
-        titulo: 'Grupo editado correctamente',
-        icono: 'success',
-      });
-
-    } else {
-      if (!grupo.periodo || !grupo.id_dia || !grupo.id_hora || !grupo.id_asignatura || !grupo.proyecto) {
-        alertaSuccessorError({
-          titulo: 'Campos incompletos',
-          icono: 'warning',
-        });
-        return;
-      }
-
-      try {
-        if (!Array.isArray(grupo.hora)) {
-          throw new Error("Hora debe ser un array de IDs");
-        } 
-
-        for (const id_hora of grupo.hora) {
-          const nuevoGrupo = {
-            ...grupo,
-            hora: id_hora
-          };
-
-          const res = await fetch(`http://localhost:5000/subjects/${params.id}/groups`, {
-            method: 'POST',
-            body: JSON.stringify(nuevoGrupo),
-            headers: {"Content-Type": "application/json"}
-          });
-
-          if (!res.ok) {
-            const errorData = await res.text();
-            throw new Error(`Error del servidor: ${res.status} - ${errorData}`);
-          }
-          const data = await res.json()
-          console.log("Respuesta del servidor: ", data);
-        }
-        alertaSuccessorError({
-          titulo: 'Grupo creado correctamente',
-          icono: 'success',
-        });
-        
-      } catch (error) {
-        console.error("Error al crear grupo:", error);
-        alertaSuccessorError({
-          titulo: 'Error al crear grupo',
-          icono: 'error',
-        });
-      }
-    }
-    setLoadingCrear(false);
-    if (onExternalSubmit) {
-      onExternalSubmit();
-    } else {
-      navigate(`/ListarAsignaturas/Asignaturas/${params.id}/ListarGrupos`);
-    }
-  }
-
-  const handleChange = (e) => 
-    setGrupo({...grupo, [e.target.name]: e.target.value}); //Actualiza el valor que vamos a enviar del TextField
-  
-  const loadOneGrupo = useCallback(async (id_grupo) => {
-    const res = await fetch(`http://localhost:5000/subjects/${params.id}/groups/${id_grupo}`);
-    const data = await res.json()
-    
-    console.log("Datos del grupo:", data);
-    setRawGrupo(data); // Guarda los datos crudos
-    setEditing(true);
-  }, [params.id]);
-
-  const generarNombreGrupo = async (idAsignatura, id_proyecto) => {
-    const res = await fetch(`http://localhost:5000/subjects/${idAsignatura}/projects/${id_proyecto}/consecutive`);
-    const data = await res.json();
-
-    const nuevoNombre = `${data.codigo}-${data.siguiente}`;
-    setGrupo((prev) => ({ 
-      ...prev, 
-      grupo: nuevoNombre 
-    }));
-  };  
-
   useEffect(() => {
     if (!editing && grupo.id_asignatura && grupo.proyecto) {
-      generarNombreGrupo(grupo.id_asignatura, grupo.proyecto);
+      generarNombreGrupo(grupo.id_asignatura, grupo.proyecto, setGrupo);
     }
   }, [grupo.id_asignatura, grupo.proyecto, editing]);
 
@@ -177,7 +55,6 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
       // Busca los IDs correspondientes
       const diaObj = dias.find(d => d.dia === rawGrupo.dia);
       const proyectoObj = proyectos.find(p => p.proyecto === rawGrupo.proyecto);
-
       // Encontrar la franja fusionada que contenga el valor de hora original
       const franjaFusionada = horasFusionadas.find(f =>
         f.nombre === rawGrupo.hora
@@ -190,7 +67,7 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
         id_asignatura: params.id ?? null,
         proyecto: proyectoObj ? proyectoObj.id_proyecto : '',
         inscritos: rawGrupo.inscritos ?? 0,
-        id_periodo: idPeriodoFijo
+        id_periodo: ID_PERIODO_FIJO
       });
     }
   }, [rawGrupo, dias, horas, proyectos, horasFusionadas, params.id]);
@@ -199,40 +76,42 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
     const cargarProyectosPorAsignatura = async () => {
       const res = await fetch(`http://localhost:5000/subjects/${params.id}/projects`);
       const data = await res.json();
-
       setProyectos(data);
 
       if (data.length === 1) {
         setProyectoFijo(data[0]); // Solo hay un proyecto, se fija
         console.log("Proyecto fijo encontrado:", data[0]);  
         setGrupo((prev) => ({ ...prev, proyecto: data[0].id_proyecto }));
-        generarNombreGrupo(params.id, data[0].id_proyecto);
+        generarNombreGrupo(params.id, data[0].id_proyecto, setGrupo);
       } else {
         setProyectoFijo(null); // Hay múltiples proyectos, se habilita el selector
       }
     };
-
     cargarProyectosPorAsignatura();
   }, [params.id]);
-
 
   useEffect(() => {
     const idDeAsignatura = params.id;
     if (groupId) {
-      loadOneGrupo(groupId);
+      loadOneGrupo(groupId, params.id, setRawGrupo, setEditing);
     } else {
       setGrupo({
         ...initialGroupState,
         id_asignatura: idDeAsignatura ?? null, // Aseguramos que la asignatura se establezca al crear un nuevo grupo
-        id_periodo: idPeriodoFijo
+        id_periodo: ID_PERIODO_FIJO
       })
       setEditing(false);
     }
-  }, [groupId, params.id, loadOneGrupo, setGrupo, setEditing]);
+  //}, [groupId, params.id, loadOneGrupo, setGrupo, setEditing]);
+  }, [groupId, params.id]);
 
   return (
     <Box
-      id="group-form" component="form" onSubmit={handleSubmit}
+      id="group-form" component="form" 
+      onSubmit={(e) => handleSubmit(
+        e, grupo, setLoadingCrear, editing, params,
+        navigate, alertaSuccessorError, onExternalSubmit, groupId
+      )}
       noValidate autoComplete="off"
       sx={{
         maxWidth: 500, margin: "auto", padding: 2,
@@ -241,20 +120,20 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
     >
       <TextField
         label="Período académico"
-        value={nombrePeriodoFijo}
+        value={NOMBRE_PERIODO_FIJO}
         disabled
       />
       <Dias
         dias={dias}
         setDias={setDias}
         selectedDiaId={grupo.dia}
-        onSelect={handleDaySelect}
+        onSelect={onDaySelect}
       />
       <Horas
         horas={horas}
         setHoras={setHoras}
         selectedHoraId={grupo.hora}
-        onSelect={handleHourSelect}
+        onSelect={onHourSelect}
         horasFusionadas={horasFusionadas}
         setHorasFusionadas={setHorasFusionadas}
       />
@@ -262,7 +141,7 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
         label="Grupo"
         name="grupo"
         value={grupo.grupo || ""}
-        onChange={handleChange}
+        onChange={onChange}
         disabled
       />
       <TextField
@@ -281,7 +160,7 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
           proyectos={proyectos}
           setProyectos={setProyectos}
           selectedProyectoId={grupo.proyecto}
-          onSelect={handleProjectSelect}
+          onSelect={onProjectSelect}
         />
       )}
       <TextField
@@ -289,7 +168,7 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
         name="inscritos"
         type="number"
         value={grupo.inscritos}
-        onChange={handleChange}
+        onChange={onChange}
       />
   
       {!hideInternalSubmitButton && (
