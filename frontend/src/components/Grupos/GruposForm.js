@@ -12,7 +12,8 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
   const [dias, setDias] = useState([]); // Array para almacenar los dias { id_dia, dia } 
   const [horas, setHoras] = useState([]); // Array para almacenar las horas { id_hora, hora } 
   const [proyectos, setProyectos] = useState([]); // Array para almacenar los proyectos { id_proyecto, proyecto  } 
-  
+  const [horasFusionadas, setHorasFusionadas] = useState([]);
+
   const navigate = useNavigate();
   const params = useParams();
   const [loadingCrear, setLoadingCrear] = useState(false);
@@ -32,10 +33,10 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
     }));
   };
 
-  const handleHourSelect = (hourId) => {
+  const handleHourSelect = (hourIds) => {
     setGrupo((prevGroup) => ({
       ...prevGroup,
-      hora: hourId
+      hora: hourIds
     }));
   };
 
@@ -97,20 +98,29 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
       }
 
       try {
-        const res = await fetch(`http://localhost:5000/subjects/${params.id}/groups`, {
-          method: 'POST',
-          body: JSON.stringify(grupo),
-          headers: {"Content-Type": "application/json"}
-        });
-  
-        if(!res.ok){
-          // Si la respuesta no es OK, intenta leer el cuerpo como texto para ver el error del backend
-          const errorData = await res.text();
-          throw new Error(`Error del servidor: ${res.status} - ${errorData}`);
-        }
-        const data = await res.json()
-        console.log("Respuesta del servidor: ", data);
+        if (!Array.isArray(grupo.hora)) {
+          throw new Error("Hora debe ser un array de IDs");
+        } 
 
+        for (const id_hora of grupo.hora) {
+          const nuevoGrupo = {
+            ...grupo,
+            hora: id_hora
+          };
+
+          const res = await fetch(`http://localhost:5000/subjects/${params.id}/groups`, {
+            method: 'POST',
+            body: JSON.stringify(nuevoGrupo),
+            headers: {"Content-Type": "application/json"}
+          });
+
+          if (!res.ok) {
+            const errorData = await res.text();
+            throw new Error(`Error del servidor: ${res.status} - ${errorData}`);
+          }
+          const data = await res.json()
+          console.log("Respuesta del servidor: ", data);
+        }
         alertaSuccessorError({
           titulo: 'Grupo creado correctamente',
           icono: 'success',
@@ -166,12 +176,16 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
     if (rawGrupo && dias.length && horas.length && proyectos.length) {
       // Busca los IDs correspondientes
       const diaObj = dias.find(d => d.dia === rawGrupo.dia);
-      const horaObj = horas.find(h => h.hora === rawGrupo.hora);
       const proyectoObj = proyectos.find(p => p.proyecto === rawGrupo.proyecto);
+
+      // Encontrar la franja fusionada que contenga el valor de hora original
+      const franjaFusionada = horasFusionadas.find(f =>
+        f.nombre === rawGrupo.hora
+      );
 
       setGrupo({
         dia: diaObj ? diaObj.id_dia : '',
-        hora: horaObj ? horaObj.id_hora : '',
+        hora: franjaFusionada ? franjaFusionada.ids : [],
         grupo: rawGrupo.grupo ?? '',
         id_asignatura: params.id ?? null,
         proyecto: proyectoObj ? proyectoObj.id_proyecto : '',
@@ -179,7 +193,7 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
         id_periodo: idPeriodoFijo
       });
     }
-  }, [rawGrupo, dias, horas, proyectos, params.id]);
+  }, [rawGrupo, dias, horas, proyectos, horasFusionadas, params.id]);
 
   useEffect(() => {
     const cargarProyectosPorAsignatura = async () => {
@@ -218,18 +232,11 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
 
   return (
     <Box
-      id="group-form"
-      component="form"
-      onSubmit={handleSubmit}
-      noValidate
-      autoComplete="off"
+      id="group-form" component="form" onSubmit={handleSubmit}
+      noValidate autoComplete="off"
       sx={{
-        maxWidth: 500,
-        margin: "auto",
-        padding: 2,
-        display: "flex",
-        flexDirection: "column",
-        gap: 2,
+        maxWidth: 500, margin: "auto", padding: 2,
+        display: "flex", flexDirection: "column", gap: 2,
       }}
     >
       <TextField
@@ -248,6 +255,8 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
         setHoras={setHoras}
         selectedHoraId={grupo.hora}
         onSelect={handleHourSelect}
+        horasFusionadas={horasFusionadas}
+        setHorasFusionadas={setHorasFusionadas}
       />
       <TextField
         label="Grupo"
@@ -289,7 +298,7 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
           color="info"
           type="submit"
           disabled={
-            !grupo.dia || !grupo.hora || !grupo.grupo ||
+            !grupo.dia || !grupo.hora?.length || !grupo.grupo ||
             !grupo.nombre || !grupo.proyecto || !grupo.inscritos
           }
         >

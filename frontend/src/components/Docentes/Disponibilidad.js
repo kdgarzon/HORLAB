@@ -29,6 +29,31 @@ export function agruparDisponibilidadPorDiaenGrupos(disponibilidad) {
   return agrupado;
 }
 
+export function fusionarHorasConsecutivas(horas) {
+  const fusionadas = [];
+
+  // Ordenar por la hora de inicio
+  const ordenadas = [...horas].sort((a, b) => convertirA24Horas(a.hora) - convertirA24Horas(b.hora));
+
+  for (let i = 0; i < ordenadas.length - 1; i++) {
+    const horaActual = ordenadas[i];
+    const horaSiguiente = ordenadas[i + 1];
+
+    const inicioActual = convertirA24Horas(horaActual.hora);
+    const inicioSiguiente = convertirA24Horas(horaSiguiente.hora);
+
+    if (inicioSiguiente === inicioActual + 1 && inicioActual % 2 === 0) {
+      const nuevaFranja = {
+        id_fusion: `${horaActual.id_hora}-${horaSiguiente.id_hora}`,
+        nombre: `${horaActual.hora.split('-')[0]} - ${horaSiguiente.hora.split('-')[1]}`,
+        ids: [horaActual.id_hora, horaSiguiente.id_hora],
+      };
+      fusionadas.push(nuevaFranja);
+    }
+  }
+  return fusionadas;
+}
+
 export function fusionarFranjasConsecutivas(agrupado) {
   const resultadoFusionado = [];
 

@@ -4,12 +4,14 @@ import { Box, CircularProgress, Collapse, List, ListItem, ListItemButton, ListIt
 import { useState, useEffect } from 'react';
 import { FixedSizeList } from 'react-window';
 import { alertaSuccessorError } from "../../Alertas/Alert_Success";
+import { fusionarHorasConsecutivas } from "../../Docentes/Disponibilidad";
 
 export default function Horas({ horas, setHoras, selectedHoraId, onSelect  }) {
     const [open, setOpen] = useState(false); //Que la lista de horas aparezca desplegada
     
     // Estado para indicar si se están cargando las horas
     const [loadingHoras, setLoadingHoras] = useState(false);
+    const [horasFusionadas, setHorasFusionadas] = useState([]);
 
     // --- FETCHING DE HORAS ---
     useEffect(() => {
@@ -18,11 +20,13 @@ export default function Horas({ horas, setHoras, selectedHoraId, onSelect  }) {
             try {
                 const response = await fetch('http://localhost:5000/hours'); // Endpoint para obtener horas
                 if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const data = await response.json();
                 // Asume que la data es un array de objetos: [{ id_hora: 1, hora: '8AM - 9AM' }, ...]
                 setHoras(data);
+                const fusionadas = fusionarHorasConsecutivas(data);
+                setHorasFusionadas(fusionadas);
             } catch (error) {
                 console.error("Error al obtener horas:", error);
                 alertaSuccessorError({
@@ -36,21 +40,28 @@ export default function Horas({ horas, setHoras, selectedHoraId, onSelect  }) {
         fetchHoras();
     }, [setHoras]); // El array vacío asegura que se ejecute solo una vez al montar el componente
 
-    const selectedHour = horas.find(h => h.id_hora === selectedHoraId);
-    const displayHourName = selectedHour ? selectedHour.hora : "Seleccionar Hora";
+    /*const selectedFusion = horasFusionadas.find(f => {
+        if (!Array.isArray(selectedHoraId)) return false;
+        return f.ids.every(id => selectedHoraId.includes(id));
+    });*/
+    const horaSeleccionada = Array.isArray(selectedHoraId) ? selectedHoraId : [];
+    const selectedFusion = horasFusionadas.find(f => {
+        return f.ids.every(id => horaSeleccionada.includes(id));
+    });
+    const displayHourName = selectedFusion ? selectedFusion.nombre : "Seleccionar Hora";
 
     const renderRow = ({ index, style }) => {
-        const hora = horas[index];
+        const hora = horasFusionadas[index];
         return (
-        <ListItem style={style} key={hora.id_hora} component="div" disablePadding>
+        <ListItem style={style} key={hora.id_fusion} component="div" disablePadding>
             <ListItemButton
-            selected={selectedHoraId === hora.id_hora}
+            selected={horaSeleccionada?.join("-") === hora.ids.join("-")}
             onClick={() => {
-                onSelect(hora.id_hora);
+                onSelect(hora.ids); // Llama a la función onSelect con los IDs de las horas seleccionadas
                 setOpen(false);
             }}
             >
-            <ListItemText primary={hora.hora} />
+            <ListItemText primary={hora.nombre} />
             </ListItemButton>
         </ListItem>
         );
@@ -67,7 +78,7 @@ export default function Horas({ horas, setHoras, selectedHoraId, onSelect  }) {
                     <Box sx={{ pl: 4, py: 1 }}>
                         <CircularProgress size={20} />
                     </Box>
-                    ) : horas.length === 0 ? (
+                    ) : horasFusionadas.length === 0 ? (
                     <ListItemText
                         sx={{ pl: 4, fontStyle: 'italic' }}
                         primary="No hay horas disponibles"
@@ -78,7 +89,7 @@ export default function Horas({ horas, setHoras, selectedHoraId, onSelect  }) {
                         height={138} // 46 * 4 = muestra 4 ítems
                         width="100%"
                         itemSize={46}
-                        itemCount={horas.length}
+                        itemCount={horasFusionadas.length}
                         overscanCount={2}
                         >
                         {renderRow}
