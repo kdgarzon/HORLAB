@@ -87,12 +87,14 @@ export const handleHourSelect = (setGrupo) => (hourIds) => {
   }));
 };
 
-export const handleProjectSelect = (setGrupo, generarNombreGrupo, idAsignatura) => async (projectId) => {
+export const handleProjectSelect = (setGrupo/*, generarNombreGrupo, idAsignatura, editing*/) => async (projectId) => {
   setGrupo((prevGroup) => ({
     ...prevGroup,
     proyecto: projectId 
   }));
-  await generarNombreGrupo(idAsignatura, projectId, setGrupo);
+  /*if (!editing){
+    await generarNombreGrupo(idAsignatura, projectId, setGrupo);
+  }*/
 };
 
 export const handleChange = (setGrupo) => (e) => {
@@ -103,6 +105,7 @@ export const handleChange = (setGrupo) => (e) => {
 };
 
 export const generarNombreGrupo = async (idAsignatura, id_proyecto, setGrupo) => {
+  console.log("generarNombreGrupo llamado");
   const res = await fetch(`http://localhost:5000/subjects/${idAsignatura}/projects/${id_proyecto}/consecutive`);
   const data = await res.json();
 
@@ -118,8 +121,8 @@ export const loadOneGrupo = async (id_grupo, id_asignatura, setRawGrupo, setEdit
   const data = await res.json()
     
   console.log("Datos del grupo:", data);
-  setRawGrupo(data); // Guarda los datos crudos
   setEditing(true);
+  setRawGrupo(data); // Guarda los datos crudos
 };
 
 export const handleSubmit = async (e, grupo, setLoadingCrear, editing, params, navigate, alertaSuccessorError, onExternalSubmit, groupId) => {
@@ -139,19 +142,52 @@ export const handleSubmit = async (e, grupo, setLoadingCrear, editing, params, n
   }
     
   if (editing) {
-    const res = await fetch(`http://localhost:5000/subjects/${params.id}/groups/${groupId}`, {
-      method: 'PUT',
-      body: JSON.stringify(grupo),
-      headers: {"Content-Type": "application/json"}
-    });
-    const data = await res.json()
-    console.log("Respuesta del servidor: ", data);
+    try {
+      if (!Array.isArray(grupo.hora)) {
+        throw new Error("Hora debe ser un array de IDs");
+      }
 
-    alertaSuccessorError({
-      titulo: 'Grupo editado correctamente',
-      icono: 'success',
-    });
+      // Suponiendo que los IDs de grupo son consecutivos empezando en groupId
+      const baseGroupId = parseInt(groupId, 10);
 
+      for (let i = 0; i < grupo.hora.length; i++) {
+        const id_hora = grupo.hora[i];
+        const currentGroupId = baseGroupId + i; // IDs consecutivos
+
+        const grupoParaActualizar = {
+          ...grupo,
+          hora: id_hora
+        };
+
+        // No modifiques el campo 'grupo' (nombre/consecutivo) en edición
+        delete grupoParaActualizar.grupo;
+
+        const res = await fetch(`http://localhost:5000/subjects/${params.id}/groups/${currentGroupId}`, {
+          method: 'PUT',
+          body: JSON.stringify(grupoParaActualizar),
+          headers: { "Content-Type": "application/json" }
+        });
+
+        if (!res.ok) {
+          const errorData = await res.text();
+          throw new Error(`Error del servidor: ${res.status} - ${errorData}`);
+        }
+
+        const data = await res.json();
+        console.log(`Respuesta servidor actualización grupo ${currentGroupId}:`, data);
+      }
+
+      alertaSuccessorError({
+        titulo: 'Grupo editado correctamente',
+        icono: 'success',
+      });
+    } catch (error) {
+      console.error("Error al editar grupo:", error);
+      alertaSuccessorError({
+        titulo: 'Error al editar grupo',
+        icono: 'error',
+      });
+    }
   } else {
     if (!grupo.periodo || !grupo.id_dia || !grupo.id_hora || !grupo.id_asignatura || !grupo.proyecto) {
       alertaSuccessorError({

@@ -21,7 +21,7 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
   const navigate = useNavigate();
   const params = useParams();
   const [loadingCrear, setLoadingCrear] = useState(false);
-  const [editing, setEditing] = useState(false)
+  const [editing, setEditing] = useState(null)
   
   const [grupo, setGrupo] = useState(initialGroupState);
   const [rawGrupo, setRawGrupo] = useState(null);
@@ -31,7 +31,7 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
   //archivo de funciones
   const onDaySelect = handleDaySelect(setGrupo);
   const onHourSelect = handleHourSelect(setGrupo);
-  const onProjectSelect = handleProjectSelect(setGrupo, generarNombreGrupo, params.id);
+  const onProjectSelect = handleProjectSelect(setGrupo);
   const onChange = handleChange(setGrupo);
 
   useEffect(() => {
@@ -44,25 +44,43 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
   }, [params.id]);
 
   useEffect(() => {
-    if (!editing && grupo.id_asignatura && grupo.proyecto) {
+    console.log("Valor de editing en useEffect:", editing);
+    if (!editing && grupo.id_asignatura && grupo.proyecto &&!rawGrupo) {
       generarNombreGrupo(grupo.id_asignatura, grupo.proyecto, setGrupo);
     }
-  }, [grupo.id_asignatura, grupo.proyecto, editing]);
+  }, [grupo.id_asignatura, grupo.proyecto, editing, rawGrupo]);
 
 
   useEffect(() => {
-    if (rawGrupo && dias.length && horas.length && proyectos.length) {
+    if (rawGrupo && dias.length && horas.length && proyectos.length && horasFusionadas.length) {
       // Busca los IDs correspondientes
       const diaObj = dias.find(d => d.dia === rawGrupo.dia);
       const proyectoObj = proyectos.find(p => p.proyecto === rawGrupo.proyecto);
       // Encontrar la franja fusionada que contenga el valor de hora original
-      const franjaFusionada = horasFusionadas.find(f =>
-        f.nombre === rawGrupo.hora
-      );
+
+      let horaSeleccionada = [];
+      if (Array.isArray(rawGrupo.hora)) {
+        horaSeleccionada = rawGrupo.hora;
+      } else if (typeof rawGrupo.hora === "string") {
+        // 1. Coincidencia exacta por nombre
+        let franja = horasFusionadas.find(f => f.nombre === rawGrupo.hora);
+
+        // 2. Coincidencia por inclusión
+        if (!franja) {
+          franja = horasFusionadas.find(f =>
+            f.nombre.includes(rawGrupo.hora) ||
+            f.ids.some(id => {
+              const objHora = horas.find(h => h.id_hora === id);
+              return objHora && objHora.hora === rawGrupo.hora;
+            })
+          );
+        }
+        if (franja) horaSeleccionada = franja.ids;
+      }
 
       setGrupo({
         dia: diaObj ? diaObj.id_dia : '',
-        hora: franjaFusionada ? franjaFusionada.ids : [],
+        hora: horaSeleccionada,
         grupo: rawGrupo.grupo ?? '',
         id_asignatura: params.id ?? null,
         proyecto: proyectoObj ? proyectoObj.id_proyecto : '',
@@ -82,13 +100,15 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
         setProyectoFijo(data[0]); // Solo hay un proyecto, se fija
         console.log("Proyecto fijo encontrado:", data[0]);  
         setGrupo((prev) => ({ ...prev, proyecto: data[0].id_proyecto }));
-        generarNombreGrupo(params.id, data[0].id_proyecto, setGrupo);
+        if (editing === false &&!rawGrupo) { 
+          generarNombreGrupo(params.id, data[0].id_proyecto, setGrupo);
+        }
       } else {
         setProyectoFijo(null); // Hay múltiples proyectos, se habilita el selector
       }
     };
     cargarProyectosPorAsignatura();
-  }, [params.id]);
+  }, [params.id, editing, rawGrupo]);
 
   useEffect(() => {
     const idDeAsignatura = params.id;
@@ -102,7 +122,6 @@ export default function GruposForm({ groupId, hideInternalSubmitButton = false, 
       })
       setEditing(false);
     }
-  //}, [groupId, params.id, loadOneGrupo, setGrupo, setEditing]);
   }, [groupId, params.id]);
 
   return (

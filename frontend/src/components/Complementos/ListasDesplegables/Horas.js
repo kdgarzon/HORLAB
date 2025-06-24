@@ -6,12 +6,12 @@ import { FixedSizeList } from 'react-window';
 import { alertaSuccessorError } from "../../Alertas/Alert_Success";
 import { fusionarHorasConsecutivas } from "../../Docentes/Disponibilidad";
 
-export default function Horas({ horas, setHoras, selectedHoraId, onSelect  }) {
+export default function Horas({ horas, setHoras, selectedHoraId, onSelect, horasFusionadas, setHorasFusionadas  }) {
     const [open, setOpen] = useState(false); //Que la lista de horas aparezca desplegada
     
     // Estado para indicar si se están cargando las horas
     const [loadingHoras, setLoadingHoras] = useState(false);
-    const [horasFusionadas, setHorasFusionadas] = useState([]);
+    //const [horasFusionadas, setHorasFusionadas] = useState([]);
 
     // --- FETCHING DE HORAS ---
     useEffect(() => {
