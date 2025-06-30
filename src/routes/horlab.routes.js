@@ -1,16 +1,25 @@
 const { Router} = require('express');
 
 const {
-    getAllUsers, 
-    getAllRoles,
-    getUser, 
-    getUserLogin,
-    createUser, 
-    deleteUser, 
-    updateUser,
+    getUserLogin
+} = require('../controllers/Autenticacion')
+
+const {
     sendResetPasswordEmail,
     resetPassword
-} = require('../controllers/controllerUser')
+} = require('../controllers/Contrasena')
+
+const {
+    getAllRoles
+} = require('../controllers/Rol')
+
+const {
+    getAllUsers, 
+    getUser,
+    createUser, 
+    deleteUser, 
+    updateUser
+} = require('../controllers/Usuario')
 
 const {
     getAllSubjects,
