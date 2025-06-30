@@ -1,5 +1,5 @@
 const pool = require('../dbconexion')
-const { getAllSubjects } = require('./controllerAsignaturas');
+const { getAllSubjects } = require('./Asignatura');
 
 const getAllGroups = async (req, res, next) => {
     const {id} = req.params

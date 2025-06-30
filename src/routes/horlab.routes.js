@@ -27,7 +27,7 @@ const {
     createSubject,
     deleteSubject,
     updateSubject
-} = require('../controllers/controllerAsignaturas')
+} = require('../controllers/Asignatura')
 
 const {
     getAllGroups,
