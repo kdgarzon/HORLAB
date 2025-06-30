@@ -31,16 +31,25 @@ const {
 
 const {
     getAllGroups,
-    getAllDays,
-    getAllHours,
-    getAllProjects,
     getGroup,
     createGroup,
     deleteGroup,
     updateGroup,
-    getProjectsToSubject,
     getNextGroupConsecutive
-} = require('../controllers/controllerGrupos')
+} = require('../controllers/Grupo')
+
+const {
+    getAllDays
+} = require('../controllers/Dia')
+
+const {
+    getAllHours
+} = require('../controllers/Hora')
+
+const {    
+    getAllProjects,
+    getProjectsToSubject
+} = require('../controllers/Proyecto')
 
 const {
     getAllTeachers,
