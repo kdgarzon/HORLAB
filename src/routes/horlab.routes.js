@@ -45,11 +45,10 @@ const {
 const {
     getAllTeachers,
     getTeacher,
-    getTeacherSchedule,
     createTeacher,
     deleteTeacher,
     updateTeacher
-} = require('../controllers/controllerDocente')
+} = require('../controllers/Docente')
 
 const {
     getAllClassrooms,
@@ -59,6 +58,10 @@ const {
     updateClassroom,
     getBuildings
 } = require('../controllers/controllerSalones')
+
+const { 
+    getTeacherSchedule 
+} = require('../controllers/HorarioDocente')
 
 const router = Router(); //Nos permite crear nuevas URL
 
