@@ -55,9 +55,12 @@ const {
     getClassroom,
     createClassroom,
     deleteClassroom,
-    updateClassroom,
+    updateClassroom
+} = require('../controllers/Salon')
+
+const {
     getBuildings
-} = require('../controllers/controllerSalones')
+} = require('../controllers/Edificio')
 
 const { 
     getTeacherSchedule 
