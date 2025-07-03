@@ -2,7 +2,7 @@ const { Router} = require('express');
 
 const {
     getUserLogin
-} = require('../controllers/Autenticacion')
+} = require('../controllers/Validacion')
 
 const {
     sendResetPasswordEmail,
@@ -75,6 +75,26 @@ const {
     getTeacherSchedule 
 } = require('../controllers/HorarioDocente')
 
+const { 
+    getAllFloors,
+    getFloor
+} = require('../controllers/Pisos')
+
+const {
+    getAllClassroomByFloor,
+    getClassroomByFloor
+} = require('../controllers/AulasPisos')
+
+const {
+    getAllFacultades,
+    getFacultad
+} = require('../controllers/Facultad')
+
+const {
+    getAllPeriods,
+    getPeriod,
+} = require('../controllers/Periodo')
+
 const router = Router(); //Nos permite crear nuevas URL
 
 router.post('/Login', getUserLogin)
@@ -124,6 +144,21 @@ router.delete('/classrooms/:idclassroomEliminar', deleteClassroom)
 router.put('/classrooms/:idclassroomActualizar', updateClassroom)
 router.get('/buildings', getBuildings); // Obtener todos los edificios
 
+//RUTAS PARA EL CONTROLADOR DE PISOS
+router.get('/floors', getAllFloors);
+router.get('/floors/:id', getFloor);
+
+//RUTAS PARA EL CONTROLADOR DE AULAS POR PISO
+router.get('/floors/:idFloor/classrooms', getAllClassroomByFloor);
+router.get('/floors/:idFloor/classrooms/:idClassroom/:idBuilding', getClassroomByFloor);
+
+//RUTAS PARA EL CONTROLADOR DE FACULTADES
+router.get('/faculties', getAllFacultades);
+router.get('/faculties/:id', getFacultad);
+
+// RUTAS PARA EL CONTROLADOR DE PERIODO
+router.get('/periods', getAllPeriods);
+router.get('/periods/:id', getPeriod);
 
 module.exports = router; //Se exporta una función
 
