@@ -35,7 +35,7 @@ export default function Edificios({ edificios, setEdificios, selectedEdificioId,
         fetchEdificios();
     }, [setEdificios]); // El array vacío asegura que se ejecute solo una vez al montar el componente
 
-    const selectedEdificio = Array.isArray(edificios) ? edificios.find(e => e.id_edificio === selectedEdificioId): null;
+    const selectedEdificio = edificios.find(e => e.id_edificio === selectedEdificioId);
     const displayEdificioName = selectedEdificio ? selectedEdificio.edificio : "Seleccionar Edificio";
 
     const renderRow = ({ index, style }) => {

@@ -4,6 +4,7 @@ import {useNavigate, useParams} from 'react-router-dom'
 import { alertaSuccessorError } from "../Alertas/Alert_Success";
 import { initialClassroomState } from "../Complementos/initialStates";
 import Edificios from "../Complementos/ListasDesplegables/Edificios";
+import { handleBuildingSelect } from "./FuncionesClassroom";
 
 export default function ClassroomForm({ classId, hideInternalSubmitButton = false, onExternalSubmit }) {
   const navigate = useNavigate();
@@ -15,12 +16,7 @@ export default function ClassroomForm({ classId, hideInternalSubmitButton = fals
 
   const [edificios, setEdificios] = useState([]); // Array para almacenar los edificios { id_edificio, edificio }
 
-  const handleBuildingSelect = (BuildingId) => {
-    setEdificios((prevBuildings) => ({
-      ...prevBuildings,
-      id_edificio: BuildingId
-    }));
-  };
+  const onBuildingSelect = handleBuildingSelect(setClassroom);
 
   useEffect(() => {
     if (alertaEstado) {
@@ -169,7 +165,7 @@ export default function ClassroomForm({ classId, hideInternalSubmitButton = fals
         edificios={edificios}
         setEdificios={setEdificios}
         selectedEdificioId={classroom.edificio}
-        onSelect={handleBuildingSelect}
+        onSelect={onBuildingSelect}
       />
       <TextField
         fullWidth
