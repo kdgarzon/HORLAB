@@ -20,9 +20,12 @@
   "homepage": "https://github.com/kdgarzon/HORLAB#readme",
   "dependencies": {
     "cors": "^2.8.5",
+    "csv-parse": "^6.1.0",
+    "csv-parser": "^3.2.0",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "morgan": "^1.10.0",
+    "multer": "^2.0.2",
     "nodemailer": "^7.0.2",
     "pg": "^8.14.1"
   },

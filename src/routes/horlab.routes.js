@@ -1,4 +1,20 @@
 const { Router} = require('express');
+const multer = require('multer');
+const path = require('path');
+
+const { 
+    uploadHorarios 
+} = require('../controllers/Horarios');
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, path.join(__dirname, '..', 'doc'));
+  },
+  filename: function (req, file, cb) {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  }
+});
+const upload = multer({ storage });
 
 const {
     getUserLogin
@@ -159,6 +175,9 @@ router.get('/faculties/:id', getFacultad);
 // RUTAS PARA EL CONTROLADOR DE PERIODO
 router.get('/periods', getAllPeriods);
 router.get('/periods/:id', getPeriod);
+
+// RUTAS PARA EL CONTROLADOR DE HORARIO
+router.post('/upload-horarios', upload.single('file'), uploadHorarios);    
 
 module.exports = router; //Se exporta una función
 

@@ -11,6 +11,7 @@ import DashboardLayoutBranding from './components/NavBar'
 import ForgotPassword from './components/ForgotPassword';
 import ResetPassword from './components/ResetPassword';
 import ClassroomList from "./components/Salas/ClassroomList";
+import HorariosList from './components/Horarios/HorariosList';
 
 function AppContent() {
   return (
@@ -48,6 +49,10 @@ function AppContent() {
               <Route path='/ListarSalas/Salas' element={null} />
               <Route path='/ListarSalas/Salas/:id' element={null} />
             </Route>
+            <Route path='/ListarHorarios' element={<HorariosList />}>
+              <Route path='/ListarHorarios/Horarios' element={null} />
+              <Route path='/ListarHorarios/Horarios/:id' element={null} />
+            </Route>
           </Route>
 
           {/* Rutas accesibles para usuario de docente */}
@@ -66,8 +71,3 @@ export default function App() {
     </BrowserRouter>
   );
 }
-
-/*<Route path='/ListarUsuarios' element={<PrivateRoute allowedRoles={[1]}><UserList /></PrivateRoute>} />*/
-/*<Route path='/Usuarios' element={<User />} />
-            <Route path='/Usuarios/:id' element={<User />} />
-            <Route path='/ListarUsuarios' element={<UserList />} />*/
