@@ -14,9 +14,6 @@ const CsvUploader = () => {
     useEffect(() => {
         if (alertaEstado) {
             alertaSuccessorError(alertaEstado);
-            // Limpia el estado después de mostrar la alerta
-            //const timer = setTimeout(() => setAlertaEstado(null), 3000);
-            //return () => clearTimeout(timer);
             setSnackbarOpen(true);
         }
     }, [alertaEstado]);
@@ -37,7 +34,7 @@ const CsvUploader = () => {
 
         try {
             const formData = new FormData();
-            formData.append('file', selectedFile);
+            formData.append('csv', selectedFile);
 
             const res = await fetch('http://localhost:5000/upload-horarios', {
                 method: 'POST',
