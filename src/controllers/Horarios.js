@@ -28,7 +28,6 @@ const uploadHorarios = async (req, res) => {
     if (!req.file) return res.status(400).json({ error: 'No se envió ningún archivo' });
 
     const filePath = req.file.path;
-
     const registros = [];
 
     fs.createReadStream(filePath)
