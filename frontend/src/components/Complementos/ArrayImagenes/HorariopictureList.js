@@ -1,31 +1,31 @@
 export const images = [
   {
-    url: '/static/images/buttons/breakfast.jpg',
+    url: '/Bloques/1-2-3-4.jpg',
     title: 'BLOQUE 1, 2, 3 y 4',
     width: '30%',
   },
   {
-    url: '/static/images/buttons/burgers.jpg',
+    url: '/Bloque 5.jpg',
     title: 'BLOQUE 5',
     width: '30%',
   },
   {
-    url: '/static/images/buttons/camera.jpg',
+    url: '/Bloque 9.jpg',
     title: 'BLOQUE 9',
     width: '30%',
   },
   {
-    url: '/static/images/buttons/breakfast.jpg',
+    url: '/Bloque 11-12.jpg',
     title: 'BLOQUE 11 - 12',
     width: '30%',
   },
   {
-    url: '/static/images/buttons/burgers.jpg',
+    url: '/Bloque 13.jpg',
     title: 'BLOQUE 13 - CAFETERIA',
     width: '30%',
   },
   {
-    url: '/static/images/buttons/camera.jpg',
+    url: '/Techne.jpg',
     title: 'TECHNE',
     width: '30%',
   },
