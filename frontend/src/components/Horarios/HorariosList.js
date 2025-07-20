@@ -3,9 +3,9 @@ import { Box, Button, ButtonBase, Typography, Modal, } from '@mui/material';
 import CsvUploader from './CsvUploader';
 import { styled } from '@mui/material/styles';
 import { images } from '../Complementos/ArrayImagenes/HorariopictureList';
-import axios from 'axios';
-
-
+import {style} from '../Complementos/stylesFiles';
+import { mostrarAlertaConfirmacion } from '../Alertas/Alert_Delete';
+import { alertaSuccessorError } from '../Alertas/Alert_Success';
 
 // Estilos para los botones con imagen
 const ImageButton = styled(ButtonBase)(({ theme, disabled }) => ({
@@ -76,54 +76,65 @@ const ImageMarked = styled('span')(({ theme }) => ({
   transition: theme.transitions.create('opacity'),
 }));
 
-// Modal Style
-const modalStyle = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: 500,
-  bgcolor: 'background.paper',
-  border: '2px solid #1976d2',
-  boxShadow: 24,
-  borderRadius: 2,
-  p: 4,
-};
-
 export default function HorariosList() {
   const [hasData, setHasData] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
 
   // Cargar si hay datos en matrizgeneral
   useEffect(() => {
-    axios
-      .get('http://localhost:5000/matrizgeneral/exists')
-      .then((res) => setHasData(res.data.exists))
-      .catch((err) => {
-        console.error('Error al verificar datos:', err);
+    const checkData = async () => {
+      try {
+        const res = await fetch('http://localhost:5000/matrizgeneral/exists');
+        const data = await res.json();
+        setHasData(data.exists);
+      } catch (error) {
+        console.error('Error al verificar datos:', error);
         setHasData(false);
-      });
+      }
+    };
+    checkData();
   }, []);
 
   const handleOpenModal = () => setModalOpen(true);
   const handleCloseModal = () => setModalOpen(false);
 
-  const handleDeleteData = () => {
-    if (confirm('¿Estás seguro de que deseas eliminar todos los datos?')) {
-      axios.delete('http://localhost:5000/matrizgeneral')
-        .then(() => {
-          alert('Datos eliminados correctamente');
+  const handleDeleteData = async () => {
+    mostrarAlertaConfirmacion({
+      titulo: "¿Eliminar todos los datos?",
+      texto: "Esta acción eliminará todos los datos de horarios y no se podrá deshacer.",
+      textoExito: "Todos los datos han sido eliminados correctamente.",
+      callbackConfirmacion: async () => {
+        try {
+          const res = await fetch('http://localhost:5000/matrizgeneral', {
+            method: 'DELETE',
+          });
+
+          if (!res.ok) throw new Error('Error al eliminar los datos');
+
+          alertaSuccessorError({
+            titulo: 'Horarios eliminados correctamente',
+            icono: 'success',
+          });
           setHasData(false);
-        })
-        .catch(() => alert('Error al eliminar los datos'));
-    }
+        } catch (err) {
+          alertaSuccessorError({
+            titulo: 'Error al eliminar los horarios',
+            icono: 'error',
+          });
+          console.error(err);
+        }
+      },
+      callbackCancelacion: () => {
+        console.log("Operación cancelada");
+      }
+    });
   };
 
   return (
     <>
       {/* CABECERA */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, px: 5 }}>
-        <Typography variant="h4">GESTIÓN DE HORARIOS</Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, ml: 5, mr: 5 }}>
+        <h1>GESTIÓN DE HORARIOS</h1>
         <Box>
           <Button variant="outlined" color="error" onClick={handleDeleteData} sx={{ mr: 1 }}>
             ELIMINAR DATOS
@@ -171,7 +182,7 @@ export default function HorariosList() {
         onClose={handleCloseModal}
         aria-labelledby="modal-title"
       >
-        <Box sx={modalStyle}>
+        <Box sx={style}>
           <Typography id="modal-title" variant="h6" mb={2}>
             SUBIR ARCHIVO DE HORARIOS (CSV)
           </Typography>
