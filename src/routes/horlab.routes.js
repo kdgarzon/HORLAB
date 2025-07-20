@@ -1,7 +1,10 @@
 const { Router} = require('express');
 
 const { 
-    uploadHorarios, upload 
+    uploadHorarios, 
+    upload,
+    getExistsMatrizGeneral,
+    deleteMatrizGeneral
 } = require('../controllers/Horarios');
 
 const {
@@ -166,6 +169,8 @@ router.get('/periods/:id', getPeriod);
 
 // RUTAS PARA EL CONTROLADOR DE HORARIO
 router.post('/upload-horarios', upload.single('csv'), uploadHorarios);    
+router.get('/matrizgeneral/exists', getExistsMatrizGeneral); 
+router.delete('/matrizgeneral', deleteMatrizGeneral);
 
 module.exports = router; //Se exporta una función
 

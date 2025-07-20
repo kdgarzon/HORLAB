@@ -75,7 +75,30 @@ const uploadHorarios = async (req, res) => {
   }
 };
 
+const getExistsMatrizGeneral = async (req, res) => {
+  try {
+    const result = await pool.query('SELECT COUNT(*) FROM matrizgeneral');
+     const count = parseInt(result.rows[0].count, 10);
+    res.json({ exists: count > 0 });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al verificar existencia de datos' });
+  }
+}
+
+const deleteMatrizGeneral = async (req, res) => {
+  try {
+    await pool.query('DELETE FROM matrizgeneral');
+    res.status(200).json({ message: 'Todos los datos de horarios han sido eliminados correctamente' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al eliminar los datos de horarios' });
+  }
+};
+
 module.exports = {
   uploadHorarios,
-  upload
+  upload,
+  getExistsMatrizGeneral,
+  deleteMatrizGeneral
 };
