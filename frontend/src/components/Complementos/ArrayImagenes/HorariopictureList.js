@@ -1,26 +1,26 @@
 export const images = [
   {
-    url: '/Bloques/1-2-3-4.jpg',
+    url: '/Bloque1-2-3-4.jpg',
     title: 'BLOQUE 1, 2, 3 y 4',
     width: '30%',
   },
   {
-    url: '/Bloque 5.jpg',
+    url: '/Bloque5.jpg',
     title: 'BLOQUE 5',
     width: '30%',
   },
   {
-    url: '/Bloque 9.jpg',
+    url: '/Bloque9.jpg',
     title: 'BLOQUE 9',
     width: '30%',
   },
   {
-    url: '/Bloque 11-12.jpg',
+    url: '/Bloque11-12.jpg',
     title: 'BLOQUE 11 - 12',
     width: '30%',
   },
   {
-    url: '/Bloque 13.jpg',
+    url: '/Bloque13.jpg',
     title: 'BLOQUE 13 - CAFETERIA',
     width: '30%',
   },
