@@ -23,6 +23,20 @@ const fileFilter = (req, file, cb) => {
 
 const upload = multer({ storage, fileFilter });
 
+async function insertarDatosUnicos(tabla, columna) {
+  try {
+    await pool.query(`
+      INSERT INTO ${tabla} (${columna})
+      SELECT DISTINCT ${columna} FROM matrizgeneral
+      WHERE ${columna} IS NOT NULL
+      ON CONFLICT (${columna}) DO NOTHING
+    `);
+  } catch (error) {
+    console.error(`Error insertando en tabla ${tabla}:`, error.message);
+  }
+}
+
+
 const uploadHorarios = async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'No se envió ningún archivo' });
@@ -64,6 +78,19 @@ const uploadHorarios = async (req, res) => {
           } catch (error) {
             console.error('Error insertando registro:', registro, '\n', error.message);
           }
+        }
+
+        const tablasYColumnas = [
+          { tabla: 'Periodo', columna: 'periodo' },
+          { tabla: 'Facultad', columna: 'facultad' },
+          { tabla: 'Edificio', columna: 'edificio' },
+          { tabla: 'Docentes', columna: 'nombre' }
+          { tabla: 'Dia', columna: 'dia' },
+          { tabla: 'Hora', columna: 'hora' },
+        ];
+
+        for (const { tabla, columna } of tablasYColumnas) {
+          await insertarDatosUnicos(tabla, columna);
         }
 
         res.status(200).json({ message: 'Archivo procesado correctamente' });

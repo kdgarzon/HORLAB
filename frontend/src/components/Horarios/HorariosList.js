@@ -6,6 +6,7 @@ import { images } from '../Complementos/ArrayImagenes/HorariopictureList';
 import {style} from '../Complementos/stylesFiles';
 import { mostrarAlertaConfirmacion } from '../Alertas/Alert_Delete';
 import { alertaSuccessorError } from '../Alertas/Alert_Success';
+import { WithOptionalTooltip } from './DeshabilitarHorario';
 
 // Estilos para los botones con imagen
 const ImageButton = styled(ButtonBase)(({ theme, disabled }) => ({
@@ -148,31 +149,37 @@ export default function HorariosList() {
       {/* BOTONES DE BLOQUES */}
       <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', px: 5 }}>
         {images.map((image) => (
-          <ImageButton
+          <WithOptionalTooltip
             key={image.title}
-            focusRipple
             disabled={!hasData}
-            style={{ width: image.width }}
+            title="Debe subir un archivo CSV primero"
           >
-            <ImageSrc style={{ backgroundImage: `url(${image.url})` }} />
-            <ImageBackdrop className="MuiImageBackdrop-root" />
-            <Image>
-              <Typography
-                component="span"
-                variant="subtitle1"
-                color="inherit"
-                sx={(theme) => ({
-                  position: 'relative',
-                  p: 4,
-                  pt: 2,
-                  pb: `calc(${theme.spacing(1)} + 6px)`,
-                })}
-              >
-                {image.title}
-                <ImageMarked className="MuiImageMarked-root" />
-              </Typography>
-            </Image>
-          </ImageButton>
+            <ImageButton
+              key={image.title}
+              focusRipple
+              disabled={!hasData}
+              style={{ width: image.width }}
+            >
+              <ImageSrc style={{ backgroundImage: `url(${image.url})` }} />
+              <ImageBackdrop className="MuiImageBackdrop-root" />
+              <Image>
+                <Typography
+                  component="span"
+                  variant="subtitle1"
+                  color="inherit"
+                  sx={(theme) => ({
+                    position: 'relative',
+                    p: 4,
+                    pt: 2,
+                    pb: `calc(${theme.spacing(1)} + 6px)`,
+                  })}
+                >
+                  {image.title}
+                  <ImageMarked className="MuiImageMarked-root" />
+                </Typography>
+              </Image>
+            </ImageButton>
+          </WithOptionalTooltip>
         ))}
       </Box>
 
