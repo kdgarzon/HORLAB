@@ -5,7 +5,7 @@ async function eliminarTablas() {
         `DELETE FROM Recuperar_pass;`,
         `DELETE FROM Usuarios 
          WHERE id_rol IS DISTINCT FROM (
-           SELECT id_rol FROM Rol WHERE nombre ILIKE 'Administrador'
+           SELECT id_rol FROM Rol WHERE rol ILIKE 'Administrador'
          );`,
         `DROP TABLE matrizgeneral;`,
         `DROP TABLE docentegrupo;`,

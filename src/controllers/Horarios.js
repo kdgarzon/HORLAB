@@ -39,7 +39,6 @@ const uploadHorarios = async (req, res) => {
         mapHeaders: ({ header }) => header?.trim()
       }))
       .on('data', (data) => {
-        //console.log('Registro leído:', data); 
         registros.push(data);
       })
       .on('end', async () => {

@@ -66,20 +66,16 @@ async function insertarDatosRelacionados() {
             ON TRIM(SPLIT_PART(m.asignatura, '-', 1)) = TRIM(a.codigo_asig::TEXT)
             AND TRIM(SPLIT_PART(m.asignatura, '-', 2)) = TRIM(a.nombre)
             JOIN Proyecto proj ON m.proyecto = proj.proyecto
-            WHERE m.grupo IS NOT NULL;`
+            WHERE m.grupo IS NOT NULL;`,
         `INSERT INTO Salones(nombre, id_edificio, capacidad, area)
             SELECT DISTINCT
-                -- Quitar todo lo que sea ' CAP(n)', incluyendo espacios antes
-                TRIM(REGEXP_REPLACE(m.salon, '\s*CAP\(\d+\)', '', 'g')) AS nombre,
-
-                -- Obtener el número dentro de CAP(...)
+                TRIM(REGEXP_REPLACE(m.salon, '\\s*CAP\\(\\d+\\)', '', 'g')) AS nombre,
                 e.id_edificio,
-                CAST(SUBSTRING(m.salon FROM 'CAP\((\d+)\)') AS INTEGER) AS capacidad,
-                
+                CAST(SUBSTRING(m.salon FROM 'CAP\\((\\d+)\\)') AS INTEGER) AS capacidad,
                 m.area
             FROM matrizgeneral m
             JOIN Edificio e ON m.edificio = e.edificio
-            WHERE m.salon IS NOT NULL AND m.salon ~ 'CAP\(\d+\)';`,
+            WHERE m.salon IS NOT NULL AND m.salon ~ 'CAP\\(\\d+\\)';`,
         `INSERT INTO Usuarios (nombreUser, apellidoUser, correo, usuario, pass, id_rol)
             SELECT 
             INITCAP(SPLIT_PART(d.nombre, ' ', 1)) AS nombreUser,
