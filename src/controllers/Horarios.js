@@ -1,8 +1,11 @@
+const { crearTablas } = require('./Database/CrearTablas');
+const { insertarRegistro, insertarDatosRelacionados } = require('./Database/InsertarDatos');
+const { eliminarTablas } = require('./Database/BorrarTablas');
 const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
 const csv = require('csv-parser');
-const pool = require('../dbconexion')
+const pool = require('../dbconexion');
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -23,20 +26,6 @@ const fileFilter = (req, file, cb) => {
 
 const upload = multer({ storage, fileFilter });
 
-async function insertarDatosUnicos(tabla, columna) {
-  try {
-    await pool.query(`
-      INSERT INTO ${tabla} (${columna})
-      SELECT DISTINCT ${columna} FROM matrizgeneral
-      WHERE ${columna} IS NOT NULL
-      ON CONFLICT (${columna}) DO NOTHING
-    `);
-  } catch (error) {
-    console.error(`Error insertando en tabla ${tabla}:`, error.message);
-  }
-}
-
-
 const uploadHorarios = async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'No se envió ningún archivo' });
@@ -50,49 +39,20 @@ const uploadHorarios = async (req, res) => {
         mapHeaders: ({ header }) => header?.trim()
       }))
       .on('data', (data) => {
-        console.log('Registro leído:', data); 
+        //console.log('Registro leído:', data); 
         registros.push(data);
       })
       .on('end', async () => {
+        await crearTablas();
         for (const registro of registros) {
           try {
-            const values = [
-              registro['Periodo']?.trim(),
-              registro['Dia']?.trim(),
-              registro['Hora']?.trim(),
-              registro['Asignatura']?.trim(),
-              registro['Grupo']?.trim(),
-              registro['Proyecto']?.trim(),
-              registro['Salon']?.trim(),
-              registro['Area']?.trim(),
-              registro['Edificio']?.trim(),
-              registro['Sede']?.trim(),
-              registro['Inscritos']?.trim(),
-              registro['Docente']?.trim()
-            ];
-
-            await pool.query(
-              'INSERT INTO matrizgeneral (periodo, dia, hora, asignatura, grupo, proyecto, salon, area, edificio, sede, inscritos, docente) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)',
-              values
-            ); 
+            await insertarRegistro(registro);
           } catch (error) {
             console.error('Error insertando registro:', registro, '\n', error.message);
           }
         }
-
-        const tablasYColumnas = [
-          { tabla: 'Periodo', columna: 'periodo' },
-          { tabla: 'Facultad', columna: 'facultad' },
-          { tabla: 'Edificio', columna: 'edificio' },
-          { tabla: 'Docentes', columna: 'nombre' }
-          { tabla: 'Dia', columna: 'dia' },
-          { tabla: 'Hora', columna: 'hora' },
-        ];
-
-        for (const { tabla, columna } of tablasYColumnas) {
-          await insertarDatosUnicos(tabla, columna);
-        }
-
+        await insertarDatosRelacionados();
+        fs.unlinkSync(filePath); // Eliminar el archivo después de procesarlo
         res.status(200).json({ message: 'Archivo procesado correctamente' });
       });
 
@@ -115,7 +75,7 @@ const getExistsMatrizGeneral = async (req, res) => {
 
 const deleteMatrizGeneral = async (req, res) => {
   try {
-    await pool.query('DELETE FROM matrizgeneral');
+    await eliminarTablas();
     res.status(200).json({ message: 'Todos los datos de horarios han sido eliminados correctamente' });
   } catch (error) {
     console.error(error);
