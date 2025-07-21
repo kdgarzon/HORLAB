@@ -80,18 +80,90 @@ async function insertarDatosRelacionados() {
             FROM matrizgeneral m
             JOIN Edificio e ON m.edificio = e.edificio
             WHERE m.salon IS NOT NULL AND m.salon ~ 'CAP\(\d+\)';`,
-        `INSERT INTO Edificio(nombre, sede)
-            SELECT DISTINCT
-                TRIM(SPLIT_PART(m.salon, ' ', 1)) AS nombre,
-                m.sede
-            FROM matrizgeneral m
-            WHERE m.salon IS NOT NULL
-            AND m.salon LIKE '% %'
-            AND NOT EXISTS (
-                SELECT 1 FROM Edificio e
-                WHERE e.nombre = TRIM(SPLIT_PART(m.salon, ' ', 1))
-                AND e.sede = m.sede
-            );`,
+        `INSERT INTO Usuarios (nombreUser, apellidoUser, correo, usuario, pass, id_rol)
+            SELECT 
+            INITCAP(SPLIT_PART(d.nombre, ' ', 1)) AS nombreUser,
+            INITCAP(
+                CASE 
+                WHEN array_length(string_to_array(d.nombre, ' '), 1) = 5 THEN
+                    CONCAT_WS(' ', SPLIT_PART(d.nombre, ' ', 2), SPLIT_PART(d.nombre, ' ', 3))
+                WHEN array_length(string_to_array(d.nombre, ' '), 1) = 4 THEN
+                    SPLIT_PART(d.nombre, ' ', 3)
+                ELSE
+                    SPLIT_PART(d.nombre, ' ', 2)
+                END
+            ) AS apellidoUser,
+            LOWER(
+                CASE 
+                WHEN array_length(string_to_array(d.nombre, ' '), 1) = 5 THEN
+                    CONCAT(
+                    LEFT(SPLIT_PART(d.nombre, ' ', 1), 1),
+                    LEFT(SPLIT_PART(d.nombre, ' ', 2), 1),
+                    LEFT(SPLIT_PART(d.nombre, ' ', 3), 1),
+                    SPLIT_PART(d.nombre, ' ', 4),
+                    LEFT(SPLIT_PART(d.nombre, ' ', 5), 1)
+                    )
+                WHEN array_length(string_to_array(d.nombre, ' '), 1) = 4 THEN
+                    CONCAT(
+                    LEFT(SPLIT_PART(d.nombre, ' ', 1), 1),
+                    LEFT(SPLIT_PART(d.nombre, ' ', 2), 1),
+                    SPLIT_PART(d.nombre, ' ', 3),
+                    LEFT(SPLIT_PART(d.nombre, ' ', 4), 1)
+                    )
+                ELSE
+                    CONCAT(
+                    LEFT(SPLIT_PART(d.nombre, ' ', 1), 1),
+                    SPLIT_PART(d.nombre, ' ', 2),
+                    LEFT(SPLIT_PART(d.nombre, ' ', 3), 1)
+                    )
+                END
+            ) || '@udistrital.edu.co' AS correo,
+            LOWER(
+                CASE 
+                WHEN array_length(string_to_array(d.nombre, ' '), 1) = 5 THEN
+                    CONCAT(
+                    LEFT(SPLIT_PART(d.nombre, ' ', 1), 1),
+                    LEFT(SPLIT_PART(d.nombre, ' ', 2), 1),
+                    LEFT(SPLIT_PART(d.nombre, ' ', 3), 1),
+                    SPLIT_PART(d.nombre, ' ', 4),
+                    LEFT(SPLIT_PART(d.nombre, ' ', 5), 1)
+                    )
+                WHEN array_length(string_to_array(d.nombre, ' '), 1) = 4 THEN
+                    CONCAT(
+                    LEFT(SPLIT_PART(d.nombre, ' ', 1), 1),
+                    LEFT(SPLIT_PART(d.nombre, ' ', 2), 1),
+                    SPLIT_PART(d.nombre, ' ', 3),
+                    LEFT(SPLIT_PART(d.nombre, ' ', 4), 1)
+                    )
+                ELSE
+                    CONCAT(
+                    LEFT(SPLIT_PART(d.nombre, ' ', 1), 1),
+                    SPLIT_PART(d.nombre, ' ', 2),
+                    LEFT(SPLIT_PART(d.nombre, ' ', 3), 1)
+                    )
+                END	
+            ) AS usuario,
+            CONCAT(
+                LEFT(
+                LOWER(
+                    CASE 
+                    WHEN array_length(string_to_array(d.nombre, ' '), 1) >= 4 THEN
+                        CONCAT(
+                        LEFT(SPLIT_PART(d.nombre, ' ', 1), 1),
+                        LEFT(SPLIT_PART(d.nombre, ' ', 2), 1)
+                        )
+                    ELSE
+                        CONCAT(
+                        LEFT(SPLIT_PART(d.nombre, ' ', 1), 1),
+                        LEFT(SPLIT_PART(d.nombre, ' ', 2), 1)
+                        )
+                    END
+                ), 2
+                ), 
+                '123'
+            ) AS pass,
+            2 AS id_rol
+            FROM Docentes d;`,
         `INSERT INTO DocenteGrupo (id_docente, id_grupo)
             SELECT DISTINCT 
                 d.id_docente,
@@ -117,7 +189,6 @@ async function insertarDatosRelacionados() {
         `UPDATE dia SET orden = 4 WHERE dia = 'JUEVES';`,
         `UPDATE dia SET orden = 5 WHERE dia = 'VIERNES';`,
         `UPDATE dia SET orden = 6 WHERE dia = 'SABADO';`,
-            
     ];
     for (const query of queries) {
         try {

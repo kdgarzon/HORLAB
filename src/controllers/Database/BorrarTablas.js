@@ -2,6 +2,11 @@ const pool = require('../../dbconexion');
 
 async function eliminarTablas() {
     const queries = [
+        `DELETE FROM Recuperar_pass;`,
+        `DELETE FROM Usuarios 
+         WHERE id_rol IS DISTINCT FROM (
+           SELECT id_rol FROM Rol WHERE nombre ILIKE 'Administrador'
+         );`,
         `DROP TABLE matrizgeneral;`,
         `DROP TABLE docentegrupo;`,
         `DROP TABLE salones;`,
@@ -12,7 +17,7 @@ async function eliminarTablas() {
         `DROP TABLE proyecto;`,
         `DROP TABLE facultad;`,
         `DROP TABLE periodo;`,
-        `DROP TABLE docentes CASCADE;`
+        `DROP TABLE docentes;`
     ];
 
     for (const query of queries) {
