@@ -440,6 +440,8 @@ INSERT INTO AulasPisos (nombre_aula, id_piso, id_edificio) VALUES ('SALA DE AUDI
 --PISO 9 EDIFICIO TECHNE (1)
 INSERT INTO AulasPisos (nombre_aula, id_piso, id_edificio) VALUES ('CANCHA FUTBOL 5', 9, 1);
 
+UPDATE aulaspisos SET id_edificio = 6;
+
 
 
 
