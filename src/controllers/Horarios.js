@@ -82,9 +82,70 @@ const deleteMatrizGeneral = async (req, res) => {
   }
 };
 
+const filtrarHorarios = async (req, res) => {
+  try {
+    const {dia, hora } = req.query;
+    const query = `
+      SELECT 
+        d.dia,
+        h.hora,
+        a.nombre AS asignatura,
+        g.grupo,
+        doc.nombre AS docente,
+        s.nombre AS salon
+      FROM grupos g
+      JOIN periodo p ON g.id_periodo = p.id_periodo
+      JOIN dia d ON g.id_dia = d.id_dia
+      JOIN hora h ON g.id_hora = h.id_hora
+      JOIN asignaturas a ON g.id_asignatura = a.id_asignatura
+      JOIN proyecto pr ON g.id_proyecto = pr.id_proyecto
+      LEFT JOIN DocenteGrupo dg ON g.id_grupo = dg.id_grupo
+      LEFT JOIN docentes doc ON dg.id_docente = doc.id_docente
+      LEFT JOIN matrizgeneral mg ON mg.grupo = g.grupo 
+          AND mg.periodo = p.periodo 
+          AND mg.dia = d.dia 
+          AND mg.hora = h.hora
+      LEFT JOIN salones s ON mg.salon = s.nombre
+      WHERE ($1::VARCHAR IS NULL OR d.dia = $1)
+        AND ($2::VARCHAR IS NULL OR h.hora = $2)
+      ORDER BY d.dia, h.hora;
+    `;
+    const result = await pool.query( query, [dia || null, hora || null]); 
+    res.json(result.rows);
+    //console.log(result.rows);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al obtener datos de grupos para este edificio:' });
+  }
+};
+
+const consultarPisosEdificio = async (req, res) => {
+  const { edificio } = req.params;
+  try {
+    const query = `
+      SELECT p.nombre AS piso
+      FROM aulaspisos ap
+      JOIN pisos p ON ap.id_piso = p.id_piso
+      JOIN edificio e ON ap.id_edificio = e.id_edificio
+      WHERE e.edificio = $1
+      ORDER BY p.nombre ASC;
+    `;
+    const result = await pool.query(query, [edificio]);
+    if (result.rows.length === 0) {
+      return res.status(200).json({ message: 'No hay pisos asociados', pisos: [] });
+    }
+    res.json({ pisos: result.rows.map(row => row.piso) });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al obtener datos de pisos para este edificio:' });
+  }
+}
+
 module.exports = {
   uploadHorarios,
   upload,
   getExistsMatrizGeneral,
-  deleteMatrizGeneral
+  deleteMatrizGeneral,
+  filtrarHorarios,
+  consultarPisosEdificio
 };

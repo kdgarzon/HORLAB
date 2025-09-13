@@ -90,6 +90,7 @@ export default function HorariosList() {
               focusRipple
               disabled={!hasData}
               style={{ width: image.width }}
+              onClick={() => { window.location.href = "/consultar-pisos"; }}
             >
               <ImageSrc style={{ backgroundImage: `url(${image.url})` }} />
               <ImageBackdrop className="MuiImageBackdrop-root" />
