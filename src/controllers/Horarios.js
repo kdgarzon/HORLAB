@@ -6,6 +6,7 @@ const path = require('path');
 const multer = require('multer');
 const csv = require('csv-parser');
 const pool = require('../dbconexion');
+const { Console } = require('console');
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -120,21 +121,26 @@ const filtrarHorarios = async (req, res) => {
 };
 
 const consultarPisosEdificio = async (req, res) => {
-  const { edificio } = req.params;
+  const idEdificio = parseInt(req.params.idBuilding, 10);
+  if (isNaN(idEdificio)) {
+    return res.status(400).json({ error: 'ID de edificio inválido' });
+  }
+
   try {
-    const query = `
-      SELECT p.nombre AS piso
+    const result = await pool.query(`
+      SELECT DISTINCT p.id_piso, p.nombre
       FROM aulaspisos ap
       JOIN pisos p ON ap.id_piso = p.id_piso
-      JOIN edificio e ON ap.id_edificio = e.id_edificio
-      WHERE e.edificio = $1
-      ORDER BY p.nombre ASC;
-    `;
-    const result = await pool.query(query, [edificio]);
+      WHERE ap.id_edificio = $1
+      ORDER BY p.id_piso;
+    `, [idEdificio]);
+    
     if (result.rows.length === 0) {
-      return res.status(200).json({ message: 'No hay pisos asociados', pisos: [] });
+      return res.status(200).json({ pisos: [], message: 'No hay pisos asociados' });
     }
-    res.json({ pisos: result.rows.map(row => row.piso) });
+
+    const pisos = result.rows.map(r => r.nombre);
+    res.json({ pisos });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error al obtener datos de pisos para este edificio:' });

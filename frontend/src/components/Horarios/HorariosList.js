@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Box, Button, Typography, Modal, } from '@mui/material';
+import { Box, Button, Typography, Modal, RadioGroup, FormControlLabel, Radio, } from '@mui/material';
 import CsvUploader from './CsvUploader';
 import {ImageButton, ImageSrc, ImageBackdrop, Image, ImageMarked,} from '../Complementos/styleImagesButton';
-import { images } from '../Complementos/ArrayImagenes/HorariopictureList';
 import {style} from '../Complementos/stylesFiles';
 import { mostrarAlertaConfirmacion } from '../Alertas/Alert_Delete';
 import { alertaSuccessorError } from '../Alertas/Alert_Success';
@@ -11,6 +10,11 @@ import { WithOptionalTooltip } from './DeshabilitarHorario';
 export default function HorariosList() {
   const [hasData, setHasData] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+  const [pisosModalOpen, setPisosModalOpen] = useState(false);
+  const [pisos, setPisos] = useState([]);
+  const [selectedPiso, setSelectedPiso] = useState(null);
+  const [selectedEdificio, setSelectedEdificio] = useState(null);
+  const [images, setImages] = useState([]); // ahora se carga desde BD
 
   // Cargar si hay datos en matrizgeneral
   useEffect(() => {
@@ -25,6 +29,28 @@ export default function HorariosList() {
       }
     };
     checkData();
+  }, []);
+
+  useEffect(() => {
+    const fetchEdificios = async () => {
+      try {
+        const res = await fetch('http://localhost:5000/buildings');
+        const data = await res.json();
+
+        const mapped = data.map((ed) => ({
+          id: ed.id_edificio,
+          url: `/${ed.edificio.replace(/\s+/g, '').replace(/,/g, '').replace(/-/g, '')}.jpg`,
+          title: ed.edificio,
+          width: '30%',
+        }));
+
+        setImages(mapped);
+      } catch (error) {
+        console.error('Error al cargar edificios:', error);
+      }
+    };
+
+    fetchEdificios();
   }, []);
 
   const handleOpenModal = () => setModalOpen(true);
@@ -62,6 +88,38 @@ export default function HorariosList() {
     });
   };
 
+  const handleConsultarPisos = async (edificioId, edificioTitle) => {
+    setSelectedEdificio({ id: edificioId, title: edificioTitle });
+    try {
+      const res = await fetch(`http://localhost:5000/buildings/${edificioId}/floors`);
+      const data = await res.json();
+      console.log(data);
+
+      if (data.pisos?.length > 0) {
+        setPisos(data.pisos);
+      } else {
+        setPisos([]);
+        alertaSuccessorError({
+          titulo: 'No hay pisos asociados',
+          icono: 'warning',
+        });
+      }
+      setPisosModalOpen(true);
+    } catch (error) {
+      console.error(error);
+      alertaSuccessorError({
+        titulo: 'Error consultando pisos',
+        icono: 'error',
+      });
+    }
+  };
+
+  const handleConsultarHorario = () => {
+    if (selectedPiso && selectedEdificio) {
+      window.location.href = `/consultar-horario?edificioId=${selectedEdificio.id}&edificio=${encodeURIComponent(selectedEdificio.title)}&piso=${encodeURIComponent(selectedPiso)}`;
+    }
+  };
+
   return (
     <>
       {/* CABECERA */}
@@ -90,7 +148,7 @@ export default function HorariosList() {
               focusRipple
               disabled={!hasData}
               style={{ width: image.width }}
-              onClick={() => { window.location.href = "/consultar-pisos"; }}
+              onClick={() => handleConsultarPisos(image.id, image.title)} //PEDNIENTE DE REVISAR QUE LA IMAGEN TENGA EL NOMBRE DEL EDIFICIO
             >
               <ImageSrc style={{ backgroundImage: `url(${image.url})` }} />
               <ImageBackdrop className="MuiImageBackdrop-root" />
@@ -129,6 +187,47 @@ export default function HorariosList() {
             setHasData(true);
             handleCloseModal();
           }} />
+        </Box>
+      </Modal>
+
+      {/* MODAL DE PISOS */}
+      <Modal
+        open={pisosModalOpen}
+        onClose={() => setPisosModalOpen(false)}
+        aria-labelledby="pisos-modal-title"
+      >
+        <Box sx={style}>
+          <Typography id="pisos-modal-title" variant="h6" mb={2}>
+            Pisos disponibles en {selectedEdificio?.title || ''}
+          </Typography>
+
+          {pisos.length > 0 ? (
+            <RadioGroup
+              value={selectedPiso || ''}
+              onChange={(e) => setSelectedPiso(e.target.value)}
+            >
+              {pisos.map((piso, idx) => (
+                <FormControlLabel
+                  key={idx}
+                  value={piso}
+                  control={<Radio />}
+                  label={piso}
+                />
+              ))}
+            </RadioGroup>
+          ) : (
+            <Typography>No hay pisos asociados</Typography>
+          )}
+
+          <Button
+            variant="contained"
+            color="secondary"
+            disabled={!selectedPiso}
+            onClick={handleConsultarHorario}
+            sx={{ mt: 2 }}
+          >
+            CONSULTAR HORARIO
+          </Button>
         </Box>
       </Modal>
     </>
