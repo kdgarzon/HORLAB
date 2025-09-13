@@ -4,7 +4,9 @@ const {
     uploadHorarios, 
     upload,
     getExistsMatrizGeneral,
-    deleteMatrizGeneral
+    deleteMatrizGeneral,
+    filtrarHorarios,
+    consultarPisosEdificio
 } = require('../controllers/Horarios');
 
 const {
@@ -171,6 +173,8 @@ router.get('/periods/:id', getPeriod);
 router.post('/upload-horarios', upload.single('csv'), uploadHorarios);    
 router.get('/matrizgeneral/exists', getExistsMatrizGeneral); 
 router.delete('/matrizgeneral', deleteMatrizGeneral);
+router.get('/schedule/filtrar', filtrarHorarios);
+router.get('/buildings/:idBuilding/floors', consultarPisosEdificio);
 
 module.exports = router; //Se exporta una función
 
