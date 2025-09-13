@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Box, Button, Typography, Modal, RadioGroup, FormControlLabel, Radio, } from '@mui/material';
+import { Box, Button, Typography, Modal, RadioGroup, FormControlLabel, Radio, Accordion, AccordionSummary, AccordionDetails, } from '@mui/material';
 import CsvUploader from './CsvUploader';
 import {ImageButton, ImageSrc, ImageBackdrop, Image, ImageMarked,} from '../Complementos/styleImagesButton';
 import {style} from '../Complementos/stylesFiles';
 import { mostrarAlertaConfirmacion } from '../Alertas/Alert_Delete';
 import { alertaSuccessorError } from '../Alertas/Alert_Success';
 import { WithOptionalTooltip } from './DeshabilitarHorario';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 export default function HorariosList() {
   const [hasData, setHasData] = useState(false);
@@ -15,6 +16,16 @@ export default function HorariosList() {
   const [selectedPiso, setSelectedPiso] = useState(null);
   const [selectedEdificio, setSelectedEdificio] = useState(null);
   const [images, setImages] = useState([]); // ahora se carga desde BD
+  const [selectedDia, setSelectedDia] = useState(null);
+  const [dias, setDias] = useState([]);
+  const [expanded, setExpanded] = useState(false); // controlar acordeones
+
+  const resetSelections = () => {
+    setSelectedPiso(null);
+    setSelectedDia(null);
+    setSelectedEdificio(null);
+    setPisos([]);
+  };
 
   // Cargar si hay datos en matrizgeneral
   useEffect(() => {
@@ -51,6 +62,20 @@ export default function HorariosList() {
     };
 
     fetchEdificios();
+  }, []);
+
+  useEffect(() => {
+    const fetchDias = async () => {
+      try {
+        const res = await fetch('http://localhost:5000/days');
+        const data = await res.json();
+        setDias(data);
+      } catch (error) {
+        console.error('Error al cargar días:', error);
+      }
+    };
+
+    fetchDias();
   }, []);
 
   const handleOpenModal = () => setModalOpen(true);
@@ -193,40 +218,105 @@ export default function HorariosList() {
       {/* MODAL DE PISOS */}
       <Modal
         open={pisosModalOpen}
-        onClose={() => setPisosModalOpen(false)}
+        onClose={() => {setPisosModalOpen(false); resetSelections(); setExpanded(false);}}
         aria-labelledby="pisos-modal-title"
       >
-        <Box sx={style}>
+        <Box sx={{...style, width: 700 }}>
           <Typography id="pisos-modal-title" variant="h6" mb={2}>
-            Pisos disponibles en {selectedEdificio?.title || ''}
+            Información disponible en {selectedEdificio?.title || ''}
           </Typography>
-
-          {pisos.length > 0 ? (
-            <RadioGroup
-              value={selectedPiso || ''}
-              onChange={(e) => setSelectedPiso(e.target.value)}
+  
+          <Accordion expanded={expanded === 'pisos'} onChange={() => setExpanded(expanded === 'pisos' ? false : 'pisos')}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="pisos-content"
+              id="pisos-header"
             >
-              {pisos.map((piso, idx) => (
-                <FormControlLabel
-                  key={idx}
-                  value={piso}
-                  control={<Radio />}
-                  label={piso}
-                />
-              ))}
-            </RadioGroup>
-          ) : (
-            <Typography>No hay pisos asociados</Typography>
+              <Typography component="span">Pisos disponibles</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              {pisos.length > 0 ? (
+                <RadioGroup
+                  value={selectedPiso || ''}
+                  onChange={(e) => {setSelectedPiso(e.target.value); setExpanded(false);}}
+                  sx={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr 1fr", // tres columnas
+                    gap: 1, // espacio entre columnas/filas
+                  }}
+                >
+                  {pisos.map((piso, idx) => (
+                    <FormControlLabel
+                      key={idx}
+                      value={piso}
+                      control={<Radio />}
+                      label={piso}
+                    />
+                  ))}
+                </RadioGroup>
+              ) : (
+                <Typography>No hay pisos asociados</Typography>
+              )}
+            </AccordionDetails>
+          </Accordion>
+
+          <Accordion expanded={expanded === 'dias'} onChange={() => setExpanded(expanded === 'dias' ? false : 'dias')}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="dias-content"
+              id="dias-header"
+            >
+              <Typography component="span">Días disponibles</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <RadioGroup
+                value={selectedDia || ''}
+                onChange={(e) => {setSelectedDia(e.target.value); setExpanded(false);}}
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr", // dos columnas
+                  gap: 1,
+                }}
+              >
+                {dias.map((dia) => (
+                    <FormControlLabel
+                      key={dia.id_dia}
+                      value={dia.dia}
+                      control={<Radio />}
+                      label={dia.dia}
+                    />
+                  )
+                )}
+              </RadioGroup>
+            </AccordionDetails>
+          </Accordion>
+
+          {/* Texto dinámico */}
+          {selectedEdificio && selectedPiso && selectedDia && (
+            <Typography mt={2}>
+              Se va a consultar el horario del edificio{" "}
+              <b>{selectedEdificio.title}</b>, {selectedPiso} del día{" "}
+              <b>{selectedDia}</b>.
+            </Typography>
           )}
 
           <Button
             variant="contained"
-            color="secondary"
-            disabled={!selectedPiso}
+            disabled={!selectedPiso || !selectedDia}
             onClick={handleConsultarHorario}
             sx={{ mt: 2 }}
           >
             CONSULTAR HORARIO
+          </Button>
+          <Button
+            variant="outlined"
+            color="error"
+            onClick={() => {
+              resetSelections();
+              setPisosModalOpen(false);
+            }}
+          >
+            CANCELAR
           </Button>
         </Box>
       </Modal>
