@@ -7,6 +7,7 @@ import { mostrarAlertaConfirmacion } from '../Alertas/Alert_Delete';
 import { alertaSuccessorError } from '../Alertas/Alert_Success';
 import { WithOptionalTooltip } from './DeshabilitarHorario';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { Outlet, useNavigate } from 'react-router-dom';
 
 export default function HorariosList() {
   const [hasData, setHasData] = useState(false);
@@ -19,6 +20,7 @@ export default function HorariosList() {
   const [selectedDia, setSelectedDia] = useState(null);
   const [dias, setDias] = useState([]);
   const [expanded, setExpanded] = useState(false); // controlar acordeones
+  const navigate = useNavigate();
 
   const resetSelections = () => {
     setSelectedPiso(null);
@@ -140,8 +142,19 @@ export default function HorariosList() {
   };
 
   const handleConsultarHorario = () => {
-    if (selectedPiso && selectedEdificio) {
-      window.location.href = `/consultar-horario?edificioId=${selectedEdificio.id}&edificio=${encodeURIComponent(selectedEdificio.title)}&piso=${encodeURIComponent(selectedPiso)}`;
+    console.log({ selectedPiso, selectedEdificio, selectedDia });
+    console.log("Navegando a PDFHorarios con estado...");
+    if (selectedPiso && selectedEdificio && selectedDia) {
+      const pisoObj = pisos.find(p => String(p.id_piso) === String(selectedPiso));
+      navigate("/Horarios", {
+        state: {
+          edificioId: selectedEdificio.id,
+          edificio: selectedEdificio.title,
+          pisoId: parseInt(selectedPiso, 10),
+          pisoNombre: pisoObj?.nombre,
+          diaId: parseInt(selectedDia, 10),
+        },
+      });
     }
   };
 
@@ -245,12 +258,12 @@ export default function HorariosList() {
                     gap: 1, // espacio entre columnas/filas
                   }}
                 >
-                  {pisos.map((piso, idx) => (
+                  {pisos.map((piso) => (
                     <FormControlLabel
-                      key={idx}
-                      value={piso}
+                      key={piso.id_piso}
+                      value={String(piso.id_piso)}
                       control={<Radio />}
-                      label={piso}
+                      label={piso.nombre}
                     />
                   ))}
                 </RadioGroup>
@@ -281,7 +294,7 @@ export default function HorariosList() {
                 {dias.map((dia) => (
                     <FormControlLabel
                       key={dia.id_dia}
-                      value={dia.dia}
+                      value={String(dia.id_dia)}
                       control={<Radio />}
                       label={dia.dia}
                     />
@@ -320,6 +333,7 @@ export default function HorariosList() {
           </Button>
         </Box>
       </Modal>
+      <Outlet />
     </>
   );
 }

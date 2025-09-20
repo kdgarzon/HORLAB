@@ -84,39 +84,53 @@ const deleteMatrizGeneral = async (req, res) => {
 };
 
 const filtrarHorarios = async (req, res) => {
+  const idEdificio = parseInt(req.params.idEdificio, 10);
+  const idPiso = parseInt(req.params.idpiso, 10);
+  const idDia = parseInt(req.params.idDia, 10);
+
+  if (isNaN(idEdificio) || isNaN(idPiso) || isNaN(idDia)) {
+    return res.status(400).json({ error: "Parámetros inválidos (idEdificio, idPiso, idDia son requeridos)." });
+  }
+
   try {
-    const {dia, hora } = req.query;
-    const query = `
+    const result = await pool.query(`
       SELECT 
-        d.dia,
-        h.hora,
-        a.nombre AS asignatura,
+        g.id_grupo,
         g.grupo,
-        doc.nombre AS docente,
-        s.nombre AS salon
-      FROM grupos g
-      JOIN periodo p ON g.id_periodo = p.id_periodo
-      JOIN dia d ON g.id_dia = d.id_dia
-      JOIN hora h ON g.id_hora = h.id_hora
-      JOIN asignaturas a ON g.id_asignatura = a.id_asignatura
-      JOIN proyecto pr ON g.id_proyecto = pr.id_proyecto
+        g.inscritos,
+        a.codigo_asig,
+        a.nombre AS asignatura,
+        d.nombre AS docente,
+        h.hora,
+        di.dia,
+        s.nombre AS salon,
+        p.nombre AS piso,
+        e.edificio,
+        pr.proyecto,
+        f.facultad
+      FROM Horarios ho
+      JOIN Grupos g ON ho.id_grupo = g.id_grupo
+      LEFT JOIN Asignaturas a ON g.id_asignatura = a.id_asignatura
       LEFT JOIN DocenteGrupo dg ON g.id_grupo = dg.id_grupo
-      LEFT JOIN docentes doc ON dg.id_docente = doc.id_docente
-      LEFT JOIN matrizgeneral mg ON mg.grupo = g.grupo 
-          AND mg.periodo = p.periodo 
-          AND mg.dia = d.dia 
-          AND mg.hora = h.hora
-      LEFT JOIN salones s ON mg.salon = s.nombre
-      WHERE ($1::VARCHAR IS NULL OR d.dia = $1)
-        AND ($2::VARCHAR IS NULL OR h.hora = $2)
-      ORDER BY d.dia, h.hora;
-    `;
-    const result = await pool.query( query, [dia || null, hora || null]); 
+      LEFT JOIN Docentes d ON dg.id_docente = d.id_docente
+      LEFT JOIN Hora h ON g.id_hora = h.id_hora
+      LEFT JOIN Dia di ON g.id_dia = di.id_dia
+      JOIN Salones s ON ho.id_salon = s.id_salon
+      JOIN AulasPisos ap ON s.nombre = ap.nombre_aula AND s.id_edificio = ap.id_edificio
+      JOIN Pisos p ON ap.id_piso = p.id_piso
+      JOIN Edificio e ON ap.id_edificio = e.id_edificio
+      LEFT JOIN Proyecto pr ON g.id_proyecto = pr.id_proyecto
+      LEFT JOIN Facultad f ON pr.id_facultad = f.id_facultad
+      WHERE e.id_edificio = $1
+        AND p.id_piso = $2
+        AND di.id_dia = $3
+      ORDER BY h.id_hora, g.grupo;
+    `, [idEdificio, idPiso, idDia ]);
+
     res.json(result.rows);
-    //console.log(result.rows);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al obtener datos de grupos para este edificio:' });
+    res.status(500).json({ error: "Error al filtrar horarios" });
   }
 };
 
@@ -139,8 +153,9 @@ const consultarPisosEdificio = async (req, res) => {
       return res.status(200).json({ pisos: [], message: 'No hay pisos asociados' });
     }
 
-    const pisos = result.rows.map(r => r.nombre);
-    res.json({ pisos });
+    /*const pisos = result.rows.map(r => r.nombre);
+    res.json({ pisos });*/
+    res.json({ pisos: result.rows });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error al obtener datos de pisos para este edificio:' });

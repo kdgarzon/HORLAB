@@ -12,6 +12,7 @@ import ForgotPassword from './components/ForgotPassword';
 import ResetPassword from './components/ResetPassword';
 import ClassroomList from "./components/Salas/ClassroomList";
 import HorariosList from './components/Horarios/HorariosList';
+import PDFHorarios from './components/Horarios/PDFHorarios';
 
 function AppContent() {
   return (
@@ -50,8 +51,11 @@ function AppContent() {
               <Route path='/ListarSalas/Salas/:id' element={null} />
             </Route>
             <Route path='/ListarHorarios' element={<HorariosList />}>
-              <Route path='/ListarHorarios/Horarios' element={null} />
+              <Route path='/ListarHorarios/Horarios' element={<null />} />
               <Route path='/ListarHorarios/Horarios/:id' element={null} />
+            </Route>
+            <Route path='/Horarios' element={<PDFHorarios />}>
+              <Route path='/Horarios/:id' element={<null />} />
             </Route>
           </Route>
 

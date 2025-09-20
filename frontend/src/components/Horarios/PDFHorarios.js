@@ -1,43 +1,30 @@
 import { useEffect, useState } from "react";
-import { Box, Table, TableHead, TableRow, TableCell, TableBody, Typography } from "@mui/material";
+import { useLocation } from "react-router-dom";
 
-export default function ConsultarHorario() {
-  const [horarios, setHorarios] = useState([]);
+export default function PDFHorarios() {
+
+  const location = useLocation();
+  const { edificioId, edificio, pisoId, pisoNombre, diaId } = location.state || {};
+  const [data, setData] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:5000/filtrarHorarios")
-      .then(res => res.json())
-      .then(data => setHorarios(data))
-      .catch(err => console.error(err));
-  }, []);
+    if (edificioId && pisoId && diaId) {
+      console.log("Consultando horarios con:", { edificioId, pisoId, diaId ,edificio, pisoNombre});
+      fetch(`http://localhost:5000/schedule/filtrar/${edificioId}/${pisoId}/${diaId}`)
+        .then((res) => res.json())
+        .then((result) => {
+          console.log('Horarios recibidos:', result);
+          setData(result); 
+        })
+        .catch((err) => console.error("Error consultando horarios:", err));
+    }
+  }, [edificioId, pisoId, diaId]);
 
   return (
-    <Box p={3}>
-      <Typography variant="h5" mb={2}>Horarios por Día</Typography>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>Día</TableCell>
-            <TableCell>Hora</TableCell>
-            <TableCell>Asignatura</TableCell>
-            <TableCell>Grupo</TableCell>
-            <TableCell>Docente</TableCell>
-            <TableCell>Salón</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {horarios.map((h, i) => (
-            <TableRow key={i}>
-              <TableCell>{h.dia}</TableCell>
-              <TableCell>{h.hora}</TableCell>
-              <TableCell>{h.asignatura}</TableCell>
-              <TableCell>{h.grupo}</TableCell>
-              <TableCell>{h.docente || "Sin asignar"}</TableCell>
-              <TableCell>{h.salon || "N/A"}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </Box>
+    <div>
+      <h2>Horario de {edificio} - Piso {pisoNombre || pisoId}</h2>
+      <pre>{JSON.stringify(data, null, 2)}</pre>
+    </div>
   );
+
 }
