@@ -286,6 +286,10 @@ INSERT INTO AulasPisos (nombre_aula, id_piso, id_edificio) VALUES ('SALA DE AUDI
 INSERT INTO AulasPisos (nombre_aula, id_piso, id_edificio) VALUES ('CANCHA FUTBOL 5', 9, 1);
 
 UPDATE aulaspisos SET id_edificio = 6;
+UPDATE aulaspisos SET nombre_aula = 'LABORATORIO DE SIMULACION Y REALIDAD VIRTUAL' WHERE id_aula_piso = 40;
+UPDATE aulaspisos SET nombre_aula = 'LABORATORIO DE INTELIGENCIA ARTIFICIAL' WHERE id_aula_piso = 41;
+UPDATE aulaspisos SET nombre_aula = 'LABORATORIO DE INGENIERIA DE SOFTWARE' WHERE id_aula_piso = 42;
+UPDATE aulaspisos SET nombre_aula = 'LABORATORIO REDES Y TELEMATICA' WHERE id_aula_piso = 37;
 
 INSERT INTO Horarios (id_grupo, id_salon)
 SELECT 
@@ -297,4 +301,6 @@ JOIN Salones s
   ON TRIM(REGEXP_REPLACE(m.salon, '\s*CAP\(\d+\)', '', 'g')) = s.nombre
  AND m.edificio = (SELECT e.edificio FROM Edificio e WHERE e.id_edificio = s.id_edificio)
 WHERE m.salon IS NOT NULL AND m.salon ~ 'CAP\(\d+\)';
+
+
 
