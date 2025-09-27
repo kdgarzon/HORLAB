@@ -1,1 +1,2 @@
 npm install jspdf
+npm install jspdf jspdf-autotable

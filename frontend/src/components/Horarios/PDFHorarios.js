@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { Button, Box, TableContainer, TableHead, TableRow, TableCell, Paper, TableBody, Table } from "@mui/material";
 import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 export default function PDFHorarios() {
 
@@ -37,13 +38,48 @@ export default function PDFHorarios() {
       format: "letter",
     });
 
-    doc.setFontSize(12);
+    doc.setFontSize(8);
     doc.text(`Horario de ${edificio} - Piso ${pisoNombre || pisoId}`, 10, 10);
 
-    // Por ahora solo mostramos los datos JSON como string
-    const jsonText = JSON.stringify(data, null, 2);
-    doc.setFontSize(8);
-    doc.text(jsonText, 10, 20);
+    const head = [["Franja horaria", ...salones]];
+
+    const body = franjas.map((franja) => {
+      const row = [franja];
+      salones.forEach((salon) => {
+        const horario = data.find(
+          (h) => h.salon === salon && h.hora === franja
+        );
+        row.push(horario ? `${horario.grupo} ${horario.asignatura} ${horario.docente}` : "");
+      });
+      return row;
+    });
+
+    const pageWidth = doc.internal.pageSize.getWidth(); // Ancho total de la página
+    const margins = 20; // Márgenes izquierdo y derecho
+    const availableWidth = pageWidth - margins;
+    const firstColWidth = 9; //Ancho fijo para la primera columna
+    const colWidth = (availableWidth - firstColWidth) / salones.length;
+
+    const colStyles = {
+      0: { cellWidth: firstColWidth }, // Columna fija
+    };
+
+    salones.forEach((_, i) => {
+      colStyles[i + 1] = { cellWidth: colWidth };
+    });
+
+    autoTable(doc, {
+      startY: 20,
+      head: head,
+      body: body,
+      styles: { fontSize: 6, halign: "center", valign: "middle" },
+      headStyles: { fillColor: "#ff6b6b", textColor: 255 },
+      theme: "striped",
+      margin: { top: 20, left: 10, right: 10 },
+      tableWidth: "auto",
+      columnStyles: colStyles,
+    });
+    //doc.save(`Horario_${edificio}_${pisoNombre || pisoId}.pdf`);
 
     // Abrir vista previa en nueva pestaña
     window.open(doc.output("bloburl"), "_blank");
@@ -80,7 +116,7 @@ export default function PDFHorarios() {
                   );
                   return (
                     <TableCell key={salon + franja} align="center">
-                      {horario ? `${horario.grupo} ${horario.docente}` : ""}
+                      {horario ? `${horario.grupo} ${horario.asignatura} ${horario.docente}` : ""}
                     </TableCell>
                   );
                 })}
@@ -89,9 +125,6 @@ export default function PDFHorarios() {
           </TableBody>
         </Table>
       </TableContainer>
-
-      {/* Vista en pantalla */}
-      <pre>{JSON.stringify(data, null, 2)}</pre>
     </div>
   );
 
